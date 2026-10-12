@@ -1,0 +1,42 @@
+---
+import { contact } from '../data/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap row">
+    <p>&copy; {year} Drew Hansen &middot; Denver, CO</p>
+    <ul>
+      <li><a href={`mailto:${contact.email}`}>Email</a></li>
+      <li><a href={contact.linkedin} rel="me noopener" target="_blank">LinkedIn<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+      <li><a href={contact.resume} download>Resume</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-block: 2rem;
+    color: var(--text-3);
+    font-size: var(--fs-small);
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  ul {
+    display: flex;
+    gap: 1.5rem;
+  }
+  a {
+    color: var(--text-2);
+    transition: color 200ms ease;
+  }
+  a:hover {
+    color: var(--text-1);
+  }
+</style>

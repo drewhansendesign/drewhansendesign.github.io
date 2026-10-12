@@ -1,0 +1,504 @@
+---
+// Tinder Let's Meet: the full case study body, told with STAR like Sam's.
+// Every number and claim comes from Drew's answers, the leadership decks in
+// the Let's Meet Figma file, or his "Case Study Walkthrough" deck.
+import './case-study.css';
+import { Image, getImage } from 'astro:assets';
+import Icon from '../Icon.astro';
+import { contact } from '../../data/site';
+
+import entryExplore from '../../assets/work/tinder/case/entry-explore.png';
+import entrySheet from '../../assets/work/tinder/case/entry-sheet.png';
+import entryModal from '../../assets/work/tinder/case/entry-modal.png';
+import feed from '../../assets/work/tinder/case/feed-light.png';
+import interested from '../../assets/work/tinder/case/interested.png';
+import matched from '../../assets/work/tinder/case/matched.png';
+import post from '../../assets/work/tinder/case/post-light.png';
+import flagged from '../../assets/work/tinder/case/flagged.png';
+import repliesToast from '../../assets/work/tinder/case/replies-toast.png';
+import replies from '../../assets/work/tinder/case/replies-light.png';
+import chat from '../../assets/work/tinder/case/chat.png';
+import i18nEn from '../../assets/work/tinder/case/i18n-en.png';
+import i18nNl from '../../assets/work/tinder/case/i18n-nl.png';
+import matchToast from '../../assets/work/tinder/case/match-light.png';
+import suggestions from '../../assets/work/tinder/case/suggestions.png';
+import notInterested from '../../assets/work/tinder/case/not-interested.png';
+import brainstormFull from '../../assets/work/tinder/case/brainstorm.png';
+import kristina from '../../assets/work/tinder/case/kristina.jpg';
+import pmBlurred from '../../assets/work/tinder/case/pm-blurred.png';
+import pmUpsell from '../../assets/work/tinder/case/pm-upsell.png';
+import pmFab from '../../assets/work/tinder/case/pm-fab.png';
+
+const chapters = [
+  { id: 'situation', n: '01', label: 'The old way' },
+  { id: 'task', n: '02', label: 'The brief' },
+  { id: 'action', n: '03', label: 'The work' },
+  { id: 'result', n: '04', label: 'What changed' },
+  { id: 'next', n: '05', label: 'Looking back' },
+];
+
+// The two routes to a first date, from the July 2023 leadership deck
+const today = ['Create a profile', 'Swipe', 'Match', 'Chat', 'Plan a date', 'Swap numbers', 'Meet'];
+const letsMeet = ['Create a profile', 'Post a date idea', 'Interested', 'Match', 'Meet'];
+
+// The five "How might we" columns of the kickoff board (Fig. 1:3803)
+const hmw = [
+  ['Make this look?', 'A feed? A card stack? Could we reuse an Explore tile or an older feature?'],
+  ['Curate this?', 'How do we keep it feeling curated instead of a free-for-all?'],
+  ['Make it appealing to women?', 'Mostly men were expected to use it, so how do the dates, and the men, look worth it?'],
+  ['Maximize participation?', 'How do people find it, and how do we make sure there are enough dates to browse?'],
+  ['Monetize this?', 'Where does it earn its keep for the business?'],
+];
+
+const discovery = [
+  ['Gen Z research', 'Tinder’s existing research on its fast-growing Gen Z audience shaped the first directions.'],
+  ['Competitors', 'Raya, Timeleft and Bumble, all apps with similar features.'],
+  ['Fast feedback', 'Moderated and unmoderated tests on usertesting.com, so ideas got tried quickly.'],
+  ['Obsidian', 'Everything was built inside Tinder’s Obsidian design system, so it felt native.'],
+];
+
+const premortem = [
+  'Nobody taps the + button',
+  'Writing a date idea from scratch is too much effort',
+  'People never open Let’s Meet',
+  'Posts don’t get replies, or don’t get them in time',
+  'Nobody scrolls the feed',
+  'People can’t find their replies',
+];
+
+const views = {
+  brainstorm: { img: await getImage({ src: brainstormFull, format: 'webp', quality: 82 }), title: 'Kickoff brainstorm board', alt: 'The kickoff brainstorm board: five columns of sticky notes under How might we make this look, curate this, make it appealing to women, maximize participation and monetize this, grouped into themes like feed, curated dates, trust and safety, incentives, gamification, subscriptions and boosts.' },
+};
+
+// Every pre-mortem exploration from the Figma page (Fig. 2257:135574), one
+// page per potential issue, shown as a scrolling report
+const premortemFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/work/tinder/case/premortem/*.png', { eager: true });
+const premortemPages = await Promise.all(
+  Object.keys(premortemFiles)
+    .sort()
+    .map(async (k) => {
+      const img = await getImage({ src: premortemFiles[k].default, format: 'webp', width: 2000, quality: 82 });
+      return { src: img.src, w: Number(img.attributes.width ?? 2000), h: Number(img.attributes.height) };
+    })
+);
+
+const EXPAND = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" /></svg>';
+---
+
+<div class="case tinder">
+  <!-- At a glance -->
+  <section class="wrap glance" aria-labelledby="glance-title">
+    <h2 id="glance-title" class="visually-hidden">At a glance</h2>
+    <div class="glance-story">
+      <p>Getting from a match to a first date on Tinder took a lot of steps: swipe, match, chat, make a plan, swap numbers, then finally meet. Let’s Meet put the date idea first. Post a plan, and people nearby can tap “Interested”, no swiping needed.</p>
+      <p>I designed it from the kickoff brainstorm to a 4-week test in Thailand and Denmark: the feed, posting, replies and the safety guardrails around all of it.</p>
+      <p>During the test, women’s swipe-right rate was <strong>19.2% higher</strong> than across the rest of Tinder. Not bad for a feature built to get people to stop swiping.</p>
+    </div>
+    <dl class="glance-facts">
+      <div><dt>My role</dt><dd>Lead designer, concept to pilot launch</dd></div>
+      <div><dt>Team</dt><dd>A PM, 2 engineering managers and 4 engineers across iOS and Android, with Research, Analytics, Trust &amp; Safety and Content</dd></div>
+      <div><dt>Timeline</dt><dd>About 6 months, discovery to launch</dd></div>
+    </dl>
+  </section>
+
+  <nav class="chapters" aria-label="Chapters">
+    <div class="wrap chapters-inner">
+      <a href="/#work" class="chap-back" aria-label="Home" tabindex="-1">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <line x1="2" y1="7" x2="19" y2="7" />
+          <path d="M7 2 2 7l5 5" />
+        </svg>
+      </a>
+      <ol>
+        {chapters.map((c) => (
+          <li><a href={`#${c.id}`}><span>{c.n}</span>{c.label}</a></li>
+        ))}
+      </ol>
+    </div>
+  </nav>
+
+  <!-- 01 Situation -->
+  <section id="situation" class="chapter" aria-labelledby="situation-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">01</span><p class="chapter-name" aria-hidden="true">The old way</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="situation-title" class="claim"><span class="visually-hidden">The old way: </span>Seven steps between a profile and a first date.</h2>
+      <div class="prose">
+        <p>For more than ten years, the swipe has been Tinder’s core mechanic. But giving people more places to swipe had stopped working. Explore, the tab of themed tiles like Free Tonight and Coffee Date, had very low engagement. Even its best tile, Free Tonight, was only opened about 6% of the time, because Explore didn’t feel different enough from swiping on the main card stack.</p>
+        <p>Tinder’s Gen Z research pointed somewhere else. Gen Z is “desperate for realness”, and moving from online to real life fast is how they get past online dating anxiety.</p>
+      </div>
+
+      <h3 class="sub">Two routes to a first date</h3>
+      <p class="prose-narrow">Let’s Meet skips the part where two people swipe, match and then try to make a plan over chat. The plan comes first, so anyone who says yes already knows what they’re signing up for.</p>
+      <div class="funnels">
+        <div class="funnel">
+          <p class="funnel-label">Tinder today <span>{today.length} steps</span></p>
+          <ol>{today.map((s) => <li>{s}</li>)}</ol>
+        </div>
+        <div class="funnel funnel-new">
+          <p class="funnel-label">With Let’s Meet <span>{letsMeet.length} steps</span></p>
+          <ol>{letsMeet.map((s) => <li>{s}</li>)}</ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 Task -->
+  <section id="task" class="chapter" aria-labelledby="task-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">02</span><p class="chapter-name" aria-hidden="true">The brief</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="task-title" class="claim"><span class="visually-hidden">The brief: </span>What if the date idea came first?</h2>
+      <div class="task-grid">
+        <div class="prose">
+          <p>I was the lead designer on Let’s Meet from the first brainstorm to the pilot launch, and the only designer on the team, so I led the discovery, ideation, prototyping and testing, and handed off final designs to two engineering teams, one for iOS and one for Android.</p>
+          <p>The idea was simple: let people post a date idea to a feed, before matching, and let anyone nearby reply. The hard parts were everything around it. Would anyone post? Would women want to reply? And how do you keep people safe when the whole point is meeting a stranger sooner?</p>
+        </div>
+        <figure class="brief">
+          <blockquote>
+            <p>If we create a feature that allows users to post date ideas pre-match, then we will remove friction from the act of meeting IRL and increase user satisfaction with more authentic connections.</p>
+          </blockquote>
+          <figcaption>The hypothesis, from the kickoff</figcaption>
+          <p class="brief-goal"><span>The goals</span>Reduce friction for people who want to meet in person quickly, and introduce a way to discover matches that doesn’t rely on swiping left and right.</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Action -->
+  <section id="action" class="chapter" aria-labelledby="action-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">03</span><p class="chapter-name" aria-hidden="true">The work</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="action-title" class="claim"><span class="visually-hidden">The work: </span>What I designed, and why</h2>
+    </div>
+
+    <!-- Kickoff -->
+    <article class="wrap beat" aria-labelledby="kickoff-title">
+      <h3 id="kickoff-title" class="beat-title">It started with a lot of (virtual) sticky notes</h3>
+      <div class="prose-narrow">
+        <p>The PM and I ran the kickoff as a “How might we” brainstorm. The team filled the board with ideas, from a feed sorted by distance to selfie-verified posters and paying to boost your date.</p>
+        <p>Plenty of those ideas came back later. Suggested date ideas turned into designs for v1.2, and boosting a post into designs for v1.3.</p>
+      </div>
+      <dl class="constraints hmw">
+        {hmw.map(([t, d]) => (
+          <div><dt><span>How might we…</span>{t}</dt><dd>{d}</dd></div>
+        ))}
+      </dl>
+      <button type="button" class="view-btn" data-view="brainstorm"><Fragment set:html={EXPAND} /> See the full brainstorm board</button>
+    </article>
+
+    <!-- Discovery -->
+    <article class="wrap beat" aria-labelledby="discovery-title">
+      <h3 id="discovery-title" class="beat-title">Homework first</h3>
+      <p class="prose-narrow">Before going deep on screens, I looked at what Tinder already knew and what other apps were doing, and kept the testing loop short.</p>
+      <dl class="constraints">
+        {discovery.map(([t, d]) => (
+          <div><dt>{t}</dt><dd>{d}</dd></div>
+        ))}
+      </dl>
+    </article>
+
+    <!-- Entry points -->
+    <article class="wrap beat" aria-labelledby="entry-title">
+      <h3 id="entry-title" class="beat-title">Getting people in the door</h3>
+      <div class="prose-narrow">
+        <p>A new feature hidden behind one tab doesn’t get used, and Explore already had an engagement problem. So instead of a single way in, Let’s Meet showed up across the places people already spent time.</p>
+        <p>Before a match, that meant an Explore tile, a promo card in the swipe deck and a full-screen intro when the app opened. If someone in your deck had posted a date, their profile linked straight to it. After a match, the match list and chat called out that you’d met through Let’s Meet.</p>
+      </div>
+      <div class="pair trio">
+        <figure class="phone">
+          <Image src={entryExplore} alt="Explore tab with a large Let’s Meet tile at the top: Plan a date or join someone else’s. Meet anyone IRL. Join now." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>The hero tile at the top of Explore.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={entrySheet} alt="A profile in the swipe deck, dimmed behind a sheet: Let’s Meet. Post and reply to date ideas to meet up in real life. You and Liz are both in this Explore experience. See date in Let’s Meet." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>Tap the banner on a profile in the deck to see their date.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={entryModal} alt="Full-screen intro: Find your next date. Post a date idea to see who’s interested or check out potential dates nearby with Let’s Meet. Try now, or No thanks." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>The intro shown when the app opens.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Feed -->
+    <article class="wrap beat split" aria-labelledby="feed-title">
+      <div class="beat-text">
+        <h3 id="feed-title" class="beat-title">A feed, not a card stack</h3>
+        <div class="prose">
+          <p>Opening Let’s Meet drops you straight into a scrolling feed of real date ideas from people nearby, whether you’ve matched with them or not. Each post shows their first photo, name, age, when they want to meet and what they want to do.</p>
+          <p>There’s no swiping. You scroll like any other feed and tap “Interested” on the ones you’d say yes to. If you’ve already matched with someone, their button turns into Chat and takes you straight to the conversation. Every card also has a menu for viewing their profile or reporting the post.</p>
+        </div>
+      </div>
+      <figure class="phone">
+        <Image src={feed} alt="The Let’s Meet Discover feed: a post from Jennifer, 32, reading Let’s go see a concert next week, tagged Next Week, with an Interested button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 70vw" />
+        <figcaption>Date ideas from people nearby, matched or not.</figcaption>
+      </figure>
+    </article>
+
+    <article class="wrap beat split split-pair beat-follow" aria-label="Feed interactions">
+      <div class="beat-text">
+        <p class="prose-narrow">Tapping Interested plays a quick heart animation on the card itself, so you know it worked without another pop-up getting in the way.</p>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={interested} alt="The same post mid-animation: a large heart on the card and the button now reading Interested with a checkmark." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Feedback on the card, not in an alert.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={matched} alt="A post from someone already matched, labeled Match, with a Chat button in place of Interested." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Already matched? It skips straight to chat.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Posting -->
+    <article class="wrap beat split split-pair" aria-labelledby="post-title">
+      <div class="beat-text">
+        <h3 id="post-title" class="beat-title">Post a date, not your address</h3>
+        <div class="prose-narrow">
+          <p>Posting is optional. You can browse forever without writing a thing, and the + button is always there when you want to. A post is a short idea, 75 characters at most, plus a rough timeframe from Today to the Next 30 Days. When that time passes, the post expires. Version 1 kept it to one post at a time, which you could edit or delete whenever you liked.</p>
+          <p>Because the whole point is meeting a stranger sooner, safety couldn’t be an afterthought. I worked with Trust &amp; Safety and Legal throughout. Every post screen carries a Date Safely tip: don’t post exact locations and times, and do meet in public. It links to Tinder’s IRL safety guide. If someone writes something against the rules, the app checks with them before posting and warns that it could be flagged for review.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={post} alt="Describe your date idea screen: a Date Safely tip, the idea Who likes Thai food? Let’s try a new restaurant tomorrow! at 67 of 75 characters, and Tomorrow selected as the timeframe." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>An idea, a timeframe and a safety tip.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={flagged} alt="A sheet over the post screen: Are you sure you want to post this? We have rules against some of the language in this message. If you continue to send it, it could be flagged for review. No, delete it, or Yes, post it." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>A second chance before a post breaks the rules.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Replies -->
+    <article class="wrap beat split split-pair" aria-labelledby="replies-title">
+      <div class="beat-text">
+        <h3 id="replies-title" class="beat-title">Replies, and a free peek</h3>
+        <div class="prose-narrow">
+          <p>Once your date is posted, the people who tapped Interested land in a Replies tab. A red dot flags new ones, and a banner shows up anywhere in the app when replies come in.</p>
+          <p>Replies is one of the only places on Tinder where free members see who liked them before they swipe, which is normally a perk of Tinder Gold. Tap the heart on someone and it’s an instant match.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={repliesToast} alt="A banner at the top of the feed: New replies in Let’s Meet! Tap to view." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>New replies show up wherever you are.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={replies} alt="The Replies tab: a grid of people who replied to you, each with a heart button, and two already marked Match with a chat button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Everyone who said yes, one tap from a match.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Chat -->
+    <article class="wrap beat split" aria-labelledby="chat-title">
+      <div class="beat-text">
+        <h3 id="chat-title" class="beat-title">An icebreaker that writes itself</h3>
+        <div class="prose">
+          <p>The worst part of a new match is the first message. With Let’s Meet, there’s already something to talk about. The original date idea is pinned at the top of the chat, so both people remember why they matched and can jump straight into planning.</p>
+          <p>We also designed “Ready to meet?” and “Did you meet?” banners for later in the conversation, but they were cut from version 1.</p>
+        </div>
+      </div>
+      <figure class="phone">
+        <Image src={chat} alt="A chat with Kim. At the top: You matched with Kim, above the original date idea, Who likes Thai food? Let’s try a new restaurant tomorrow! Then messages about where to go." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 70vw" />
+        <figcaption>The date idea, pinned above the first message.</figcaption>
+      </figure>
+    </article>
+
+    <!-- Launch prep -->
+    <article class="wrap beat split split-pair" aria-labelledby="launch-title">
+      <div class="beat-text">
+        <h3 id="launch-title" class="beat-title">Built for any language, and for screen readers</h3>
+        <div class="prose-narrow">
+          <p>Tinder works in a lot of languages, so I couldn’t design Let’s Meet only in English. Components had to handle long translations without falling apart, and the test ran in two very different markets, Thailand and Denmark, localized from day one. I also wrote screen reader labels and tab order into the specs, working with Tinder’s accessibility team.</p>
+          <p>The test itself ran for 4 weeks on iOS and Android, with users split three ways: a third kept today’s app, a third got Let’s Meet as an Explore tile, and a third opened Explore straight into Let’s Meet. That last group was added on purpose, because a feed of dates is only fun if there are dates in it.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <span class="tag">English</span>
+          <Image src={i18nEn} alt="Explore with an error banner in English: Oops, something’s not right! Check your connection and tap Retry to try again." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>A short English error banner.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">Dutch</span>
+          <Image src={i18nNl} alt="The same error banner in Dutch, with a longer title and a two-line Probeer Opnieuw button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>The same banner stress-tested with a longer language.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Testing -->
+    <article class="wrap beat" aria-labelledby="testing-title">
+      <h3 id="testing-title" class="beat-title">Testing it</h3>
+      <p class="prose-narrow">Eight people worked through the whole flow in usability testing. They flew through creating, deleting and replying to dates, and called it “a welcome break from the connotations of swiping”.</p>
+      <div class="ratings">
+        <dl class="meters">
+          <div>
+            <dt>Ease of use</dt>
+            <dd><span class="meter-num">4.9<span>/5</span></span><span class="meter" style="--v: 0.98" aria-hidden="true"></span></dd>
+          </div>
+          <div>
+            <dt>Look and feel</dt>
+            <dd><span class="meter-num">4.6<span>/5</span></span><span class="meter" style="--v: 0.92" aria-hidden="true"></span></dd>
+          </div>
+        </dl>
+        <p class="meter-note"><strong>8 of 8</strong> people finished every task.</p>
+      </div>
+      <ul class="findings findings-paired">
+        <li>
+          <strong>“Replies” was confusing.</strong> 3 of 8 expected a list of chat messages under that tab.
+          <span class="finding-next"><span class="finding-next-label" aria-hidden="true">What it led to</span><span class="visually-hidden">What it led to: </span>New copy for the tab, so it reads as people who said yes, not a chat list.</span>
+        </li>
+        <li>
+          <strong>Interested felt like a dead end.</strong> 5 of 8 expected something to happen next, like event details, timing, message prompts or sharing their availability.
+          <span class="finding-next"><span class="finding-next-label" aria-hidden="true">What it led to</span><span class="visually-hidden">What it led to: </span>A next step after Interested, like adding a message or sharing when you’re free.</span>
+        </li>
+        <li>
+          <strong>Lots of people would rather reply.</strong> Some were shy about posting a date of their own, but happy to respond to others.
+          <span class="finding-next"><span class="finding-next-label" aria-hidden="true">What it led to</span><span class="visually-hidden">What it led to: </span>Date suggestions, so nobody starts from a blank box. More on that in What changed.</span>
+        </li>
+      </ul>
+    </article>
+
+    <!-- Pre-mortem -->
+    <article class="wrap beat" aria-labelledby="premortem-title">
+      <h3 id="premortem-title" class="beat-title">Planning to fail, on purpose</h3>
+      <div class="prose-narrow">
+        <p>Before the launch data came in, we tried something new for the team: a pre-mortem. We listed every reason Let’s Meet might flop, then designed fixes for the likeliest ones, so we could move fast if any of them came true.</p>
+        <p>Our biggest bet was that writing a post from scratch would be too much effort, and that people would reply far more than they posted. The fixes we explored included a blurred feed until you post, an “add your own date” card in the feed and a floating Add date button.</p>
+      </div>
+      <p id="premortem-label" class="list-label">What if…</p>
+      <ol class="next-steps premortem" aria-labelledby="premortem-label">
+        {premortem.map((p) => <li><strong>{p}</strong></li>)}
+      </ol>
+      <div class="pair trio">
+        <figure class="phone">
+          <Image src={pmBlurred} alt="The Let’s Meet feed blurred out behind a card: Post to View. To view Let’s Meet posts, you must post your own date idea. Post a Date Idea." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>If nobody posts: blur the feed until you do.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={pmUpsell} alt="The top of the feed with a dashed card: Add your own date idea. Create a date and find someone to join you!" widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>Or invite them in, first thing in the feed.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={pmFab} alt="The feed with a purple floating Add Date button in the bottom corner." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>Or keep an Add Date button floating over the feed.</figcaption>
+        </figure>
+      </div>
+      <button type="button" class="view-btn" data-view="premortem"><Fragment set:html={EXPAND} /> See all the pre-mortem explorations</button>
+    </article>
+  </section>
+
+  <!-- 04 Result -->
+  <section id="result" class="chapter" aria-labelledby="result-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">04</span><p class="chapter-name" aria-hidden="true">What changed</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="result-title" class="claim"><span class="visually-hidden">What changed: </span>People loved replying. Posting, not so much.</h2>
+      <div class="prose-narrow">
+        <p>The pre-mortem called it: people replied far more than they posted. And women’s swipe-right rate went up during the test, which was historically one of the hardest numbers to move at Tinder.</p>
+        <p>One note on that metric: Tinder calls it the “swipe-right rate” because that’s what it has always tracked. In Let’s Meet it really counted taps on Interested, since the whole idea was to move away from the swipe.</p>
+      </div>
+
+      <div class="result-row">
+        <div class="headline-stat">
+          <h3 class="visually-hidden">Measured in the test</h3>
+          <p class="headline-num">+19.2%</p>
+          <p class="headline-label">higher swipe-right rate among women, compared with the average across all of Tinder</p>
+          <dl class="support-stat">
+            <div>
+              <dt>4×</dt>
+              <dd>as many people replied to a date as posted one: <strong>12.4%</strong> of people who opened Let’s Meet replied, and <strong>3.1%</strong> posted</dd>
+            </div>
+          </dl>
+        </div>
+        <figure class="phone">
+          <Image src={matchToast} alt="The Replies tab with a banner at the top: New Match in Let’s Meet! Tap to chat with Kim." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>A match made from a reply.</figcaption>
+        </figure>
+      </div>
+
+      <div class="split split-pair sub-split">
+        <div class="beat-text">
+        <h3 class="sub">What the numbers led to</h3>
+        <div class="prose-narrow">
+          <p>The numbers also showed a problem: men wrote about 75% of all posts, but only 41% of the dates men posted were ever seen by women.</p>
+          <p>That gave us two problems to solve, and I designed fixes for both in version 1.2. For the blank-page problem, a “Need inspiration? Tap to shuffle” prompt suggested date ideas. In design review, the team preferred the direction that inspired people over one that let them copy and paste a ready-made date. For the posts nobody saw, a Not Interested button let people pass on a date and clear it from their feed, just like passing on a profile in the card stack. Paired with a new way of ranking which posts show first, it would help each post reach more people.</p>
+          <p>Version 1.2 never shipped. Let’s Meet was sunset before a full launch, and never went live in the state I left it. But the testing and design work fed into later Tinder features.</p>
+        </div>
+        </div>
+        <div class="pair">
+        <figure class="phone">
+          <span class="tag">Designed for v1.2</span>
+          <Image src={suggestions} alt="The post screen with a new prompt at the top: Need inspiration? Tap to shuffle. Like to read? Grab a coffee and pick out books for each other!" widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Date suggestions for anyone stuck on a blank box.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">Designed for v1.2</span>
+          <Image src={notInterested} alt="A feed card with a round X button beside Interested, for marking a post Not Interested." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Not Interested, so the feed keeps moving.</figcaption>
+        </figure>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 Reflection -->
+  <section id="next" class="chapter" aria-labelledby="next-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">05</span><p class="chapter-name" aria-hidden="true">Looking back</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="next-title" class="claim"><span class="visually-hidden">Looking back: </span>Foursquare isn’t dead.</h2>
+      <div class="prose reflection">
+        <p>We had plenty of ideas about partnering with apps like Foursquare to bring in real places and events for people to meet at. Looking back, I think that would have done a lot of heavy lifting. It would have given people date ideas, made a plan with a stranger feel more trustworthy, and helped more people try the feature.</p>
+        <p>And a lot of what we designed at a high level, like date suggestions, would be so much easier to build today with AI. If we were starting now, those features could have made it into the first version instead of waiting in line for 1.2.</p>
+      </div>
+      <h3 class="sub" id="rec-title">Kind words from my PM</h3>
+      <figure class="rec-card" aria-labelledby="rec-title">
+        <blockquote>
+          <p>He has the extremely unique ability to create gorgeous AND thoughtful designs in record time, and it allowed us to iterate incredibly quickly… He’s a receptive ear to a multitude of ideas from across the team, but also knew when to voice firm opinions to advocate for the user experience. I’d probably be willing to do a Mad Max-style cage match to get to work with him again.</p>
+        </blockquote>
+        <figcaption class="rec-foot">
+          <Image class="rec-avatar" src={kristina} alt="" widths={[48, 96, 144]} sizes="48px" />
+          <span class="rec-who">
+            <a href="https://www.linkedin.com/in/kristina-rettig/" rel="noopener" target="_blank">Kristina Rettig<span class="visually-hidden"> (opens in a new tab)</span></a>
+            <span>PM on Let’s Meet at Tinder</span>
+          </span>
+          <a class="rec-source" href={contact.linkedin} rel="noopener" target="_blank"><Icon name="linkedin" size={16} /><span>Recommendation on LinkedIn, September 2023</span><span class="visually-hidden"> (opens in a new tab)</span></a>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <dialog class="viewer" aria-labelledby="viewer-title">
+    <div class="viewer-bar">
+      <p id="viewer-title" class="viewer-title"></p>
+      <div class="viewer-actions">
+        <button type="button" class="viewer-zoom" aria-pressed="false">Zoom in</button>
+        <button type="button" class="viewer-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 4l10 10M14 4 4 14" /></svg>
+        </button>
+      </div>
+    </div>
+    <div class="viewer-stage" tabindex="0" aria-label="Image, scrollable when zoomed">
+    </div>
+    <p class="viewer-hint">Click the image to zoom. Drag or scroll to look around, and press Esc to close.</p>
+  </dialog>
+  <script type="application/json" id="viewer-data" set:html={JSON.stringify({
+    ...Object.fromEntries(Object.entries(views).map(([k, v]) => [k, { src: v.img.src, w: v.img.attributes.width ?? v.img.options.width, h: v.img.attributes.height ?? v.img.options.height, title: v.title, alt: v.alt }])),
+    premortem: { title: 'Pre-mortem explorations', alt: 'Pre-mortem explorations, one page per potential issue', pages: premortemPages },
+  })} />
+</div>
+
+<script>
+  import './case-study.ts';
+</script>
+
+<style>
+  /* Tinder pink drives the shared case study accents */
+  .tinder {
+    --accent: #fd267a;
+    --accent-soft: rgb(253 38 122 / 0.18);
+  }
+</style>

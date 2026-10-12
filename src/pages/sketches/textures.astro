@@ -1,0 +1,23 @@
+---
+// Comparison page: the Sam's Club card with texture options.
+import Base from '../../layouts/Base.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { work } from '../../data/site';
+const sams = work[0];
+---
+
+<Base title="Texture options, Drew Hansen" description="Comparing card textures.">
+  <div class="wrap page">
+    <h1>Option 1: Pallet rack</h1>
+    <div class="cards"><WorkCard work={sams} wide showImpact texture="rack" /></div>
+    <h1>Option 6: Shelf-tag dot grid</h1>
+    <div class="cards"><WorkCard work={sams} wide showImpact texture="dots" /></div>
+  </div>
+</Base>
+
+<style>
+  .page { padding-block: 3rem 6rem; }
+  h1 { margin: 3rem 0 1.25rem; font-size: 1.25rem; color: var(--text-2); }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+</style>

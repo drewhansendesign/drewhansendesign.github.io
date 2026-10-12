@@ -1,0 +1,109 @@
+---
+// Logos of companies Drew has worked with, recolored to one tone so they sit
+// quietly on any dark ground. Knockouts (white shapes inside a colored mark)
+// take the strip's background color via --logo-knock.
+interface Props {
+  variant?: 'marquee' | 'row';
+  class?: string;
+}
+const { variant = 'row', class: className } = Astro.props;
+import { logoSvg } from '../lib/logos';
+
+const order = [
+  { file: 'ibotta', name: 'Ibotta' },
+  { file: 'sams', name: "Sam's Club" },
+  { file: 'tinder', name: 'Tinder' },
+  { file: 'tnf', name: 'The North Face' },
+  { file: 'vans', name: 'Vans' },
+  { file: 'jumpcloud', name: 'JumpCloud' },
+  { file: 'espn', name: 'ESPN' },
+  { file: 'wells_fargo', name: 'Wells Fargo' },
+  { file: 'athlinks', name: 'Athlinks' },
+  { file: 'denver_logo', name: 'Denver' },
+];
+
+const logos = order
+  .map((o) => {
+    const svg = logoSvg(o.file);
+    return svg ? { ...o, svg } : null;
+  })
+  .filter(Boolean) as { file: string; name: string; svg: string }[];
+---
+
+<div class:list={['logos', variant, className]}>
+  <p class="sr">Companies I've designed for: {logos.map((l) => l.name).join(', ')}.</p>
+  <div class="track" aria-hidden="true">
+    {logos.map((l) => <span class:list={['logo', `logo-${l.file}`]} set:html={l.svg} />)}
+    {variant === 'marquee' && logos.map((l) => <span class:list={['logo', `logo-${l.file}`]} set:html={l.svg} />)}
+  </div>
+</div>
+
+<style>
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .logos {
+    --logo-h: 28px;
+    color: var(--logo-color, rgb(255 255 255 / 0.6));
+  }
+  .track {
+    display: flex;
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4.5rem);
+  }
+  .row .track {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 2rem;
+  }
+  .logo {
+    display: inline-flex;
+    flex: none;
+    height: var(--logo-h);
+    transition: color 300ms ease;
+  }
+  .logo :global(svg) {
+    height: 100%;
+    width: auto;
+  }
+  /* Optical sizing: square marks read larger than long wordmarks */
+  .logo-tnf { height: calc(var(--logo-h) * 1.35); }
+  .logo-vans { height: calc(var(--logo-h) * 0.95); }
+  .logo-wells_fargo { height: calc(var(--logo-h) * 1.2); }
+  .logo-espn { height: calc(var(--logo-h) * 0.8); }
+  .logo-athlinks { height: calc(var(--logo-h) * 0.85); }
+  .logo-denver_logo { height: calc(var(--logo-h) * 1.15); }
+
+  .marquee {
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  }
+  .marquee .track {
+    width: max-content;
+    animation: marquee 40s linear infinite;
+  }
+  .marquee .track > .logo {
+    margin-right: 0;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(calc(-50% - clamp(2rem, 5vw, 4.5rem) / 2));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee .track {
+      animation: none;
+      flex-wrap: wrap;
+      width: auto;
+      justify-content: center;
+    }
+    .marquee .track > .logo:nth-child(n + 10) {
+      display: none;
+    }
+  }
+</style>

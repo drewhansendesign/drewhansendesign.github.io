@@ -1,0 +1,365 @@
+---
+import '../styles/global.css';
+import Footer from '../components/Footer.astro';
+import Intro from '../components/Intro.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Play the greeting intro before the page reveals (home page only) */
+  intro?: boolean;
+}
+const { title, description, intro = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0f1114" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <script is:inline define:vars={{ intro }}>
+      // Reveal motion is opt-in: content stays visible without JS or with reduced motion.
+      // The greeting intro plays once per session, only where the page asks for it.
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('motion');
+        let seen = false;
+        try {
+          seen = sessionStorage.getItem('introSeen') === '1';
+        } catch (e) {}
+        if (intro && !seen) document.documentElement.classList.add('intro');
+      }
+    </script>
+    <script is:inline>
+      // Tag page transitions with a direction: into a case study the card's color
+      // field expands to fill the screen, back out it shrinks into its card again.
+      // Registered in <head> so it's listening before the first frame renders.
+      // Only the card being opened (or returned to) travels as its own layer; the
+      // other cards stay part of the page, so they can't be drawn over it.
+      const slugOf = (url) => (url && new URL(url).pathname.match(/^\/work\/([^/]+)/)?.[1]) || null;
+      const focusCard = (slug, vt) => {
+        const card = slug && document.querySelector(`a.card[href="/work/${slug}/"]`);
+        if (!card) return;
+        const root = document.documentElement;
+        card.classList.add('vt-target');
+        root.classList.add('vt-focus');
+        vt.finished.finally(() => {
+          root.classList.remove('vt-focus');
+          card.classList.remove('vt-target');
+        });
+      };
+      // Leaving the home page for a case study
+      addEventListener('pageswap', (e) => {
+        if (e.viewTransition) focusCard(slugOf(e.activation?.entry?.url), e.viewTransition);
+      });
+      // How far the hero's color stops short of the bottom of its box (on phones
+      // the screens hang below it). The transition clips the field to match, so
+      // the color's edge travels straight to where it settles.
+      const heroHang = () => {
+        const hero = location.pathname.startsWith('/work/') && document.querySelector('section.hero');
+        const m = hero && getComputedStyle(hero).backgroundSize.match(/-\s*([\d.]+)px/);
+        return m ? parseFloat(m[1]) : 0;
+      };
+      // Scrolled down a case study, the hero's field is far above the screen, so
+      // shrinking it into its card would send the card flying down from overhead.
+      // Leaving from there, nothing travels: the pages simply crossfade.
+      const heroGone = () => {
+        const hero = location.pathname.startsWith('/work/') && document.querySelector('section.hero');
+        return !!hero && hero.getBoundingClientRect().bottom < innerHeight * 0.4;
+      };
+      addEventListener('pageswap', (e) => {
+        const plain = !!e.viewTransition && heroGone();
+        document.documentElement.classList.toggle('vt-plain', plain);
+        if (plain) e.viewTransition.types?.add('plain');
+        try {
+          sessionStorage.setItem('vtHang', String(heroHang()));
+          sessionStorage.setItem('vtPlain', plain ? '1' : '');
+        } catch (err) {}
+      });
+      // Coming back to a page from the back/forward cache, drop the flag
+      addEventListener('pageshow', () => document.documentElement.classList.remove('vt-plain'));
+      addEventListener('pagereveal', (e) => {
+        const vt = e.viewTransition;
+        let plain = false;
+        try {
+          plain = sessionStorage.getItem('vtPlain') === '1';
+          sessionStorage.removeItem('vtPlain');
+        } catch (err) {}
+        if (!vt) return;
+        if (plain) {
+          const root = document.documentElement;
+          root.classList.add('vt-plain');
+          vt.types?.add('plain');
+          vt.finished.finally(() => root.classList.remove('vt-plain'));
+          for (const el of document.querySelectorAll('[data-reveal]')) el.classList.add('in', 'instant');
+          return;
+        }
+        let hang = heroHang();
+        if (!location.pathname.startsWith('/work/')) {
+          try {
+            hang = Number(sessionStorage.getItem('vtHang')) || 0;
+          } catch (err) {}
+        }
+        document.documentElement.style.setProperty('--vt-hang', `${hang}px`);
+        vt.finished.finally(() => document.documentElement.style.removeProperty('--vt-hang'));
+        if (vt.types) vt.types.add(location.pathname.startsWith('/work/') ? 'expand' : 'collapse');
+        // Back on the home page from a case study
+        focusCard(slugOf(navigation.activation?.from?.url), vt);
+        // The arriving page's text (the hero's, or the card returned to) waits,
+        // hidden, while the field moves, then blurs in line by line as the field
+        // settles. The pictures of the new page are live, so it shows through.
+        // Each line holds its own state, so nothing else ending can unhide it.
+        const from = slugOf(navigation.activation?.from?.url);
+        const scope = location.pathname.startsWith('/work/')
+          ? document.querySelector('section.hero')
+          : from && document.querySelector(`a.card[href="/work/${from}/"]`);
+        const lines = scope ? [...scope.querySelectorAll('[data-vt-line]')] : [];
+        lines.forEach((el) => el.classList.add('vt-hold'));
+        let shown = false;
+        const show = () => {
+          if (shown) return;
+          shown = true;
+          lines.forEach((el) => el.classList.replace('vt-hold', 'vt-in'));
+          setTimeout(() => lines.forEach((el) => el.classList.remove('vt-in')), 1600);
+        };
+        setTimeout(show, 380);
+        vt.finished.finally(show);
+        // Arriving by transition, show everything placed at once: the transition
+        // is the motion, and a card still mid-reveal (blurred, transparent) would
+        // be captured that way, so the color field would fade in, not shrink back.
+        for (const el of document.querySelectorAll('[data-reveal]')) el.classList.add('in', 'instant');
+      });
+    </script>
+  </head>
+  <body>
+    {intro && <Intro />}
+    <a class="skip-link" href="#main">Skip to content</a>
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      // Blur-and-rise reveal runs once, on load, for what's in the first viewport
+      // plus anything marked data-reveal-onload (the work cards, which cascade in
+      // after the headline). Everything else below the fold is simply shown.
+      const root = document.documentElement;
+      if (root.classList.contains('motion')) {
+        const els = [...document.querySelectorAll('[data-reveal]')];
+        const fold = window.innerHeight;
+        for (const el of els) {
+          if (!el.hasAttribute('data-reveal-onload') && el.getBoundingClientRect().top >= fold) el.classList.add('in', 'instant');
+        }
+        const reveal = () =>
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              for (const el of els) el.classList.add('in');
+              // Restore normal transitions (e.g. card hovers) once everything is placed
+              requestAnimationFrame(() => els.forEach((el) => el.classList.remove('instant')));
+            })
+          );
+        // With the intro playing, start the cascade as its panel begins to lift
+        if (root.classList.contains('intro')) setTimeout(reveal, 2750);
+        else reveal();
+      }
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  @view-transition {
+    navigation: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    @view-transition {
+      navigation: none;
+    }
+  }
+
+  /* Leaving a case study scrolled past its hero: nothing travels on its own,
+     the whole page hands over in one gentle crossfade */
+  html.vt-plain *,
+  html.vt-plain *::before,
+  html.vt-plain *::after {
+    view-transition-name: none !important;
+  }
+  html:active-view-transition-type(plain)::view-transition-old(root) {
+    animation: vt-page-out 260ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+  html:active-view-transition-type(plain)::view-transition-new(root) {
+    animation: vt-page-in 560ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+  }
+  @keyframes vt-page-out {
+    to {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+  }
+  @keyframes vt-page-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+
+  html.vt-focus .card:not(.vt-target),
+  html.vt-focus .card:not(.vt-target) * {
+    view-transition-name: none !important;
+  }
+
+  ::view-transition-group(root) {
+    animation-duration: 350ms;
+  }
+
+  /* The card's color field grows into the case study hero (or back); the
+     box's corners ease between card-round and square. */
+  ::view-transition-group(*.case-bg),
+  ::view-transition-group(*.case-shot) {
+    animation-duration: 600ms;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.2, 1);
+  }
+  /* Both pictures of the field are stretched to the moving box (the card and
+     the hero have different proportions, so neither may keep its own). The
+     hero's color can stop short of its box on phones (the screens hang
+     below it); the card's full color underneath covers that gap, and a clip
+     lifts the bottom edge to where the hero's color stops. The clip also
+     rounds the box like the card at one end and squares it at the other. */
+  ::view-transition-old(*.case-bg),
+  ::view-transition-new(*.case-bg) {
+    animation: none;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+  ::view-transition-image-pair(*.case-bg),
+  ::view-transition-group-children(*.case-bg) {
+    overflow: hidden;
+    animation-duration: 600ms;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.2, 1);
+    animation-fill-mode: both;
+  }
+  html:active-view-transition-type(expand)::view-transition-image-pair(*.case-bg) {
+    animation-name: vt-open;
+  }
+  html:active-view-transition-type(collapse)::view-transition-image-pair(*.case-bg) {
+    animation-name: vt-close;
+  }
+  html:active-view-transition-type(expand)::view-transition-group-children(*.case-bg) {
+    animation-name: vt-unround;
+  }
+  html:active-view-transition-type(collapse)::view-transition-group-children(*.case-bg) {
+    animation-name: vt-round;
+  }
+  @keyframes vt-open {
+    from {
+      clip-path: inset(0 0 0 0 round var(--radius-card));
+    }
+    to {
+      clip-path: inset(0 0 var(--vt-hang, 0px) 0 round 0);
+    }
+  }
+  @keyframes vt-close {
+    from {
+      clip-path: inset(0 0 var(--vt-hang, 0px) 0 round 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0 round var(--radius-card));
+    }
+  }
+
+  /* The dot picture: both pages draw the same dots at the same size, so the
+     larger of the two (the hero's) is shown unscaled, pinned like the canvas,
+     and the growing or shrinking box simply reveals more or less of it */
+  ::view-transition-group(*.case-dots) {
+    animation-duration: 600ms;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.2, 1);
+  }
+  ::view-transition-image-pair(*.case-dots) {
+    overflow: hidden;
+  }
+  ::view-transition-old(*.case-dots),
+  ::view-transition-new(*.case-dots) {
+    animation: none;
+    width: 100%;
+    height: 100%;
+    object-fit: none;
+    object-position: 100% 100%;
+  }
+  ::view-transition-old(*.dots-center),
+  ::view-transition-new(*.dots-center) {
+    object-position: 50% 100%;
+  }
+  html:active-view-transition-type(expand)::view-transition-old(*.case-dots),
+  html:active-view-transition-type(collapse)::view-transition-new(*.case-dots) {
+    display: none;
+  }
+  @keyframes vt-unround {
+    from {
+      border-radius: var(--radius-card);
+    }
+    to {
+      border-radius: 0;
+    }
+  }
+  @keyframes vt-round {
+    from {
+      border-radius: 0;
+    }
+    to {
+      border-radius: var(--radius-card);
+    }
+  }
+
+  /* Text never travels with the field. The page being left lifts its text
+     straight up and away as the field starts to move; the arriving page's text
+     is hidden meanwhile (so its pictures are empty), then blurs in line by
+     line, like the home page hero, once the field has settled */
+  /* Quick, so it's gone before the field (which starts slowly) has moved much:
+     the text rises straight up and nothing beside it seems to drag it along */
+  ::view-transition-old(case-hero-text),
+  ::view-transition-old(case-back),
+  ::view-transition-old(*.case-text) {
+    animation: vt-lift 220ms cubic-bezier(0.2, 0, 0.4, 1) both;
+  }
+  ::view-transition-new(case-hero-text),
+  ::view-transition-new(case-back),
+  ::view-transition-new(*.case-text) {
+    animation: none;
+  }
+  @keyframes vt-lift {
+    to {
+      opacity: 0;
+      transform: translateY(-32px);
+      filter: blur(4px);
+    }
+  }
+  .vt-hold {
+    opacity: 0;
+  }
+  .vt-in {
+    animation: vt-line-in 700ms var(--ease-out) calc(var(--l, 0) * 90ms) both;
+  }
+  @keyframes vt-line-in {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      translate: 0 14px;
+    }
+  }
+
+  /* Screens fly between the card and the hero: one picture, no crossfade flicker */
+  ::view-transition-old(*.case-shot) {
+    animation-duration: 240ms;
+  }
+  ::view-transition-new(*.case-shot) {
+    animation-duration: 240ms;
+  }
+</style>

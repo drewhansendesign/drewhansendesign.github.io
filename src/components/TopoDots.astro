@@ -1,0 +1,85 @@
+---
+// A dot-matrix topographic map for The North Face: contour lines of a few
+// mountain peaks, with every fifth line (the "index" contour) a little brighter.
+// Same dot grid and brightness-only rules as RackDots; seeded.
+import DotField from './DotField.astro';
+
+interface Props {
+  seed?: number;
+  /** Transition name for the picture (see DotField) */
+  name?: string;
+}
+const { seed = 5, name } = Astro.props;
+
+const PITCH = 16;
+// The composition is laid out on a 768x896 frame (the half-width card). The
+// field extends past it to both sides and the top, so a full-screen hero shows
+// more of the same terrain at the same dot size; the card only shows the frame.
+const BASE_COLS = 48;
+const BASE_ROWS = 56;
+const COLS = 160; // 2560px
+const ROWS = 90; // 1440px
+const W = BASE_COLS * PITCH;
+const H = BASE_ROWS * PITCH;
+const OFF_X = ((COLS - BASE_COLS) / 2) * PITCH; // extension on each side
+const OFF_Y = (ROWS - BASE_ROWS) * PITCH; // extension above
+
+// Randomness keyed to each dot's place in the base frame, so extending the
+// field never reshuffles the dots inside it
+const rnd = (c: number, r: number, k: number) => {
+  const x = Math.sin(c * 127.1 + r * 311.7 + k * 74.7 + seed * 17.3) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+// Peaks: position, height, spread
+const peaks = [
+  // placed where the screens don't cover: left edge, the band under the text, top right
+  { x: W * 0.08, y: H * 0.66, h: 1.0, r: 190 },
+  { x: W * 0.62, y: H * 0.44, h: 0.8, r: 170 },
+  { x: W * 1.02, y: H * 0.52, h: 0.7, r: 160 },
+  { x: W * 0.3, y: H * 1.02, h: 0.6, r: 150 },
+  // More range out in the extension, only seen on a full-screen hero (far
+  // enough out that the card's own contours don't move)
+  { x: -620, y: H * 0.35, h: 0.9, r: 180 },
+  { x: W + 640, y: H * 0.2, h: 0.85, r: 175 },
+  { x: W * 0.4, y: -560, h: 0.95, r: 185 },
+  { x: -380, y: -460, h: 0.7, r: 160 },
+  { x: W + 420, y: -520, h: 0.75, r: 165 },
+];
+const height = (x: number, y: number) => {
+  let h = 0;
+  for (const p of peaks) h += p.h * Math.exp(-((x - p.x) ** 2 + (y - p.y) ** 2) / (2 * p.r * p.r));
+  // a little terrain wobble so the rings aren't perfect circles
+  h += 0.05 * Math.sin(x / 47 + y / 83) + 0.04 * Math.sin(y / 39 - x / 61);
+  return h;
+};
+
+const STEP = 0.15; // height between contour lines (wide enough that lines stay several dots apart)
+const dots: { x: number; y: number; a: number }[] = [];
+for (let r = 0; r < ROWS; r++) {
+  for (let c = 0; c < COLS; c++) {
+    // Position in the base frame (negative or past W = in the extension)
+    const x = c * PITCH + PITCH / 2 - OFF_X;
+    const y = r * PITCH + PITCH / 2 - OFF_Y;
+    let n = 0;
+    const rand = () => rnd(c - (COLS - BASE_COLS) / 2, r - (ROWS - BASE_ROWS), n++);
+    let a = 0.02 + rand() * 0.03;
+
+    const h = height(x, y);
+    // Distance to the nearest contour, converted to screen pixels via the slope
+    const gx = (height(x + 1, y) - height(x - 1, y)) / 2;
+    const gy = (height(x, y + 1) - height(x, y - 1)) / 2;
+    const slope = Math.max(Math.hypot(gx, gy), 1e-5);
+    const k = Math.round(h / STEP);
+    const px = Math.abs(h - k * STEP) / slope;
+    if (k > 0 && px < PITCH * 0.42) {
+      a = k % 5 === 0 ? 0.6 + rand() * 0.15 : 0.36 + rand() * 0.14;
+    }
+    if (rand() < 0.018) a = 0.45 + rand() * 0.3; // sparkle
+    if (rand() < 0.06) continue; // gaps
+    dots.push({ x: x + OFF_X, y: y + OFF_Y, a: Math.round(a * 100) / 100 });
+  }
+}
+---
+
+<DotField dots={dots} cols={COLS} rows={ROWS} pitch={PITCH} align="center" fade="bottom" class="topo-dots" name={name} />

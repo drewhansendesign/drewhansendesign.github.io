@@ -1,0 +1,2059 @@
+/* Shared case study system: layout, chapters, beats, phones, viewer and
+   results, used by every rebuilt case study. Each case study sets its own
+   --accent (and --accent-soft) on its root, next to the .case class. */
+.case img {
+  width: 100%;
+  height: auto;
+}
+
+/* At a glance */
+/* Summary: the story in a few sentences, with the facts beside it like
+   credits. The facts column is set off by a hairline, not a card */
+/* The short story first, then role, team and timeline in a row */
+.case .glance-story {
+  display: grid;
+  gap: 1rem;
+  max-width: 62ch;
+  color: var(--text-2);
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+}
+.case .glance-story p:first-child {
+  color: var(--text-1);
+}
+.case .glance-story strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+.case .glance-story + .glance-facts {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: clamp(2rem, 4vw, 2.75rem);
+  border-top: 1px solid var(--line);
+}
+.case .glance-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.75rem clamp(2rem, 5vw, 4.5rem);
+}
+.case .glance-facts dt,
+.case .results-group h3 {
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  color: var(--text-3);
+}
+.case .glance-facts dd {
+  max-width: 32ch;
+  margin-top: 0.4rem;
+  font-size: var(--fs-lead);
+  line-height: 1.4;
+}
+
+/* Sticky chapter bar */
+.case .chapters {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin-top: clamp(3rem, 6vw, 5rem);
+  background: rgb(15 17 20 / 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-block: 1px solid var(--line);
+}
+.case .chapters-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.case .chap-back {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-left: -8px;
+  border-radius: 50%;
+  color: var(--text-2);
+  transition:
+    color 200ms ease,
+    background-color 200ms ease;
+}
+.case .chap-back:hover {
+  background: rgb(255 255 255 / 0.06);
+  color: var(--text-1);
+}
+.case .chap-back svg {
+  transition: transform 300ms var(--ease-out);
+}
+.case .chap-back:hover svg {
+  transform: translateX(-3px);
+}
+/* When the chapters don't fit (phones), the bar scrolls sideways. The edge
+   with more chapters past it fades out, so the cut-off reads as "there's
+   more this way" rather than a clipped label. The script sets the classes */
+@property --fade-l {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-r {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+.case .chapters ol {
+  display: flex;
+  min-width: 0;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent);
+  transition:
+    --fade-l 300ms var(--ease-out),
+    --fade-r 300ms var(--ease-out);
+}
+.case .chapters ol::-webkit-scrollbar {
+  display: none;
+}
+.case .chapters ol.more-left {
+  --fade-l: 2.5rem;
+}
+.case .chapters ol.more-right {
+  --fade-r: 3.5rem;
+}
+.case .chapters ol a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 1rem 0.9rem;
+  color: var(--text-3);
+  font-size: var(--fs-small);
+  font-weight: 550;
+  white-space: nowrap;
+  transition: color 200ms ease;
+}
+.case .chapters ol li:first-child a {
+  padding-left: 0;
+}
+.case .chapters ol a span {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.case .chapters ol a:hover,
+.case .chapters ol a[aria-current] {
+  color: var(--text-1);
+}
+.case .chapters ol a[aria-current] span {
+  color: var(--accent);
+}
+
+/* Chapters */
+.case .chapter {
+  padding-top: var(--section-gap);
+  scroll-margin-top: 3.5rem;
+}
+/* Chapter opening: a large, faint number with the chapter name over its
+   lower right, then a barely-there rule running to the edge */
+.case .chapter-line {
+  display: flex;
+  align-items: center;
+}
+.case .chapter-n {
+  flex: none;
+  /* Outlined rather than filled. Some digits (the 1) are built from
+     overlapping pieces, so a plain stroke traces their inner edges too. The
+     stroke is painted first at double width, then a fill in the page color
+     covers its inner half, leaving one clean 1.5px outer contour */
+  color: var(--bg);
+  -webkit-text-stroke: 3px var(--accent);
+  paint-order: stroke fill;
+  opacity: 0.25;
+  font-size: clamp(3.75rem, 3rem + 3vw, 5.75rem);
+  font-weight: 800;
+  /* Natural-width digits: a fixed-width "1" leaves an empty gap before the
+     title that reads as a spacing mistake */
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.06em;
+  line-height: 0.78;
+}
+.case .chapter-name {
+  position: relative;
+  flex: none;
+  margin-left: -1.1em;
+  color: var(--accent);
+  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+.case .chapter-rule {
+  flex: 1;
+  height: 1px;
+  margin-left: 1.25rem;
+  background: rgb(255 255 255 / 0.07);
+}
+.case .claim {
+  max-width: 22ch;
+  margin-top: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(2rem, 1.2rem + 3vw, 3.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+.case .prose,
+.case .prose-narrow {
+  display: grid;
+  gap: 1.1rem;
+  color: var(--text-2);
+}
+.case .prose-narrow {
+  max-width: 62ch;
+}
+.case .prose strong,
+.case .prose-narrow strong,
+.case .findings strong,
+.case .next-steps strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+.case .chapter > .wrap:not(.beat) > .prose,
+.case .chapter > .wrap:not(.beat) > .prose-narrow {
+  max-width: 62ch;
+  margin-top: 2rem;
+}
+
+/* Situation */
+/* Numbers stand on the page by size alone: no boxes, no rules */
+.case .pains {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem clamp(2rem, 5vw, 4rem);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+.case .results dt {
+  white-space: nowrap;
+}
+.case .pains dt,
+.case .results-group:not(.projected) dt {
+  font-size: clamp(2.5rem, 1.6rem + 3vw, 4.25rem);
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+.case .pains dd,
+.case .results dd {
+  max-width: 24ch;
+  margin-top: 0.6rem;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+.case .crew {
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+.case .crew img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-img);
+}
+.case figcaption {
+  margin-top: 0.75rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  line-height: 1.45;
+}
+.case .sub {
+  margin-top: clamp(4rem, 8vw, 6rem);
+  font-size: var(--fs-card);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.case .sub + .prose-narrow {
+  margin-top: 1rem;
+}
+/* Sideways content (journey map, photos, wireframes): the track scrolls
+   without a visible scrollbar, starting at the content edge; arrow buttons
+   and click-and-drag move it, and touch scrolls natively */
+.case .scroller {
+  --edge: max(var(--gutter), (100vw - var(--max)) / 2);
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+}
+.case .scroller-track {
+  display: flex;
+  gap: 1rem;
+  padding-inline: var(--edge);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--edge);
+  scrollbar-width: none;
+  cursor: grab;
+}
+.case .scroller-track::-webkit-scrollbar {
+  display: none;
+}
+.case .scroller-track.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+.case .scroller-track img {
+  -webkit-user-drag: none;
+}
+.case .scroller-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+}
+.case .scroller-foot figcaption {
+  margin-top: 0.25rem;
+}
+.case .scroller-btns {
+  display: flex;
+  flex: none;
+  gap: 0.5rem;
+}
+.case .scroller-btns button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--text-1);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    opacity 250ms ease,
+    transform 250ms var(--ease-out);
+}
+.case .scroller-btns button:hover:not(:disabled) {
+  background: var(--surface-3);
+}
+.case .scroller-btns button:active:not(:disabled) {
+  transform: scale(0.94);
+}
+.case .scroller-btns button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.case .strip figure {
+  flex: 0 0 min(70vw, 340px);
+}
+.case .strip img {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: var(--radius-img);
+}
+/* The old process as a ledger: numbered steps reading down two columns,
+   each with who did it and what went wrong, in the journey map's words */
+.case .ledger {
+  columns: 2 22rem;
+  column-gap: clamp(2rem, 5vw, 4.5rem);
+  margin-top: 2.25rem;
+}
+.case .ledger li {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  column-gap: 0.75rem;
+  padding: 0.9rem 0 1rem;
+  break-inside: avoid;
+}
+.case .ledger-n {
+  grid-row: span 2;
+  padding-top: 0.2rem;
+  color: var(--accent);
+  font-size: var(--fs-meta);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.case .ledger-step {
+  font-weight: 600;
+  line-height: 1.35;
+}
+.case .ledger-step span {
+  margin-left: 0.4rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+}
+.case .ledger-note {
+  margin-top: 0.3rem;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+
+/* Opens an artifact full size in the viewer */
+.case .view-btn {
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.75rem;
+  padding: 0.7rem 1.15rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--text-1);
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 250ms var(--ease-out);
+}
+.case .view-btn:hover {
+  background: var(--surface-3);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.case .view-btn:active {
+  transform: scale(0.98);
+}
+.case .view-btn svg {
+  color: var(--accent);
+}
+
+/* The IA's variance path as a readable flow: one row of steps joined by
+   a rule, each tagged with who acts; the last step lands in OYI */
+.case .lanes {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+.case .lane-label {
+  margin-bottom: 0.85rem;
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+.case .lane-label span {
+  margin-left: 0.5rem;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.case .flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.case .flow-node {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  padding: 1rem 1rem 1.15rem;
+  border-radius: 14px;
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+/* The joining arrow between steps */
+.case .flow-node:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 1.55rem;
+  right: -0.75rem;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+.case .flow-who {
+  color: var(--text-3);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.case .who-manager {
+  color: #f0a35e;
+}
+.case .who-associate {
+  color: var(--accent);
+}
+.case .who-oyi {
+  color: var(--text-max);
+}
+.case .flow-step {
+  font-weight: 600;
+  line-height: 1.3;
+}
+.case .flow-note {
+  color: var(--text-2);
+  font-size: var(--fs-meta);
+  line-height: 1.45;
+}
+.case .flow-end {
+  background: #0067a0;
+  box-shadow: none;
+}
+.case .flow-end .flow-note {
+  color: rgb(255 255 255 / 0.86);
+}
+
+/* Three wireframes at a readable size */
+.case .wires {
+  margin-top: 2.5rem;
+}
+.case .wire-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 260px));
+  gap: clamp(1rem, 3vw, 2rem);
+}
+.case .wire-row img {
+  border-radius: 14px;
+  background: #f4f5f6;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+.case .wire-row p {
+  margin-top: 0.75rem;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  font-weight: 550;
+}
+
+/* Viewer: a full-screen dialog over a dimmed page */
+.case .viewer {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-1);
+  overscroll-behavior: contain;
+}
+.case .viewer[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  animation: viewer-in 420ms var(--ease-out);
+}
+.case .viewer::backdrop {
+  background: rgb(6 7 9 / 0.9);
+  backdrop-filter: blur(8px);
+}
+.case .viewer[open]::backdrop {
+  animation: viewer-fade 420ms var(--ease-out);
+}
+@keyframes viewer-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+    filter: blur(6px);
+  }
+}
+@keyframes viewer-fade {
+  from {
+    opacity: 0;
+  }
+}
+.case .viewer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem var(--gutter);
+}
+.case .viewer-title {
+  font-weight: 600;
+}
+.case .viewer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.case .viewer-zoom,
+.case .viewer-close {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--text-1);
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 550;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+}
+.case .viewer-close {
+  padding: 0;
+}
+.case .viewer-zoom:hover,
+.case .viewer-close:hover {
+  background: var(--surface-3);
+}
+.case .viewer-stage {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 0 var(--gutter);
+}
+.case .viewer-stage img {
+  max-width: 100%;
+  /* The bar and hint take about 9.5rem; fit the rest of the screen */
+  max-height: calc(100dvh - 9.5rem);
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  background: #f3f8f9;
+  cursor: zoom-in;
+}
+.case .viewer.zoomed .viewer-stage {
+  display: block;
+  overflow: auto;
+  padding: 0;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.case .viewer.zoomed .viewer-stage::-webkit-scrollbar {
+  display: none;
+}
+.case .viewer.zoomed .viewer-stage.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+.case .viewer.zoomed .viewer-stage img {
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  cursor: inherit;
+}
+/* While the viewer is open the page behind it can't scroll, and its
+   scrollbar goes away (the space stays reserved so nothing shifts). The only
+   scrollbar on screen is then the viewer's own */
+html:has(.viewer[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+/* Report mode: pages stacked at a readable width, scrolling vertically */
+.case .viewer.report .viewer-stage {
+  display: block;
+  overflow-y: auto;
+  padding: 0 var(--gutter);
+  scrollbar-color: rgb(255 255 255 / 0.32) transparent;
+}
+.case .viewer.report .viewer-stage::-webkit-scrollbar {
+  width: 12px;
+}
+.case .viewer.report .viewer-stage::-webkit-scrollbar-track {
+  background: transparent;
+}
+.case .viewer.report .viewer-stage::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.32);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+.case .viewer-stage .viewer-report {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+.case .viewer-stage .viewer-report[hidden],
+.case .viewer-stage > img[hidden],
+.case .viewer-zoom[hidden] {
+  display: none;
+}
+.case .viewer-stage .viewer-report img {
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  height: auto;
+  border-radius: 10px;
+  cursor: auto;
+}
+.case .viewer-hint {
+  padding: 0.85rem var(--gutter) 1.1rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  text-align: center;
+}
+
+.case .scroller-foot-end {
+  justify-content: flex-end;
+}
+
+/* Task */
+/* Story on the left, the brief on the right: both columns narrower than
+   half, pushed to the edges, so the quote mark (hung in the gap) still
+   leaves real space between them */
+.case .task-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 48ch) minmax(0, 34rem);
+  justify-content: space-between;
+  column-gap: clamp(4.5rem, 9vw, 9rem);
+  align-items: start;
+  margin-top: clamp(2.5rem, 4vw, 3.5rem);
+}
+/* The brief as a pull quote: no box, an oversized opening mark hung in
+   the margin in Sam's blue, the source and goal set quietly beneath */
+.case .brief {
+  position: relative;
+  margin: 0;
+  padding-top: 0.5rem;
+}
+.case .brief blockquote {
+  position: relative;
+  margin: 0;
+}
+/* An outlined quote mark tucked behind the quote's top-left corner, in the
+   same style as the chapter numbers */
+.case .brief blockquote::before {
+  content: '“';
+  position: absolute;
+  z-index: 0;
+  top: -0.16em;
+  left: -0.12em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent);
+  opacity: 0.25;
+  /* Host Grotesk draws this mark as two slanted strokes; a serif gives the
+     classic curly shape */
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(7rem, 5.5rem + 5vw, 10rem);
+  font-weight: 400;
+  line-height: 1;
+  pointer-events: none;
+}
+.case .brief blockquote p {
+  position: relative;
+  z-index: 1;
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+  color: var(--text-1);
+}
+.case .brief figcaption {
+  margin-top: 1.1rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+}
+.case .brief-goal {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 2rem;
+  max-width: 46ch;
+  color: var(--text-2);
+}
+.case .brief-goal span {
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+}
+
+/* Action beats */
+.case .beat {
+  display: grid;
+  gap: 1rem;
+  padding-top: clamp(4.5rem, 9vw, 8rem);
+}
+/* The first section sits right under the chapter headline, so it takes the
+   headline-to-content gap, not the larger gap between sections */
+/* Grid children may shrink below their content, so a wide sideways row
+   (the wireframes) scrolls inside its box instead of widening the page */
+.case .beat > *,
+.case .split > * {
+  min-width: 0;
+}
+/* Only the first section: every section is also a .wrap, so match the header div */
+.case #action > div.wrap + .beat {
+  padding-top: clamp(2.5rem, 4vw, 3.5rem);
+}
+.case .beat-title {
+  max-width: 24ch;
+  font-size: var(--fs-card);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+.case .beat-title + .prose-narrow,
+.case .beat-title + .prose {
+  margin-top: 0.5rem;
+}
+/* One screen beside the text: the text keeps the reading column, the
+   screen sits on the right edge, lined up with the section title */
+.case .split {
+  grid-template-columns: minmax(0, 62ch) auto;
+  justify-content: space-between;
+  column-gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+}
+.case .beat-text {
+  display: grid;
+  gap: 1rem;
+  max-width: 60ch;
+}
+
+/* Phone screens */
+.case .phone {
+  position: relative;
+  width: min(300px, 70vw);
+}
+.case .phone img {
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 24px 60px rgb(0 0 0 / 0.45);
+}
+.case .phone figcaption {
+  max-width: 34ch;
+}
+.case .pair {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin-top: 2.5rem;
+}
+.case .pair .phone {
+  width: min(300px, 42vw);
+}
+/* Version label: sits above the screen, outlined in the page's own
+   colors so it never reads as part of the mockup */
+.case .tag {
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--text-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.case .tag-final {
+  box-shadow: inset 0 0 0 1px rgb(74 163 223 / 0.55);
+  color: var(--accent);
+}
+
+
+/* Constraints: short terms with a line each, set as a loose text grid */
+.case .constraints {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem clamp(1.5rem, 3vw, 3rem);
+  margin-top: 2.5rem;
+}
+.case .constraints dt {
+  color: var(--text-1);
+  font-weight: 600;
+}
+.case .constraints dd {
+  margin-top: 0.4rem;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+
+/* Findings read as statements: the finding at lead size, the detail under it */
+.case .findings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.25rem clamp(2rem, 5vw, 4.5rem);
+  margin-top: 2.5rem;
+}
+.case .findings li {
+  color: var(--text-2);
+}
+.case .findings strong {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: var(--fs-lead);
+  line-height: 1.3;
+}
+
+/* Next steps: a numbered list, numbered like the journey steps */
+.case .next-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem clamp(2rem, 5vw, 4.5rem);
+  margin-top: 2rem;
+  counter-reset: step;
+}
+.case .next-steps li {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  column-gap: 0.75rem;
+  color: var(--text-2);
+  counter-increment: step;
+}
+.case .next-steps li::before {
+  content: counter(step, decimal-leading-zero);
+  grid-row: span 2;
+  padding-top: 0.2rem;
+  color: var(--accent);
+  font-size: var(--fs-meta);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.case .next-steps strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+/* Result */
+.case .results {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 1rem;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+/* Measured numbers lead at full size in white; projected ones follow,
+   smaller and in grey, so the two can't be mistaken for each other */
+.case .results-group {
+  display: grid;
+  align-content: start;
+  gap: 1.1rem;
+}
+.case .results-group h3 {
+  color: var(--accent);
+}
+.case .results-group.projected h3 {
+  color: var(--text-3);
+}
+.case .results-group dl {
+  display: grid;
+  gap: 2rem;
+}
+.case .results-group.projected dl {
+  gap: 1.5rem;
+}
+.case .results-group.projected dt {
+  color: var(--text-2);
+  font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+/* Results stacked on the left, the inventory-day screen beside them */
+.case .result-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+.case .result-row > * {
+  min-width: 0;
+}
+/* Measured and projected side by side, each a vertical list, so the
+   different counts (2 and 3) never have to share columns */
+.case .result-row .results {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  column-gap: clamp(2rem, 5vw, 4.5rem);
+  row-gap: 2.5rem;
+  margin-top: 0;
+}
+
+/* A full-width photo inside a section */
+.case .wide-photo {
+  margin-top: 1.5rem;
+}
+.case .wide-photo img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-img);
+}
+
+.case .reflection {
+  max-width: 62ch;
+  margin-top: 2rem;
+  font-size: var(--fs-lead);
+}
+
+@media (max-width: 1100px) {
+  .case .flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .case .flow-node:nth-child(3n)::after {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  .case .task-grid {
+    grid-template-columns: 1fr;
+  }
+  /* Stacked: leave room above the quote for its mark */
+  .case .task-grid {
+    row-gap: 4rem;
+  }
+  .case .constraints {
+    grid-template-columns: 1fr 1fr;
+  }
+  .case .glance-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case .split {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.5rem;
+  }
+  .case .results {
+    grid-template-columns: 1fr;
+  }
+  .case .result-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.5rem;
+  }
+}
+@media (max-width: 560px) {
+  .case .result-row .results {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .case .constraints,
+  .case .findings,
+  .case .next-steps,
+  .case .pains {
+    grid-template-columns: 1fr;
+  }
+  /* Side-by-side screens get too small to read: stack them */
+  .case .pair {
+    flex-direction: column;
+    gap: 2.25rem;
+  }
+  .case .pair .phone {
+    width: min(300px, 76vw);
+  }
+  .case .flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case .flow-node::after {
+    display: none;
+  }
+  .case .wire-row {
+    grid-template-columns: repeat(3, 70vw);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .case .wire-row li {
+    scroll-snap-align: center;
+  }
+}
+
+/* Three phones in a row (entry points); they stack like a pair on phones */
+.case .pair.trio .phone {
+  width: min(260px, 27vw);
+}
+
+/* A follow-on beat that continues the one above it, so it sits closer */
+.case .beat.beat-follow {
+  padding-top: clamp(2rem, 4vw, 3rem);
+}
+
+/* "How might we…" questions: the prompt small above each question */
+.case .hmw dt span {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+}
+
+/* Two routes drawn as tracks on the same 7-step scale, so the shorter
+   Let's Meet route visibly ends sooner. Steps are nodes on a line; the
+   last node is the destination. Current route quiet, new route in accent */
+.case .funnels {
+  display: grid;
+  margin-top: 2rem;
+}
+.case .funnel {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: 1.25rem 2rem;
+  align-items: start;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--line);
+}
+.case .funnel-label {
+  color: var(--text-1);
+  font-weight: 600;
+}
+.case .funnel-label span {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+}
+.case .funnel ol {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.case .funnel li {
+  position: relative;
+  padding: 1.9rem 0.75rem 0 0;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  line-height: 1.3;
+}
+/* The node */
+.case .funnel li::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1.5px var(--line-strong);
+}
+/* The track to the next node */
+.case .funnel li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 14px;
+  right: 0;
+  height: 2px;
+  background: var(--line-strong);
+}
+.case .funnel li:last-child::before {
+  background: var(--text-2);
+  box-shadow: none;
+}
+.case .funnel-new .funnel-label {
+  color: var(--accent);
+}
+.case .funnel-new li {
+  color: var(--text-1);
+  font-weight: 500;
+}
+.case .funnel-new li::before {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.case .funnel-new li:not(:last-child)::after {
+  background: var(--accent);
+}
+.case .funnel-new li:last-child::before {
+  background: var(--accent);
+  box-shadow: 0 0 0 5px var(--accent-soft);
+}
+@media (max-width: 600px) {
+  /* On phones the tracks run down the page instead of across */
+  .case .funnel ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case .funnel li {
+    padding: 0 0 1.1rem 1.9rem;
+  }
+  .case .funnel li:last-child {
+    padding-bottom: 0;
+  }
+  .case .funnel li::before {
+    top: 0.15em;
+  }
+  .case .funnel li:not(:last-child)::after {
+    top: calc(0.15em + 14px);
+    right: auto;
+    bottom: 0;
+    left: 6px;
+    width: 2px;
+    height: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .case .pair.trio .phone {
+    width: min(300px, 76vw);
+  }
+  .case .funnel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* One group of results (nothing projected): its numbers sit in a 2×2 grid
+   instead of one tall column */
+.case .result-row .results.results-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+.case .results-single dl {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5rem clamp(2rem, 5vw, 4rem);
+}
+@media (max-width: 560px) {
+  .case .results-single dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Five questions read as one row on wide screens, never 4 + 1 */
+.case .constraints.hmw {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media (max-width: 1100px) {
+  .case .constraints.hmw {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .case .constraints.hmw {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .case .constraints.hmw {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A small lead-in above a list, like the "How might we…" prompts */
+.case .list-label {
+  margin-top: 2rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+}
+.case .list-label + .next-steps {
+  margin-top: 1rem;
+}
+
+/* A LinkedIn recommendation to close the page: the one place a case study
+   uses a card, so a colleague's words read as theirs, not mine */
+.case .rec-card {
+  position: relative;
+  max-width: 46rem;
+  margin-top: clamp(4.5rem, 9vw, 8rem);
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.case .rec-card blockquote {
+  position: relative;
+  margin: 0;
+}
+/* The outlined quote mark behind the first words, as on the brief */
+.case .rec-card blockquote::before {
+  content: '“';
+  position: absolute;
+  top: -0.16em;
+  left: -0.12em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent);
+  opacity: 0.25;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(7rem, 5.5rem + 5vw, 10rem);
+  font-weight: 400;
+  line-height: 1;
+  pointer-events: none;
+}
+.case .rec-card blockquote p {
+  position: relative;
+  z-index: 1;
+  color: var(--text-1);
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+}
+.case .rec-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 0.9rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.case .rec-avatar {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.case .rec-who {
+  display: grid;
+  margin-right: auto;
+  line-height: 1.35;
+}
+.case .rec-who a {
+  color: var(--text-1);
+  font-weight: 600;
+  text-decoration: none;
+}
+.case .rec-who a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.case .rec-who span {
+  color: var(--text-3);
+  font-size: var(--fs-small);
+}
+.case .rec-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  text-decoration: none;
+  transition: color 0.2s var(--ease-out);
+}
+.case .rec-source:hover {
+  color: var(--text-1);
+}
+@media (max-width: 600px) {
+  .case .rec-source {
+    flex-basis: 100%;
+  }
+}
+
+/* Keep each step's title and note together when its neighbor runs taller */
+.case .next-steps li {
+  align-content: start;
+}
+
+/* The kickoff's "How might we" questions as sticky notes, in the colors of
+   their columns on the real board: tilted a little, lifted off the page,
+   with the bottom corner folded up */
+.case .constraints.hmw {
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+  margin-top: 3rem;
+}
+.case .hmw > div {
+  --note: #f9d86b;
+  --fw: 1.4rem;
+  --fh: 1.4rem;
+  position: relative;
+  isolation: isolate;
+  min-height: 13.5rem;
+  padding: 1.15rem 1.1rem 1.75rem;
+  /* The shadow follows the paper's cut corner, so it's a drop shadow on the
+     whole note rather than a box shadow */
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)) drop-shadow(0 10px 12px rgb(0 0 0 / 0.45));
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.45s var(--ease-out), filter 0.45s var(--ease-out);
+}
+/* The paper, with its bottom corner cut away where it folds up, so no
+   color can show behind the fold */
+.case .hmw > div::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgb(0 0 0 / 0.07), rgb(0 0 0 / 0) 1.4rem),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0) 45%),
+    var(--note);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--fh)), calc(100% - var(--fw)) 100%, 0 100%);
+}
+/* The fold: the cut-away corner flipped over onto the note */
+.case .hmw > div::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--fw);
+  height: var(--fh);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--note) 88%, #fff) 0%, color-mix(in srgb, var(--note) 70%, #000) 100%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+/* Each note sits, and curls, a little differently: some fold at the
+   bottom right, some at the bottom left, one lies flat */
+.case .hmw > div:nth-child(1) { --note: #f9d86b; --tilt: -1.6deg; --fw: 1.6rem; --fh: 1.15rem; }
+.case .hmw > div:nth-child(2) { --note: #84ccef; --tilt: 1.1deg; }
+.case .hmw > div:nth-child(3) { --note: #f7a493; --tilt: -0.6deg; --fw: 1.9rem; --fh: 1.4rem; }
+.case .hmw > div:nth-child(4) { --note: #b3bbd3; --tilt: 1.5deg; --fw: 1.05rem; --fh: 1.5rem; }
+.case .hmw > div:nth-child(5) { --note: #93d6a4; --tilt: -1.1deg; --fw: 1rem; --fh: 0.85rem; }
+/* Flat */
+.case .hmw > div:nth-child(2)::before {
+  clip-path: none;
+}
+.case .hmw > div:nth-child(2)::after {
+  content: none;
+}
+/* Folded at the bottom left */
+.case .hmw > div:is(:nth-child(3), :nth-child(5))::before {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--fw) 100%, 0 calc(100% - var(--fh)));
+}
+.case .hmw > div:is(:nth-child(3), :nth-child(5))::after {
+  right: auto;
+  left: 0;
+  background: linear-gradient(225deg, color-mix(in srgb, var(--note) 88%, #fff) 0%, color-mix(in srgb, var(--note) 70%, #000) 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+@media (hover: hover) {
+  .case .hmw > div:hover {
+    transform: rotate(0deg) translateY(-4px);
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)) drop-shadow(0 18px 18px rgb(0 0 0 / 0.5));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .case .hmw > div {
+    transition: none;
+  }
+}
+.case .hmw dt {
+  color: #16171a;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.case .hmw dt span {
+  color: rgb(22 23 26 / 0.8);
+}
+.case .hmw dd {
+  margin-top: 0.55rem;
+  color: rgb(22 23 26 / 0.78);
+  line-height: 1.45;
+}
+@media (max-width: 600px) {
+  .case .hmw > div {
+    min-height: 0;
+  }
+}
+
+/* Wide artwork that must not be cropped (boards, desktop screenshots) */
+.case .wide-photo.flat img {
+  aspect-ratio: auto;
+}
+.case .wide-shot {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+.case .wide-shot img {
+  border-radius: var(--radius-img);
+  box-shadow: 0 0 0 1px var(--line);
+}
+/* A cropped web component (not a full phone screen) shown in a pair */
+.case .phone.shot img {
+  border-radius: var(--radius-img);
+}
+
+/* A link out to the shipped product, closing the reflection */
+.case .live-link {
+  margin-top: 2.5rem;
+}
+
+/* While the next artwork decodes, the stage shows a small spinner instead
+   of whatever was open before; the artwork then fades in */
+.case .viewer-stage {
+  position: relative;
+}
+.case .viewer-stage > img,
+.case .viewer-stage .viewer-report {
+  transition: opacity 0.3s var(--ease-out);
+}
+.case .viewer-stage.loading > img,
+.case .viewer-stage.loading .viewer-report {
+  opacity: 0;
+  transition: none;
+}
+.case .viewer-stage.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 2px solid var(--line);
+  border-top-color: var(--text-2);
+  border-radius: 50%;
+  animation: viewer-spin 0.8s linear infinite;
+}
+.case .viewer.report .viewer-stage.loading::after {
+  position: fixed;
+}
+@keyframes viewer-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .case .viewer-stage.loading::after {
+    animation-duration: 2.4s;
+  }
+}
+
+/* Each testing finding carries what it led to, so the reader never has to
+   match a finding to its fix from another chapter */
+.case .findings-paired li {
+  display: flex;
+  flex-direction: column;
+}
+.case .finding-next {
+  display: block;
+  margin-top: 1rem;
+  color: var(--text-1);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+/* The label sits on the divider itself, with the rule running out to its right */
+.case .finding-next-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+  color: var(--accent);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+}
+.case .finding-next-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.case .findings.findings-paired {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 900px) {
+  .case .findings.findings-paired {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* One headline result, set larger than anything else in the chapter, with a
+   single supporting stat underneath in a quieter size */
+.case .headline-num {
+  color: var(--text-1);
+  font-size: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+  font-weight: 650;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+.case .headline-label {
+  max-width: 30ch;
+  margin-top: 0.9rem;
+  color: var(--text-2);
+  font-size: var(--fs-lead);
+  line-height: 1.4;
+}
+.case .support-stat {
+  max-width: 34rem;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: clamp(1.75rem, 3vw, 2.25rem);
+  border-top: 1px solid var(--line);
+}
+.case .support-stat > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: center;
+}
+.case .support-stat dt {
+  color: var(--text-1);
+  font-size: clamp(2.25rem, 1.6rem + 2vw, 3.25rem);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.case .support-stat dd {
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+.case .support-stat strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+/* Text beside a pair of screens on wide screens */
+.case .split-pair {
+  grid-template-columns: minmax(0, 52ch) auto;
+}
+.case .split-pair .pair {
+  flex-wrap: nowrap;
+  margin-top: 0;
+}
+.case .split-pair .pair .phone {
+  width: min(280px, 21vw);
+}
+@media (max-width: 900px) {
+  .case .split-pair {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.5rem;
+  }
+  .case .split-pair .pair {
+    flex-direction: column;
+  }
+  .case .split-pair .pair .phone {
+    width: min(300px, 76vw);
+  }
+}
+
+/* A sub-section laid out text-beside-screens: the split owns the top space */
+.case .sub-split {
+  display: grid;
+  margin-top: clamp(4rem, 8vw, 6rem);
+}
+.case .sub-split .sub {
+  margin-top: 0;
+}
+.case .sub + .rec-card {
+  margin-top: 1.75rem;
+}
+
+
+/* ---------- Data shaped like the data, instead of a row of three stats ---------- */
+
+/* Ratings: a number and a thin meter each, then a plain line */
+.case .ratings {
+  max-width: 44rem;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+.case .meters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem clamp(2rem, 5vw, 4rem);
+}
+.case .meters dt {
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+.case .meters dd {
+  margin-top: 0.35rem;
+}
+.case .meter-num {
+  display: block;
+  color: var(--text-1);
+  font-size: clamp(2.5rem, 1.6rem + 3vw, 4rem);
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+.case .meter-num span {
+  color: var(--text-3);
+  font-size: 0.45em;
+  letter-spacing: -0.01em;
+}
+.case .meter {
+  display: block;
+  height: 4px;
+  margin-top: 0.9rem;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent) calc(var(--v) * 100%), var(--line) 0);
+}
+.case .meter-note {
+  margin-top: 1.75rem;
+  color: var(--text-2);
+}
+.case .meter-note strong {
+  color: var(--text-1);
+}
+
+/* Price scale: two pins on one $50-$110 axis, the gap between them marked */
+.case .price-scale {
+  max-width: 52rem;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+.case .price-track {
+  position: relative;
+  height: 2px;
+  margin-top: 6.5rem;
+  background: var(--line-strong);
+}
+.case .price-gap {
+  position: absolute;
+  top: -1px;
+  left: calc(var(--a) * 100%);
+  width: calc((var(--b) - var(--a)) * 100%);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.case .price-gap span {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-1);
+  font-size: var(--fs-small);
+  font-weight: 650;
+  white-space: nowrap;
+}
+.case .price-pin {
+  position: absolute;
+  bottom: -6px;
+  left: calc(var(--p) * 100%);
+  display: grid;
+  justify-items: center;
+  transform: translateX(-50%);
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+}
+.case .price-pin strong {
+  color: var(--text-2);
+  font-size: clamp(1.75rem, 1.2rem + 1.8vw, 2.75rem);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.case .price-pin::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  margin-top: 0.75rem;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 2px var(--text-3);
+}
+.case .price-pin-new strong {
+  color: var(--text-1);
+}
+.case .price-pin-new::after {
+  background: var(--text-1);
+  box-shadow: 0 0 0 5px var(--accent-soft);
+}
+.case .price-axis {
+  position: relative;
+  height: 1rem;
+  margin-top: 2.75rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+}
+.case .price-axis span {
+  position: absolute;
+  left: calc(var(--p) * 100%);
+  transform: translateX(-50%);
+}
+.case .price-axis span:first-child {
+  transform: none;
+}
+.case .price-scale figcaption {
+  max-width: 52ch;
+  margin-top: 1.25rem;
+}
+
+/* Inventory night: one lead number, then where the hours went on one bar */
+.case .night {
+  max-width: 52rem;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+.case .night-lead {
+  color: var(--text-2);
+  font-size: var(--fs-lead);
+}
+.case .night-lead strong {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--text-1);
+  font-size: clamp(3rem, 2rem + 3.5vw, 5rem);
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+.case .hours {
+  margin-top: clamp(2rem, 4vw, 2.75rem);
+}
+.case .hours-bar {
+  display: flex;
+  height: 14px;
+}
+.case .hours-seg {
+  flex: 0 0 calc(var(--h) / 10 * 100%);
+  box-shadow: inset -2px 0 0 var(--bg);
+}
+.case .hours-type {
+  border-radius: 3px 0 0 3px;
+  background: var(--text-2);
+}
+.case .hours-var {
+  background: var(--accent);
+}
+.case .hours-var-range {
+  border-radius: 0 3px 3px 0;
+  background: repeating-linear-gradient(135deg, var(--accent) 0 2px, transparent 2px 7px);
+  opacity: 0.55;
+  box-shadow: none;
+}
+.case .hours-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.6rem;
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+}
+.case .hours-axis span {
+  width: 0;
+  white-space: nowrap;
+}
+.case .hours-axis span:last-child {
+  display: flex;
+  justify-content: flex-end;
+}
+.case .hours-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin-top: 1.5rem;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+.case .hours-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.case .hours-key strong {
+  color: var(--text-1);
+}
+.case .hours-key i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.case .key-type {
+  background: var(--text-2);
+}
+.case .key-var {
+  background: var(--accent);
+}
+@media (max-width: 600px) {
+  .case .meters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case .price-pin strong {
+    font-size: 1.4rem;
+  }
+}
+@media (max-width: 600px) {
+  /* Pins sit close on phones: shorter labels, each anchored away from the other */
+  .case .price-long {
+    display: none;
+  }
+  .case .price-pin {
+    justify-items: end;
+    transform: translateX(calc(-100% + 7px));
+  }
+  .case .price-pin-new {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+  /* Its dot stays on the pin's real position, not the label's edge */
+  .case .price-pin-new::after {
+    margin-right: calc((1 - var(--p)) * (100vw - 2 * var(--gutter)) - 7px);
+  }
+  .case .price-pin strong {
+    font-size: 1.25rem;
+  }
+}
+.case .price-short {
+  display: none;
+}
+@media (max-width: 600px) {
+  .case .price-short {
+    display: inline;
+  }
+}
+
+
+/* Sam's hours: two steps in journey order on one 0-10 hr bar, each segment
+   tagged with its step number from the ledger above */
+.case .hours {
+  max-width: 56rem;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+.case .hours-title {
+  margin-bottom: 1rem;
+  color: var(--text-1);
+  font-weight: 600;
+}
+.case .hours-bar {
+  height: 28px;
+}
+.case .hours-seg {
+  flex: 0 0 calc(var(--h) / 10 * 100%);
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+}
+.case .hours-seg b {
+  color: var(--bg);
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.case .hours-wait {
+  border-radius: 3px 0 0 3px;
+  background: var(--text-3);
+}
+.case .hours-type {
+  border-radius: 3px 0 0 3px;
+  background: var(--text-2);
+}
+.case .key-wait {
+  background: var(--text-3);
+}
+
+/* Board images that open full size in the viewer. The image is the button;
+   a small expand badge in the corner says so */
+.case .photo-open {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-img);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: zoom-in;
+}
+.case .photo-open:focus-visible {
+  outline-offset: 4px;
+}
+.case .photo-open-icon {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgb(15 17 20 / 0.78);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--text-1);
+  transition: transform 250ms var(--ease-out), background-color 200ms ease;
+}
+.case .photo-open:hover .photo-open-icon {
+  background: rgb(15 17 20 / 0.92);
+  transform: scale(1.08);
+}
+
+/* The blind test result: the price scale, then the brands people guessed */
+.case .blind-result {
+  max-width: 52rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+.case .blind-result .price-scale {
+  /* Keeps the track's top margin (room for the price labels) from
+     collapsing into the figure's own margin */
+  display: flow-root;
+  margin-top: 0;
+}
+.case .guesses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem clamp(2rem, 5vw, 4rem);
+  margin-top: clamp(3.5rem, 7vw, 5rem);
+}
+.case .guess-col h3 {
+  color: var(--text-3);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+}
+.case .guess-col ol {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.1rem;
+  padding: 0;
+  list-style: none;
+}
+.case .guess-col li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  color: var(--text-2);
+}
+.case .guess-bar {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: calc(var(--n) * 100%);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-strong);
+}
+.case .guess-n {
+  font-variant-numeric: tabular-nums;
+}
+/* The North Face and Patagonia carry the story; the rest stay quiet */
+.case .guess-tnf,
+.case .guess-pat {
+  color: var(--text-1);
+  font-weight: 600;
+}
+.case .guess-tnf .guess-bar {
+  background: var(--text-3);
+}
+.case .guess-pat .guess-bar {
+  background: var(--accent);
+}
+.case .blind-result figcaption {
+  max-width: 52ch;
+  margin-top: 2rem;
+}
+.case .chapter > .wrap > .prose-narrow.result-after {
+  margin-top: clamp(3.5rem, 7vw, 5rem);
+}
+@media (max-width: 600px) {
+  .case .guesses {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A board crop sized to the reading column rather than the full width, so
+   a run of artwork doesn't repeat one rhythm (TNF icons and type) */
+.case .column-shot {
+  max-width: 52rem;
+  margin-top: 1.5rem;
+}
+.case .column-shot img {
+  border-radius: var(--radius-img);
+}
+
+/* Homepage blocks (TNF): real crops at one shared height, each keeping its
+   own shape, so a tall section and a wide one sit side by side honestly */
+.case .blocks {
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+.case .blocks figure {
+  flex: 0 0 auto;
+  width: min-content;
+}
+.case .blocks img {
+  width: auto;
+  max-width: none;
+  height: clamp(15rem, 26vw, 23rem);
+  border-radius: var(--radius-img);
+  /* The dark loyalty block needs an edge against the page */
+  box-shadow: 0 0 0 1px var(--line);
+}
+.case .blocks figcaption {
+  margin-top: 0.75rem;
+}
+.case .blocks figcaption strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+.case .blocks .scroller-foot {
+  align-items: center;
+  margin-top: 1.5rem;
+}
+.case .blocks .view-btn {
+  margin-top: 0;
+}
+
+/* Two versions of one small component, stacked so the single difference
+   lines up (TNF review stars) */
+.case .card-diff {
+  display: grid;
+  gap: 1.5rem;
+  width: min(26rem, 100%);
+}
+.case .card-diff-row img {
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.case .card-diff figcaption {
+  margin-top: 0;
+}

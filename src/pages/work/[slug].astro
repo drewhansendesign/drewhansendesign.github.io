@@ -1,0 +1,589 @@
+---
+// Stub case study page: the project's color field, title and image until the full
+// case study is rewritten, with a link to the current v1 version.
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Wordmark from '../../components/Wordmark.astro';
+import RackDots from '../../components/RackDots.astro';
+import MeetDots from '../../components/MeetDots.astro';
+import NetworkDots from '../../components/NetworkDots.astro';
+import TopoDots from '../../components/TopoDots.astro';
+import SamsCaseStudy from '../../components/case/SamsCaseStudy.astro';
+import TinderCaseStudy from '../../components/case/TinderCaseStudy.astro';
+import TnfCaseStudy from '../../components/case/TnfCaseStudy.astro';
+import { work } from '../../data/site';
+import { logoKnock, logoSvg, projectLogo } from '../../lib/logos';
+
+export function getStaticPaths() {
+  return work.map((w) => ({ params: { slug: w.slug }, props: { work: w } }));
+}
+
+const { work: w } = Astro.props;
+const index = work.findIndex((x) => x.slug === w.slug);
+const next = work[(index + 1) % work.length];
+
+// Case studies rebuilt so far open on a full-screen hero: the card's color
+// field grown to fill the screen, with the card's screens beside the title
+const immersive = ['sams-club', 'tinder', 'jumpcloud', 'the-north-face'].includes(w.slug) && !!w.screens;
+const desktop = w.screensKind === 'desktop';
+// The same dot picture as the project's card, so it can travel with it
+const Dots = { 'sams-club': RackDots, tinder: MeetDots, jumpcloud: NetworkDots, 'the-north-face': TopoDots }[w.slug];
+// Screen shape (height / width), so the stack sizes itself to these screenshots
+const ratio = w.screens?.[0] ? w.screens[0].src.height / w.screens[0].src.width : 16 / 9;
+// Case studies rewritten in full on this site, which carry their own role,
+// team and timeline, and replace the outcomes and link to the old version
+const rebuilt = ['sams-club', 'tinder', 'the-north-face'].includes(w.slug);
+const logoFile = projectLogo[w.slug];
+const logo = logoFile ? logoSvg(logoFile) : null;
+---
+
+<Base title={`${w.company} ${w.title}, Drew Hansen`} description={w.summary}>
+  {immersive ? (
+    <section class="hero" style={`view-transition-name: case-bg-${w.slug}; --tone: var(--tone-${w.slug}); --logo-knock: ${logoKnock[w.slug] ?? 'transparent'}; --ratio: ${ratio.toFixed(4)}`} aria-labelledby="case-title">
+      {Dots && <Dots name={`case-dots-${w.slug}`} />}
+      <header class="top wrap">
+        <a href="/#work" class="back-btn" style="view-transition-name: case-back; --l:0" data-vt-line aria-label="Home">
+          <svg class="back-arrow" width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <line class="arrow-shaft" x1="13" y1="7" x2="25" y2="7" />
+            <path class="arrow-head" d="M17 2.5 12.5 7 17 11.5" />
+          </svg>
+          Home
+        </a>
+      </header>
+      <div class="wrap hero-body">
+        <div class="hero-text" style="view-transition-name: case-hero-text">
+          <p class="hero-logo" data-vt-line style="--l:1">
+            {logo ? (
+              <>
+                <span class:list={['logo', `logo-${logoFile}`]} set:html={logo} />
+                <span class="visually-hidden">{w.company}</span>
+              </>
+            ) : (
+              w.company
+            )}
+          </p>
+          <h1 id="case-title" data-vt-line style="--l:2">{w.title}</h1>
+          <p class="hero-sum" data-vt-line style="--l:3">{w.summary}</p>
+          {/* Rebuilt case studies cover role, team and timeline in their own summary below the hero */}
+          {!rebuilt && (
+            <dl class="hero-facts" data-vt-line style="--l:4">
+              <div><dt>Role</dt><dd>{w.role}</dd></div>
+              <div><dt>Year</dt><dd>{w.year}</dd></div>
+              <div><dt>Focus</dt><dd>{w.tags.join(', ')}</dd></div>
+            </dl>
+          )}
+        </div>
+        {desktop ? (
+          <div class="hero-shots">
+            {w.screens!.map((sc, i) => (
+              <figure class:list={['hero-shot', `hero-shot-${i}`]} style={`view-transition-name: case-${w.slug}-shot-${i}`}>
+                <Image src={sc.src} alt={sc.alt} widths={[800, 1200, 1600]} sizes="(min-width: 900px) 640px, 90vw" loading="eager" fetchpriority={i === 2 ? 'high' : undefined} />
+              </figure>
+            ))}
+          </div>
+        ) : (
+          <div class:list={['hero-phones', w.screens!.length === 2 && 'hero-phones-2']}>
+            {w.screens!.map((sc, i) => (
+              <figure class:list={['hero-phone', `hero-phone-${i}`]} style={`view-transition-name: case-${w.slug}-shot-${i}`}>
+                <Image src={sc.src} alt={sc.alt} widths={[400, 600, 800]} sizes="(min-width: 900px) 300px, 34vw" loading="eager" fetchpriority={i === 1 ? 'high' : undefined} />
+              </figure>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  ) : (
+    <header class="top wrap">
+      <Wordmark />
+      <a href="/#work" class="back"><Icon name="arrow-left" size={16} /> Home</a>
+    </header>
+  )}
+
+  <article class:list={[immersive && 'after-hero']}>
+    {!immersive && (
+    <section class="field wrap" aria-labelledby="case-title">
+      <div class="field-inner" style={`--tone: var(--tone-${w.slug})`}>
+        <p class="meta" data-reveal>{w.company} &middot; {w.year}</p>
+        <h1 id="case-title" data-reveal style="--i:1">{w.title}</h1>
+        <p class="summary" data-reveal style="--i:2">{w.summary}</p>
+        <dl class="facts" data-reveal style="--i:3">
+          <div><dt>Role</dt><dd>{w.role}</dd></div>
+          <div><dt>Year</dt><dd>{w.year}</dd></div>
+          <div><dt>Focus</dt><dd>{w.tags.join(', ')}</dd></div>
+        </dl>
+        <div class="img" data-reveal style="--i:4">
+          <Image src={w.image} alt={w.imageAlt} widths={[640, 960, 1280, 1920]} sizes="(min-width: 1280px) 1200px, 100vw" loading="eager" fetchpriority="high" />
+        </div>
+      </div>
+    </section>
+    )}
+
+    {w.slug === 'sams-club' && <SamsCaseStudy />}
+    {w.slug === 'tinder' && <TinderCaseStudy />}
+    {w.slug === 'the-north-face' && <TnfCaseStudy />}
+
+    {!rebuilt && w.impact && (
+      <section class="wrap impact" aria-label="Outcomes">
+        <dl>
+          {w.impact.map((m, i) => (
+            <div data-reveal style={`--i:${i}`}>
+              <dt>{m.value}</dt>
+              <dd>{m.label}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )}
+
+    {!rebuilt && (
+      <section class="wrap pending" aria-label="Case study status" data-reveal>
+        <p>The full case study is being rewritten for this site. Until then, the complete version lives on the current portfolio.</p>
+        <a class="pill" href={w.legacyUrl}>Read the current case study <Icon name="arrow-up-right" size={16} /></a>
+      </section>
+    )}
+
+    <nav class="wrap next" aria-label="Next case study">
+      <a href={`/work/${next.slug}/`} data-reveal>
+        <span class="next-label">Next: {next.company}</span>
+        <span class="callout">{next.title} <span aria-hidden="true" class="arrow">&rarr;</span></span>
+      </a>
+    </nav>
+  </article>
+</Base>
+
+<script>
+  // "Back" returns to the home page where the visitor left it: when they came
+  // from there, step back through history (keeping their scroll position) rather
+  // than loading /#work fresh, which would jump to the top of the work section.
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href="/#work"]')) {
+    link.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      const nav = (window as any).navigation;
+      const prev = nav?.canGoBack ? nav.entries()[nav.currentEntry.index - 1] : null;
+      const fromHome = prev
+        ? new URL(prev.url).pathname === '/'
+        : document.referrer && new URL(document.referrer).origin === location.origin && new URL(document.referrer).pathname === '/';
+      if (!fromHome || history.length < 2) return;
+      e.preventDefault();
+      history.back();
+    });
+  }
+</script>
+
+<style>
+  /* Full-screen hero: the project's color field fills the first screen, with
+     the title just above centre and the card's screens, whole, beside it */
+  .hero {
+    /* Side screen size: limited by the column's width and by the screen's
+       height (a screen may be ~58% of it), whatever shape the screenshots are */
+    --pw: min(24vw, 58vh / var(--ratio), 360px);
+    --ph: calc(var(--pw) * var(--ratio));
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    /* A little short of the full screen, so the dark page shows at the bottom */
+    min-height: 90svh;
+    /* The screens run off the right edge without causing sideways scrolling */
+    overflow: clip;
+    background: var(--tone);
+    color: var(--text-1);
+    view-transition-class: case-bg;
+  }
+  .hero > :not(.dot-field) {
+    position: relative;
+    z-index: 1;
+  }
+  /* In the hero the title sits on the left, so every dot picture fades out
+     toward that side (Tinder's card version fades from the top instead) */
+  .hero :global(.dot-field) {
+    -webkit-mask-image: linear-gradient(100deg, transparent 30%, #000 65%);
+    mask-image: linear-gradient(100deg, transparent 30%, #000 65%);
+  }
+  .hero-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    /* More room below than above lifts the content a little above centre */
+    padding-block: 0.5rem clamp(3rem, 9vh, 7rem);
+  }
+  .hero-text {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+  }
+  .hero-logo {
+    color: var(--text-1);
+  }
+  .hero-logo :global(svg) {
+    height: 22px;
+    width: auto;
+  }
+  .hero h1 {
+    font-size: var(--fs-callout);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+  }
+  .hero-sum {
+    max-width: 40ch;
+    font-size: var(--fs-lead);
+    color: rgb(255 255 255 / 0.88);
+  }
+  .hero-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2.5rem;
+    margin-top: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgb(255 255 255 / 0.22);
+  }
+  .hero-facts dt {
+    font-size: var(--fs-meta);
+    color: rgb(255 255 255 / 0.72);
+  }
+  .hero-facts dd {
+    font-weight: 600;
+  }
+
+  /* The three screens, staggered and overlapping like on the card */
+  .hero-phones {
+    position: relative;
+    width: calc(var(--pw) * 2.5);
+    height: calc(var(--ph) * 1.15);
+    /* Pull the stack out past the content edge so the last screen runs off the
+       right of the viewport (past the gutter and any centring margin). The pull
+       is capped, so on wide screens the stack stays near the title instead of
+       chasing the screen edge, and shows whole */
+    margin-right: calc(
+      -1 * var(--pw) * 0.4 -
+        min(var(--gutter) + max(0px, (100vw - var(--max) - var(--gutter) * 2) / 2), 6rem)
+    );
+  }
+  .hero-phone {
+    position: absolute;
+    width: var(--pw);
+    margin: 0;
+    overflow: hidden;
+    border-radius: clamp(14px, 1.6vw, 22px);
+    box-shadow:
+      0 1px 2px rgb(0 15 35 / 0.18),
+      0 14px 32px rgb(0 15 35 / 0.28),
+      0 40px 80px rgb(0 15 35 / 0.34);
+    view-transition-class: case-shot;
+    view-transition-group: nearest;
+  }
+  .hero-phone :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .hero-phone-0 {
+    left: 0;
+    top: calc(var(--ph) * 0.12);
+  }
+  .hero-phone-1 {
+    left: calc(var(--pw) * 0.7);
+    top: 0;
+    z-index: 2;
+    width: calc(var(--pw) * 1.1);
+  }
+  .hero-phone-2 {
+    right: 0;
+    top: calc(var(--ph) * 0.15);
+  }
+  /* Two screens (like the card): the first behind on the left, the second in
+     front. The front screen carries the story, so this stack stays whole
+     rather than running off the edge */
+  .hero-phones-2 {
+    width: calc(var(--pw) * 1.9);
+    height: calc(var(--ph) * 1.12);
+    margin-right: 0;
+  }
+  .hero-phones-2 .hero-phone-0 {
+    left: 0;
+    top: calc(var(--ph) * 0.12);
+  }
+  .hero-phones-2 .hero-phone-1 {
+    left: calc(var(--pw) * 0.8);
+  }
+  /* Desktop screens (like the card): three browser views stacked on a
+     diagonal, back one top right, front one bottom left, running off the
+     right edge like the phones do */
+  .hero {
+    --sw: min(46vw, 82vh, 820px); /* stack width */
+  }
+  .hero-shots {
+    position: relative;
+    width: var(--sw);
+    height: calc(var(--sw) * 0.86);
+    margin-right: calc(
+      -1 * var(--sw) * 0.12 -
+        min(var(--gutter) + max(0px, (100vw - var(--max) - var(--gutter) * 2) / 2), 6rem)
+    );
+  }
+  .hero-shot {
+    position: absolute;
+    width: 82%;
+    margin: 0;
+    overflow: hidden;
+    border-radius: clamp(10px, 1vw, 14px);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.2),
+      0 14px 32px rgb(0 0 0 / 0.3),
+      0 40px 80px rgb(0 0 0 / 0.36);
+    view-transition-class: case-shot;
+    view-transition-group: nearest;
+  }
+  .hero-shot :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top left;
+  }
+  .hero-shot-0 {
+    left: 18%;
+    top: 0;
+  }
+  .hero-shot-1 {
+    left: 9%;
+    top: 20%;
+  }
+  .hero-shot-2 {
+    left: 0;
+    top: 40%;
+  }
+  .after-hero {
+    padding-top: clamp(3rem, 6vw, 5rem);
+  }
+
+  /* Back to the work: a plain text link, its arrow stretching back on hover */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-1);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    transition: color 200ms ease;
+  }
+  .back-btn:hover {
+    color: var(--text-max);
+  }
+  .back-arrow {
+    overflow: visible;
+    flex: none;
+  }
+  .back-arrow .arrow-shaft,
+  .back-arrow .arrow-head {
+    transition: transform 420ms var(--ease-out);
+  }
+  .back-arrow .arrow-shaft {
+    transform-box: fill-box;
+    transform-origin: right center;
+  }
+  .back-btn:hover .arrow-shaft,
+  .back-btn:focus-visible .arrow-shaft {
+    transform: scaleX(1.85);
+  }
+  .back-btn:hover .arrow-head,
+  .back-btn:focus-visible .arrow-head {
+    transform: translateX(-10.5px);
+  }
+
+  @media (max-width: 900px) {
+    /* Text above the screens: the dots rise from the bottom instead */
+    .hero :global(.dot-field) {
+      -webkit-mask-image: linear-gradient(to bottom, transparent 50%, #000 80%);
+      mask-image: linear-gradient(to bottom, transparent 50%, #000 80%);
+    }
+    /* Big screens that run off both sides of the phone screen */
+    .hero {
+      --pw: 46vw;
+    }
+    .hero-body {
+      /* minmax(0, 1fr): the oversized screen stack mustn't widen the column */
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+      gap: 2rem;
+      padding-block: 1rem 2rem;
+    }
+    /* Centred on the screen whatever its width; the hero clips the overflow */
+    .hero-phones {
+      justify-self: start;
+      margin: 0 0 0 50%;
+      translate: -50% 0;
+    }
+    /* The color stops partway down the screens, so they hang off its bottom
+       edge over the dark page. Only the background is shortened: the hero's
+       box (and so the page's flow) still holds the whole stack. */
+    .hero {
+      --hang: calc(var(--ph) * 0.5);
+      background-size: 100% calc(100% - var(--hang));
+      background-repeat: no-repeat;
+    }
+    .hero:has(.hero-shots) {
+      --sw: 112vw;
+      --hang: calc(var(--sw) * 0.86 * 0.5);
+    }
+    .hero-shots {
+      justify-self: start;
+      margin: 0 0 0 50%;
+      translate: -50% 0;
+    }
+    .hero:has(.hero-phones-2) {
+      --hang: calc(60vw * var(--ratio) * 0.5);
+    }
+    .hero :global(.dot-field) {
+      height: calc(100% - var(--hang));
+    }
+    /* Two screens need to be bigger still to reach both edges */
+    .hero-phones-2 {
+      --pw: 60vw;
+      --ph: calc(var(--pw) * var(--ratio));
+    }
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 1.75rem;
+  }
+  .top :global(.wordmark) {
+    font-family: inherit;
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-2);
+    font-size: var(--fs-small);
+    transition: color 200ms ease;
+  }
+  .back:hover {
+    color: var(--text-1);
+  }
+
+  .field {
+    padding-top: clamp(1rem, 3vw, 2rem);
+  }
+  .field-inner {
+    display: grid;
+    gap: 1rem;
+    overflow: hidden;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4.5rem) 0;
+    border-radius: var(--radius-card);
+    background: var(--tone);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+    color: var(--text-1);
+  }
+  .meta {
+    font-size: var(--fs-meta);
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.82);
+  }
+  h1 {
+    font-size: var(--fs-callout);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+  }
+  .summary {
+    max-width: 52ch;
+    font-size: var(--fs-lead);
+    color: rgb(255 255 255 / 0.9);
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgb(255 255 255 / 0.22);
+  }
+  .facts dt {
+    font-size: var(--fs-meta);
+    color: rgb(255 255 255 / 0.75);
+  }
+  .facts dd {
+    font-weight: 600;
+  }
+  .img {
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+    overflow: hidden;
+    border-radius: var(--radius-img) var(--radius-img) 0 0;
+    box-shadow: 0 -12px 40px rgb(0 0 0 / 0.28);
+  }
+  .img :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .impact dl {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-top: 1.25rem;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--line);
+  }
+  .impact dl div {
+    padding: 1.75rem 1.5rem;
+    background: var(--surface-1);
+  }
+  .impact dt {
+    font-size: var(--fs-stat);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .impact dd {
+    margin-top: 0.5rem;
+    color: var(--text-2);
+    font-size: var(--fs-small);
+  }
+
+  .pending {
+    display: grid;
+    justify-items: start;
+    gap: 1.5rem;
+    padding-top: clamp(4rem, 8vw, 6rem);
+  }
+  .pending p {
+    max-width: 52ch;
+    font-size: var(--fs-lead);
+    color: var(--text-2);
+  }
+
+  .next {
+    padding-block: var(--section-gap) clamp(5rem, 8vw, 7rem);
+  }
+  .next a {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .next-label {
+    color: var(--text-3);
+    font-size: var(--fs-meta);
+  }
+  .arrow {
+    display: inline-block;
+    transition: transform 300ms var(--ease-out);
+  }
+  .next a:hover .arrow {
+    transform: translateX(8px);
+  }
+  .next a:hover .callout {
+    color: var(--accent-text);
+  }
+
+  @media (max-width: 760px) {
+    .impact dl {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

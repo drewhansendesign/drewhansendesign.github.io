@@ -1,0 +1,239 @@
+---
+// Page-load intro. A light panel says hello: Drew's DH monogram draws itself
+// in solid ink above the greeting (a thick pen traces each letter's centreline
+// inside a mask, revealing the filled shape). After a beat to read it, the greeting
+// drifts away and the panel contracts around the monogram, so the panel itself
+// becomes the logo (a light disc with DH in the page's dark). Before it has
+// finished closing, that logo is already springing up into its place in the
+// header on a curved, overshooting path. Movement is composited transforms.
+// Plays once per browser session, never with reduced motion, and never without
+// JS (Base.astro decides in <head> by adding html.intro).
+// Centrelines of the D and H, traced one after another by the mask's pen:
+// [path, start ms, duration ms]
+const PEN: [string, number, number][] = [
+  ['M187 77Q170 66 147 66H92.6V229.8H147Q170 229.8 187 219', 150, 620],
+  ['M147.5 113.2V182.9', 640, 220],
+  ['M147.5 148H212', 760, 200],
+  ['M218 109Q234 148 218 187', 860, 260],
+];
+// The D and H of the monogram, as their own shape
+const LETTERS =
+  'M195.4 228.8c-18.7 14.1-40.7 14.1-47.9 14.1H92.6c-7.3 0-13.1-5.9-13.1-13.1V66.3c0-7.3 5.9-13.1 13.1-13.1h54.9c7.2 0 29.1 0 47.9 14.1 5.8 4.4 7 12.6 2.6 18.4s-12.6 7-18.4 2.6c-10.5-7.9-23.4-8.8-32.1-8.8h-41.7v137.1h41.7c8.7 0 21.6-.9 32.1-8.8 5.8-4.4 14-3.2 18.4 2.6s3.2 14-2.6 18.4m36.3-41.1c-2.1 5.1-7 8.3-12.2 8.3-1.6 0-3.3-.3-4.9-.9-6.7-2.7-10-10.3-7.3-17.1 0-.1 2.8-7.1 4.5-16.8h-51.2v21.7c0 7.3-5.9 13.1-13.1 13.1s-13.1-5.9-13.1-13.1v-69.7c0-7.3 5.9-13.1 13.1-13.1s13.1 5.9 13.1 13.1v21.7H212c-1.8-9.1-5.1-15.1-5.1-15.2-3.7-6.3-1.5-14.3 4.8-17.9 6.3-3.7 14.3-1.5 18 4.8 1 1.7 9.8 17.4 9.8 39.8 0 21.6-7.5 40.5-7.8 41.3';
+---
+
+<div class="intro-panel" aria-hidden="true">
+  <div class="intro-logo">
+    <div class="intro-disc"></div>
+    <svg class="intro-mark" viewBox="0 0 296 296" focusable="false">
+      <mask id="intro-pen" maskUnits="userSpaceOnUse" x="0" y="0" width="296" height="296">
+        {PEN.map(([d, at, dur]) => <path class="pen" pathLength="1" d={d} style={`--at:${at}ms;--dur:${dur}ms`} />)}
+      </mask>
+      <path class="letters" d={LETTERS} mask="url(#intro-pen)"></path>
+    </svg>
+  </div>
+  <p class="intro-text">
+    {['Hey,', 'I’m', 'Drew'].map((w, i) => <span style={`--w:${i}`}>{w}</span>)}
+  </p>
+</div>
+
+<script>
+  const root = document.documentElement;
+  if (root.classList.contains('intro')) {
+    const panel = document.querySelector<HTMLElement>('.intro-panel');
+    const logo = document.querySelector<HTMLElement>('.intro-logo');
+    const target = document.querySelector<SVGSVGElement>('.wordmark svg');
+
+    const end = () => {
+      root.classList.remove('intro', 'intro-leave', 'intro-close');
+      try {
+        sessionStorage.setItem('introSeen', '1');
+      } catch {}
+    };
+
+    // The disc is drawn at full-screen size and only ever scales down, so the
+    // browser rasterises it once and never has to redraw it mid-animation
+    if (logo) {
+      const b = logo.getBoundingClientRect();
+      const cx = b.left + b.width / 2;
+      const cy = b.top + b.height / 2;
+      const far = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
+      const cover = (far * 2) / b.width + 0.05;
+      logo.style.setProperty('--cover', `${cover}`);
+      logo.style.setProperty('--end', `${1 / cover}`);
+    }
+
+    // The greeting leaves first, so it's gone before the disc's edge passes it
+    const leave = () => root.classList.add('intro-leave');
+    // Then the panel contracts around the monogram
+    const close = () => {
+      if (!panel || !logo || !target) return end();
+      root.classList.add('intro-close');
+    };
+
+    // A damped spring, 0 to 1 with one soft overshoot past 1
+    const spring = (t: number) => {
+      if (t <= 0) return 0;
+      const z = 0.62;
+      const w = 10;
+      const wd = w * Math.sqrt(1 - z * z);
+      return 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + ((z * w) / wd) * Math.sin(wd * t));
+    };
+
+    // Halfway through the close, the logo springs into the header on a curve. Its
+    // horizontal travel leads the vertical, so the path arcs, it tips into the
+    // turn, overshoots the header spot a little and settles back onto it.
+    let flight: Animation | undefined;
+    const fly = () => {
+      if (!logo || !target) return end();
+      const b = logo.getBoundingClientRect();
+      const t = target.getBoundingClientRect();
+      const dx = t.left + t.width / 2 - (b.left + b.width / 2);
+      const dy = t.top + t.height / 2 - (b.top + b.height / 2);
+      const s = t.width / b.width;
+      const frames: Keyframe[] = [];
+      const N = 72;
+      for (let i = 0; i <= N; i++) {
+        const k = i / N;
+        const px = spring(k);
+        const py = spring((k - 0.1) / 0.9);
+        const ps = spring((k - 0.03) / 0.97);
+        const rot = -42 * (px - py);
+        frames.push({
+          transform: `translate(${dx * px}px, ${dy * py}px) scale(${Math.pow(s, ps)}) rotate(${rot}deg)`,
+        });
+      }
+      flight = logo.animate(frames, { duration: 950, easing: 'linear', fill: 'forwards' });
+      flight.finished.then(end, () => {});
+    };
+
+    const timers = [
+      setTimeout(leave, 2350),
+      setTimeout(close, 2600),
+      setTimeout(fly, 2920),
+      setTimeout(end, 4500),
+    ];
+    const skip = () => {
+      timers.forEach(clearTimeout);
+      flight?.cancel();
+      end();
+    };
+    addEventListener('keydown', skip, { once: true });
+    panel?.addEventListener('pointerdown', skip, { once: true });
+  }
+</script>
+
+<style>
+  .intro-panel {
+    display: none;
+  }
+  :global(html.intro) {
+    overflow: hidden;
+  }
+  :global(html.intro) .intro-panel {
+    --ink: var(--bg);
+    --paper: var(--text-1);
+    --ease: cubic-bezier(0.65, 0, 0.35, 1);
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  /* Once closing starts, the disc carries the light ground on its own */
+  :global(html.intro-close) .intro-panel {
+    background: transparent;
+  }
+  /* The real header logo waits underneath until the intro's copy lands on it */
+  :global(html.intro .wordmark svg) {
+    visibility: hidden;
+  }
+
+  .intro-logo {
+    position: relative;
+    width: clamp(120px, 19vmin, 180px);
+    aspect-ratio: 1;
+    will-change: transform;
+  }
+
+  .intro-disc {
+    position: absolute;
+    left: calc(50% - 50% * var(--cover, 4));
+    top: calc(50% - 50% * var(--cover, 4));
+    width: calc(100% * var(--cover, 4));
+    height: calc(100% * var(--cover, 4));
+    border-radius: 50%;
+    background: var(--paper);
+    transform: scale(1);
+    will-change: transform;
+    transition: transform 650ms cubic-bezier(0.3, 0.45, 0.4, 1);
+  }
+  :global(html.intro-close) .intro-disc {
+    transform: scale(var(--end, 0.25));
+  }
+
+  .intro-mark {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .intro-mark .letters {
+    fill: var(--ink);
+  }
+  /* The pen: a stroke wide enough to cover each letter, drawn on over time */
+  .pen {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 34;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: intro-draw var(--dur) cubic-bezier(0.45, 0, 0.25, 1) var(--at) forwards;
+  }
+
+  .intro-text {
+    position: relative;
+    margin: 0;
+    display: flex;
+    gap: 0.24em;
+    font-size: clamp(2rem, 1.2rem + 3vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  /* Words rise in one after another, then drift up and dissolve in the same order */
+  .intro-text span {
+    display: inline-block;
+    animation: intro-in 750ms cubic-bezier(0.16, 1, 0.3, 1) calc(700ms + var(--w) * 90ms) backwards;
+    transition:
+      opacity 450ms cubic-bezier(0.4, 0, 0.2, 1) calc(var(--w) * 60ms),
+      filter 450ms cubic-bezier(0.4, 0, 0.2, 1) calc(var(--w) * 60ms),
+      transform 550ms cubic-bezier(0.5, 0, 0.2, 1) calc(var(--w) * 60ms);
+  }
+  :global(html.intro-leave) .intro-text span {
+    opacity: 0;
+    filter: blur(5px);
+    transform: translateY(-0.7em);
+  }
+
+  @keyframes intro-in {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(10px);
+    }
+  }
+  @keyframes intro-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

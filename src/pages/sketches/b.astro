@@ -1,0 +1,239 @@
+---
+// Sketch B, "Spectrum": Auth0's soft color fields and Mintlify's saturated cards
+// against an otherwise dark, quiet page. Each project gets a card in its own color.
+import '@fontsource-variable/albert-sans';
+import { Image } from 'astro:assets';
+import Sketch from '../../layouts/Sketch.astro';
+import Wordmark from '../../components/Wordmark.astro';
+import LogoStrip from '../../components/LogoStrip.astro';
+import { work, experience, contact } from '../../data/site';
+
+const tones: Record<string, string> = {
+  'sams-club': 'linear-gradient(155deg, #2f8cff 0%, #0b4fd1 55%, #072c86 100%)',
+  tinder: 'linear-gradient(155deg, #ff7a59 0%, #fd2f6f 50%, #a3135a 100%)',
+  'the-north-face': 'linear-gradient(155deg, #4b4f57 0%, #22252b 55%, #121316 100%)',
+  jumpcloud: 'linear-gradient(155deg, #3fd6c5 0%, #0c9a8f 50%, #075a57 100%)',
+};
+const sams = work.find((w) => w.slug === 'sams-club');
+---
+
+<Sketch title="Sketch B: Spectrum, Drew Hansen" current="b" bg="#0a0a0d">
+  <div class="page">
+    <div class="glow" aria-hidden="true"></div>
+    <header class="top wrap">
+      <Wordmark />
+      <a class="btn ghost" href={contact.resume} download>Resume</a>
+    </header>
+
+    <section class="hero wrap" aria-labelledby="b-h1">
+      <h1 id="b-h1" data-reveal>I make complex products feel effortless.</h1>
+      <p class="lede" data-reveal style="--i:1">
+        Drew Hansen, senior product designer. Over a decade of mobile-first design, scalable
+        design systems and motion, for Sam's Club, Tinder, The North Face and JumpCloud.
+      </p>
+      <div class="cta" data-reveal style="--i:2">
+        <a class="btn solid" href={`mailto:${contact.email}`}>Get in touch</a>
+        <a class="btn ghost" href={contact.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </section>
+
+    <section class="logos wrap" aria-label="Companies I've designed for" data-reveal>
+      <LogoStrip variant="row" />
+    </section>
+
+    {sams?.impact && (
+      <section class="impact wrap" aria-labelledby="b-impact-h">
+        <h2 id="b-impact-h" class="impact-h" data-reveal>What modernizing a 40-year-old process looks like at Sam's Club</h2>
+        <dl>
+          {sams.impact.map((m, i) => (
+            <div data-reveal style={`--i:${i}`}>
+              <dt>{m.value}</dt>
+              <dd>{m.label}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )}
+
+    <section class="work wrap" aria-labelledby="b-work-h">
+      <h2 id="b-work-h" class="section-h" data-reveal>Selected work</h2>
+      <div class="cards">
+        {work.map((w, i) => (
+          <a href={`/work/${w.slug}/`} class:list={['card', (i === 0 || i === work.length - 1) && 'wide']} style={`--tone:${tones[w.slug]}; --i:${i % 2}`} data-reveal>
+            <div class="card-text">
+              <p class="card-co">{w.company} &middot; {w.year}</p>
+              <h3>{w.title}</h3>
+              <p class="card-sum">{w.summary}</p>
+            </div>
+            <div class="card-img">
+              <Image src={w.image} alt={w.imageAlt} widths={[640, 960, 1400]} sizes="(min-width: 960px) 60vw, 100vw" loading="lazy" />
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="exp wrap" aria-labelledby="b-exp-h">
+      <h2 id="b-exp-h" class="section-h" data-reveal>Experience</h2>
+      <ol>
+        {experience.map((r, i) => (
+          <li data-reveal style={`--i:${i % 2}`}>
+            <div>
+              <h3>{r.company}</h3>
+              <p class="exp-role">{r.role}</p>
+            </div>
+            <p class="exp-body">{r.body}</p>
+            <p class="exp-dates">{r.dates}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="contact wrap" aria-labelledby="b-contact-h">
+      <div class="contact-card" data-reveal>
+        <h2 id="b-contact-h">Let's build something together.</h2>
+        <p>Shoot me a message and I'll get back to you ASAP.</p>
+        <a class="btn solid" href={`mailto:${contact.email}`}>{contact.email}</a>
+      </div>
+    </section>
+  </div>
+</Sketch>
+
+<style>
+  .page {
+    --ink: #f6f5fb;
+    --ink-2: #aeacb9;
+    --ink-3: #8a8896;
+    --line: rgb(255 255 255 / 0.09);
+    --logo-knock: #0a0a0d;
+    --logo-color: rgb(255 255 255 / 0.55);
+    position: relative;
+    overflow-x: clip;
+    color: var(--ink);
+    font-family: 'Albert Sans Variable', system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+  .wrap { position: relative; max-width: 1240px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 48px); }
+  .glow {
+    position: absolute;
+    inset: -20vh -10vw auto;
+    height: 110vh;
+    background:
+      radial-gradient(40% 50% at 22% 30%, rgb(61 121 255 / 0.55), transparent 70%),
+      radial-gradient(35% 45% at 70% 20%, rgb(253 47 111 / 0.4), transparent 70%),
+      radial-gradient(40% 40% at 85% 65%, rgb(255 154 76 / 0.32), transparent 70%),
+      radial-gradient(45% 45% at 45% 75%, rgb(63 214 197 / 0.22), transparent 70%);
+    filter: blur(40px);
+    opacity: 0.9;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent);
+    animation: drift 18s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes drift {
+    to { transform: translate3d(-3%, 4%, 0) scale(1.06); }
+  }
+
+  .top { display: flex; justify-content: space-between; align-items: center; padding-block: 1.5rem; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding-inline: 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: background-color 200ms ease, transform 200ms ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn.solid { background: #fff; color: #0a0a0d; }
+  .btn.solid:hover { background: #e9e8f2; }
+  .btn.ghost { background: rgb(255 255 255 / 0.08); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12); backdrop-filter: blur(10px); }
+  .btn.ghost:hover { background: rgb(255 255 255 / 0.14); }
+
+  .hero { padding-block: clamp(6rem, 14vw, 11rem) clamp(4rem, 8vw, 6rem); text-align: center; }
+  h1 {
+    margin-inline: auto;
+    max-width: 13ch;
+    font-size: clamp(3rem, 1rem + 7vw, 7.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+  .lede { margin: 1.75rem auto 0; max-width: 54ch; font-size: 1.25rem; color: #cfcdd9; text-wrap: balance; }
+  .cta { display: flex; justify-content: center; gap: 0.75rem; margin-top: 2.25rem; }
+
+  .logos { padding-block: 2.5rem 1rem; }
+
+  .impact { padding-top: clamp(6rem, 12vw, 9rem); }
+  .impact-h { max-width: 24ch; font-size: clamp(1.75rem, 1rem + 2vw, 2.75rem); font-weight: 650; line-height: 1.1; letter-spacing: -0.03em; }
+  .impact dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2.5rem; }
+  .impact dl div { padding: 1.75rem 1.5rem; border-radius: 20px; background: #131318; box-shadow: inset 0 0 0 1px var(--line); }
+  .impact dt { font-size: clamp(2.25rem, 1.4rem + 2vw, 3.5rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: #8fb8ff; }
+  .impact dd { margin-top: 0.6rem; color: var(--ink-2); }
+
+  .section-h { font-size: clamp(2.25rem, 1rem + 3.5vw, 4rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1; margin-bottom: 2.5rem; }
+  .work { padding-top: clamp(6rem, 12vw, 9rem); }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  .card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 2rem;
+    overflow: hidden;
+    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2.5rem) 0;
+    border-radius: 28px;
+    background: var(--tone);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);
+    transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card:hover { transform: translateY(-6px); }
+  .card.wide { grid-column: 1 / -1; grid-template-columns: 5fr 7fr; grid-template-rows: auto; align-items: end; }
+  .card.wide .card-text { padding-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+  .card-co { font-size: 0.875rem; font-weight: 600; color: rgb(255 255 255 / 0.8); }
+  .card h3 { margin-top: 0.4rem; font-size: clamp(1.75rem, 1.2rem + 1.5vw, 2.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+  .card-sum { margin-top: 0.75rem; max-width: 44ch; color: rgb(255 255 255 / 0.86); }
+  .card-img { align-self: end; overflow: hidden; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 40px rgb(0 0 0 / 0.25); }
+  .card-img :global(img) { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .card:hover .card-img :global(img) { transform: scale(1.03); }
+
+  .exp { padding-top: clamp(7rem, 14vw, 11rem); }
+  .exp li {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr auto;
+    gap: 1rem 3rem;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+  .exp h3 { font-size: 1.25rem; font-weight: 650; }
+  .exp-role { color: var(--ink-3); font-size: 0.9375rem; }
+  .exp-body { color: var(--ink-2); max-width: 60ch; }
+  .exp-dates { color: var(--ink-3); font-size: 0.9375rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .contact { padding-block: clamp(7rem, 14vw, 11rem) clamp(5rem, 8vw, 7rem); }
+  .contact-card {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+    padding: clamp(3rem, 7vw, 6rem) 1.5rem;
+    border-radius: 32px;
+    text-align: center;
+    background:
+      radial-gradient(60% 80% at 20% 0%, rgb(61 121 255 / 0.55), transparent 70%),
+      radial-gradient(60% 80% at 90% 100%, rgb(253 47 111 / 0.45), transparent 70%),
+      #14141b;
+  }
+  .contact-card h2 { max-width: 14ch; font-size: clamp(2.5rem, 1rem + 5vw, 5.5rem); font-weight: 700; letter-spacing: -0.045em; line-height: 0.95; }
+  .contact-card p { color: #d6d4e0; font-size: 1.125rem; }
+
+  @media (max-width: 900px) {
+    .cards { grid-template-columns: 1fr; }
+    .card.wide { grid-template-columns: 1fr; }
+    .card.wide .card-text { padding-bottom: 0; }
+    .impact dl { grid-template-columns: 1fr 1fr; }
+    .exp li { grid-template-columns: 1fr; gap: 0.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glow { animation: none; }
+  }
+</style>

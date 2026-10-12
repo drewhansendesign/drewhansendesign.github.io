@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+
+# Local design tooling, reviews and recordings (not part of the site)
+.impeccable/
+.cursor/
+.claude/settings.local.json
+
+# Working notes — keep local, the repo is public
+HANDOFF-*.md
+PRODUCT.md

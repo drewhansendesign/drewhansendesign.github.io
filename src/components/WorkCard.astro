@@ -1,0 +1,440 @@
+---
+// A project card on its own color field. Wide cards put text beside the image;
+// the lead card can also carry real outcome numbers.
+import { Image } from 'astro:assets';
+import type { Work } from '../data/site';
+import { logoKnock, logoSvg, projectLogo } from '../lib/logos';
+import RackDots from './RackDots.astro';
+import MeetDots from './MeetDots.astro';
+import TopoDots from './TopoDots.astro';
+import NetworkDots from './NetworkDots.astro';
+
+interface Props {
+  work: Work;
+  wide?: boolean;
+  showImpact?: boolean;
+  index?: number;
+  /** Optional, very faint background texture for the card field */
+  texture?: 'labels' | 'dots' | 'rack' | 'map' | 'topo' | 'network';
+  /** Reveal with the page-load cascade even when below the fold */
+  onLoad?: boolean;
+}
+const { work: w, wide = false, showImpact = false, index = 0, texture, onLoad = false } = Astro.props;
+
+// Location codes from the Annual Inventory app, tiled as a faint stencil pattern
+const labelsTile = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='132'><g fill='white' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='11' letter-spacing='1.2'><text x='8' y='22'>H1-2</text><text x='86' y='22'>AISLE H6</text><text x='190' y='22'>H1-20</text><text x='40' y='66'>RESERVE</text><text x='150' y='66'>G21</text><text x='214' y='66'>H2-11</text><text x='8' y='110'>41 · COFFEE</text><text x='132' y='110'>H1-9</text><text x='206' y='110'>BAY 04</text></g></svg>`;
+const labelsUrl = `url("data:image/svg+xml,${encodeURIComponent(labelsTile)}")`;
+
+// Pallet racking seen face-on: paired uprights with cross-bracing, beams across each level
+const rackTile = `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='96'><g fill='white'><rect x='0' y='0' width='2' height='96'/><rect x='12' y='0' width='2' height='96'/><rect x='0' y='90' width='180' height='3'/></g><g stroke='white' stroke-width='1' fill='none'><path d='M2 0 L12 24 M12 24 L2 48 M2 48 L12 72 M12 72 L2 96'/></g></svg>`;
+const rackUrl = `url("data:image/svg+xml,${encodeURIComponent(rackTile)}")`;
+const logoFile = projectLogo[w.slug];
+const logo = logoFile ? logoSvg(logoFile) : null;
+---
+
+<a
+  href={`/work/${w.slug}/`}
+  class:list={['card', wide && 'wide', texture && `texture-${texture}`]}
+  style={`view-transition-name: case-bg-${w.slug}; --tone: var(--tone-${w.slug}); --logo-knock: ${logoKnock[w.slug] ?? 'transparent'}; --i:${index}; --labels: ${labelsUrl}; --rack: ${rackUrl}`}
+  data-reveal
+  data-reveal-onload={onLoad ? '' : undefined}
+>
+  {texture === 'dots' && <RackDots name={`case-dots-${w.slug}`} />}
+  {texture === 'map' && <MeetDots name={`case-dots-${w.slug}`} />}
+  {texture === 'topo' && <TopoDots name={`case-dots-${w.slug}`} />}
+  {texture === 'network' && <NetworkDots name={`case-dots-${w.slug}`} />}
+  <div class="text" style={`view-transition-name: case-text-${w.slug}`}>
+    <p class="meta" data-vt-line style="--l:0">
+      {logo ? (
+        <>
+          <span class:list={['logo', `logo-${logoFile}`]} set:html={logo} />
+          <span class="sr">{w.company}</span>
+        </>
+      ) : (
+        w.company
+      )}
+    </p>
+    <h3 data-vt-line style="--l:1">{w.title}</h3>
+    <p class="sum" data-vt-line style="--l:2">{w.summary}</p>
+    {showImpact && w.impact && (
+      <dl class="impact" data-vt-line style="--l:3">
+        {w.impact.map((m) => (
+          <div>
+            <dt>{m.value}</dt>
+            <dd>{m.label}</dd>
+          </div>
+        ))}
+      </dl>
+    )}
+    <span class="cta" data-vt-line style="--l:4">
+      Read the case study
+      <svg class="arrow" width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <line class="arrow-shaft" x1="1" y1="7" x2="13" y2="7" />
+        <path class="arrow-head" d="M9 2.5 13.5 7 9 11.5" />
+      </svg>
+    </span>
+  </div>
+  {w.screens ? (
+    <div class:list={['phones', w.screensKind === 'desktop' && 'desktops', w.screens.length === 2 && 'phones-2']}>
+      <div class="stage">
+        {w.screensKind === 'desktop'
+          ? w.screens.map((sc, i) => (
+              <figure class:list={['shot', `shot-${i}`]} style={`view-transition-name: case-${w.slug}-shot-${i}`}>
+                <Image src={sc.src} alt={sc.alt} widths={[640, 960, 1280]} sizes="(min-width: 960px) 480px, 80vw" loading="lazy" />
+              </figure>
+            ))
+          : w.screens.map((sc, i) => (
+              <figure class:list={['phone', `phone-${i}`]} style={`view-transition-name: case-${w.slug}-shot-${i}`}>
+                <Image src={sc.src} alt={sc.alt} widths={[360, 540, 720]} sizes="(min-width: 960px) 240px, 34vw" loading="lazy" />
+              </figure>
+            ))}
+      </div>
+    </div>
+  ) : (
+    <div class="img">
+      <Image
+        src={w.image}
+        alt={w.imageAlt}
+        widths={[640, 960, 1400]}
+        sizes={wide ? '(min-width: 960px) 700px, 100vw' : '(min-width: 960px) 600px, 100vw'}
+        loading="lazy"
+      />
+    </div>
+  )}
+</a>
+
+<style>
+  .card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 2rem;
+    overflow: hidden;
+    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2.5rem) 0;
+    border-radius: var(--radius-card);
+    background: var(--tone);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+    color: var(--text-1);
+  }
+  /* The card itself stays put on hover; the screens and the arrow carry the hover state */
+  :global(.motion) .card[data-reveal] {
+    transition:
+      opacity 900ms var(--ease-out),
+      filter 900ms var(--ease-out),
+      transform 900ms var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+  /* Page transitions: the card grows into the case study hero. Its screens
+     and dots travel as their own pictures, nested in (and clipped by) it; its
+     text is its own picture too, but stays put and lifts away (Base.astro) */
+  .card {
+    view-transition-class: case-bg;
+  }
+  .phone,
+  .shot {
+    view-transition-class: case-shot;
+    view-transition-group: nearest;
+  }
+  .text {
+    view-transition-class: case-text;
+  }
+  /* Faint texture layer under the content, fading out toward the text side */
+  .card {
+    position: relative;
+    isolation: isolate;
+  }
+  .card > :global(*:not(.rack-dots):not(.meet-dots):not(.topo-dots):not(.network-dots)) {
+    position: relative;
+    z-index: 1;
+  }
+  .texture-labels::before,
+  .texture-rack::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(100deg, transparent 22%, #000 62%);
+    mask-image: linear-gradient(100deg, transparent 22%, #000 62%);
+  }
+  .texture-labels::before {
+    background-image: var(--labels);
+    background-size: 300px 132px;
+    opacity: 0.07;
+  }
+  .texture-rack::before {
+    background-image: var(--rack);
+    background-size: 180px 96px;
+    background-position: 40px 0;
+    opacity: 0.07;
+  }
+
+  .phones {
+    z-index: 1;
+  }
+
+  .card.wide {
+    grid-column: 1 / -1;
+    grid-template-columns: 5fr 7fr;
+    grid-template-rows: auto;
+    align-items: end;
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+  }
+  .card.wide .text {
+    align-self: stretch;
+    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 24px;
+    margin-bottom: 0;
+    font-size: var(--fs-meta);
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.82);
+  }
+  .logo {
+    display: inline-flex;
+    height: 18px;
+    color: var(--text-1);
+  }
+  .logo :global(svg) {
+    height: 100%;
+    width: auto;
+  }
+  .logo-tnf {
+    height: 20px;
+  }
+  .logo-jumpcloud {
+    height: 16px;
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  h3 {
+    font-size: var(--fs-card);
+    font-weight: 650;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .sum {
+    max-width: 44ch;
+    color: rgb(255 255 255 / 0.9);
+  }
+  .impact {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 1.5rem;
+    margin-block: 1.25rem 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgb(255 255 255 / 0.22);
+  }
+  .impact dt {
+    font-size: clamp(1.75rem, 1.2rem + 1.4vw, 2.5rem);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .impact dd {
+    margin-top: 0.35rem;
+    font-size: var(--fs-meta);
+    color: rgb(255 255 255 / 0.85);
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-weight: 600;
+    font-size: var(--fs-small);
+  }
+  /* Arrow grows in the direction it points: the shaft stretches right and the
+     head travels with it */
+  .arrow {
+    overflow: visible;
+    flex: none;
+  }
+  .arrow-shaft,
+  .arrow-head {
+    transition: transform 420ms var(--ease-out);
+  }
+  .arrow-shaft {
+    transform-box: fill-box;
+    transform-origin: left center;
+  }
+  .card:hover .arrow-shaft,
+  .card:focus-visible .arrow-shaft {
+    transform: scaleX(1.85);
+  }
+  .card:hover .arrow-head,
+  .card:focus-visible .arrow-head {
+    transform: translateX(10.5px);
+  }
+  .img {
+    align-self: end;
+    overflow: hidden;
+    border-radius: var(--radius-img) var(--radius-img) 0 0;
+    box-shadow: 0 -12px 40px rgb(0 0 0 / 0.28);
+  }
+  .img :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform 900ms var(--ease-out);
+  }
+  .card:hover .img :global(img) {
+    transform: scale(1.03);
+  }
+  /* Screen stack: three real screens with rounded corners, no device frames,
+     dissolving into the card toward the bottom right; top and left stay crisp. */
+  /* The faded box is larger than the stage on every side, so the screens'
+     shadows have room to soften instead of being clipped by the mask */
+  .phones {
+    --bleed: 64px;
+    position: relative;
+    align-self: end;
+    margin: calc(1rem - var(--bleed)) calc(-1 * var(--bleed)) 0;
+    padding: var(--bleed) var(--bleed) 0;
+    /* No fade on the screens (tried a curved fade; it fought the dot texture):
+       -webkit-mask-image: radial-gradient(ellipse 115% 100% at 32% 0%, #000 52%, transparent 100%); */
+  }
+  .stage {
+    position: relative;
+    height: clamp(340px, 36vw, 520px);
+  }
+  .card:not(.wide) .stage {
+    height: clamp(300px, 27vw, 400px);
+  }
+
+  /* Desktop pages: three browser views stacked on a diagonal, running off
+     the card's bottom and right edges */
+  .shot {
+    position: absolute;
+    width: 82%;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.2),
+      0 10px 24px rgb(0 0 0 / 0.28),
+      0 28px 60px rgb(0 0 0 / 0.34);
+    transition: translate 700ms var(--ease-out);
+  }
+  .shot :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top left;
+  }
+  .shot-0 { left: 26%; top: 0; }
+  .shot-1 { left: 13%; top: 20%; }
+  .shot-2 { left: 0; top: 40%; }
+  /* Two-phone layout: splash behind on the left, dashboard in front */
+  .phones-2 .phone-0 { left: 16%; width: 36%; translate: 0 22%; }
+  .phones-2 .phone-1 { left: 48%; width: 38%; translate: 0 4%; }
+  .card:hover .phones-2 .phone-0 { translate: 0 16%; }
+  .card:hover .phones-2 .phone-1 { translate: 0 0; }
+
+  .card:hover .shot-0 { translate: 0 -6px; }
+  .card:hover .shot-1 { translate: 0 -10px; transition-delay: 60ms; }
+  .card:hover .shot-2 { translate: 0 -14px; transition-delay: 120ms; }
+  .phone {
+    position: absolute;
+    bottom: 0;
+    width: 34%;
+    overflow: hidden;
+    border-radius: 20px;
+    /* Layered, slightly cool shadow so the screens lift off the card's color */
+    box-shadow:
+      0 1px 2px rgb(0 15 35 / 0.18),
+      0 10px 24px rgb(0 15 35 / 0.24),
+      0 28px 60px rgb(0 15 35 / 0.3);
+    transition: translate 700ms var(--ease-out);
+  }
+  .phone :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+
+  .phone-0 {
+    left: 2%;
+    translate: 0 26%;
+  }
+  .phone-1 {
+    left: 33%;
+    z-index: 2;
+    width: 36%;
+    translate: 0 6%;
+  }
+  .phone-2 {
+    right: 2%;
+    translate: 0 30%;
+  }
+  .card:hover .phone-0 {
+    translate: 0 20%;
+  }
+  .card:hover .phone-1 {
+    translate: 0 1%;
+    transition-delay: 60ms;
+  }
+  .card:hover .phone-2 {
+    translate: 0 24%;
+    transition-delay: 120ms;
+  }
+
+  .card:focus-visible {
+    outline-offset: 4px;
+    border-radius: var(--radius-card);
+  }
+
+  @media (max-width: 900px) {
+    .card {
+      gap: 1.5rem;
+    }
+    .card.wide {
+      grid-template-columns: 1fr;
+    }
+    /* Phones: a tighter stack anchored from the top, bleeding off the card's right edge */
+    .phones {
+      --bleed: 40px;
+      margin: calc(0.25rem - var(--bleed)) calc(-1 * clamp(1.5rem, 3vw, 2.5rem) - var(--bleed)) 0 calc(-1 * var(--bleed));
+    }
+    /* Proportional to its width, like the screens, so the front screen is
+       always taller than the stage and runs off the card's bottom edge */
+    .stage,
+    .card:not(.wide) .stage {
+      height: auto;
+      aspect-ratio: 1 / 0.64;
+    }
+    .phone {
+      bottom: auto;
+      width: 44%;
+      border-radius: 14px;
+    }
+    .phone-0 { left: 0; top: 12%; translate: none; }
+    .phone-1 { left: 34%; top: 0; width: 46%; translate: none; }
+    .phone-2 { left: 74%; top: 16%; translate: none; }
+    .phones-2 .phone-0 { left: 6%; top: 12%; width: 44%; }
+    .phones-2 .phone-1 { left: 42%; top: 0; width: 48%; }
+    .card:hover .phone-0,
+    .card:hover .phone-1,
+    .card:hover .phone-2 {
+      translate: none;
+    }
+    .card.wide .text {
+      padding-bottom: 0;
+    }
+  }
+</style>

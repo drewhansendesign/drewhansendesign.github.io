@@ -1,0 +1,116 @@
+---
+// A dot-matrix network for JumpCloud: devices and users as bright nodes, linked
+// by connection lines that cross the grid at every angle, like a directory map.
+// Same dot grid and brightness-only rules as RackDots; seeded.
+import DotField from './DotField.astro';
+
+interface Props {
+  seed?: number;
+  /** Transition name for the picture (see DotField) */
+  name?: string;
+}
+const { seed = 31, name } = Astro.props;
+
+const PITCH = 16;
+// The composition is laid out on a 1440x640 frame (the wide card). The field
+// extends past it to the left and top, so a full-screen hero shows more of the
+// network at the same dot size; the card only ever shows the base frame.
+const BASE_COLS = 90;
+const BASE_ROWS = 40;
+const COLS = 160; // 2560px
+const ROWS = 90; // 1440px
+const W = BASE_COLS * PITCH;
+const H = BASE_ROWS * PITCH;
+const OFF_X = (COLS - BASE_COLS) * PITCH; // extension to the left
+const OFF_Y = (ROWS - BASE_ROWS) * PITCH; // extension above
+
+let s = seed;
+const rand = () => {
+  s = (s * 1664525 + 1013904223) % 4294967296;
+  return s / 4294967296;
+};
+// Per-dot randomness keyed to each dot's place in the base frame, so extending
+// the field never reshuffles the dots inside it
+const rnd = (c: number, r: number, k: number) => {
+  const x = Math.sin(c * 127.1 + r * 311.7 + k * 74.7 + seed * 17.3) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+type Pt = { x: number; y: number };
+const segDist = (px: number, py: number, a: Pt, b: Pt) => {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const t = Math.max(0, Math.min(1, ((px - a.x) * dx + (py - a.y) * dy) / (dx * dx + dy * dy)));
+  return Math.hypot(px - (a.x + t * dx), py - (a.y + t * dy));
+};
+// Each node links to its hub and to its nearest neighbour in the same network
+const link = (nodes: Pt[], hub: Pt) => {
+  const edges: [Pt, Pt][] = [];
+  for (const n of nodes) {
+    if (n !== hub) edges.push([n, hub]);
+    let best = null as null | Pt;
+    let bd = Infinity;
+    for (const m of nodes) {
+      if (m === n) continue;
+      const d = Math.hypot(m.x - n.x, m.y - n.y);
+      if (d < bd) {
+        bd = d;
+        best = m;
+      }
+    }
+    if (best && best !== hub) edges.push([n, best]);
+  }
+  return edges;
+};
+
+// The card's network: nodes toward the right where the text isn't, and a hub
+// everything reports to (the directory)
+const nodes: Pt[] = Array.from({ length: 14 }, () => ({
+  x: W * (0.38 + rand() * 0.6),
+  y: H * (0.06 + rand() * 0.88),
+}));
+const hub = { x: W * 0.66, y: H * 0.42 };
+nodes.push(hub);
+
+// A second network above the frame, only seen on a full-screen hero. Its links
+// stay above the frame (y < 0), so the card's part of the picture never changes.
+const upper: Pt[] = Array.from({ length: 12 }, () => ({
+  x: -OFF_X * 0.2 + rand() * (W + OFF_X * 0.2),
+  y: -OFF_Y * (0.12 + rand() * 0.8),
+}));
+const upperHub = { x: W * 0.78, y: -OFF_Y * 0.45 };
+upper.push(upperHub);
+
+const allNodes = [...nodes, ...upper];
+const hubs = new Set([hub, upperHub]);
+const edges = [...link(nodes, hub), ...link(upper, upperHub)];
+
+const dots: { x: number; y: number; a: number }[] = [];
+for (let r = 0; r < ROWS; r++) {
+  for (let c = 0; c < COLS; c++) {
+    // Position in the base frame (negative = in the extension)
+    const x = c * PITCH + PITCH / 2 - OFF_X;
+    const y = r * PITCH + PITCH / 2 - OFF_Y;
+    let k = 0;
+    const rand = () => rnd(c - (COLS - BASE_COLS), r - (ROWS - BASE_ROWS), k++);
+    let a = 0.025 + rand() * 0.035;
+
+    for (const [p, q] of edges) {
+      if (segDist(x, y, p, q) < PITCH * 0.5) {
+        a = Math.max(a, 0.28 + rand() * 0.14);
+      }
+    }
+    for (const n of allNodes) {
+      const d = Math.hypot(x - n.x, y - n.y);
+      const big = hubs.has(n);
+      if (d < PITCH * (big ? 1.6 : 0.9)) a = big ? 0.85 : 0.7;
+      else if (d < PITCH * (big ? 3.4 : 2.2) && d > PITCH * (big ? 2.4 : 1.5)) a = Math.max(a, 0.32);
+    }
+    if (rand() < 0.018) a = 0.45 + rand() * 0.3; // sparkle
+    if (rand() < 0.06) continue; // gaps
+    dots.push({ x: x + OFF_X, y: y + OFF_Y, a: Math.round(a * 100) / 100 });
+  }
+}
+---
+
+<DotField dots={dots} cols={COLS} rows={ROWS} pitch={PITCH} align="right" fade="side" class="network-dots" name={name} />

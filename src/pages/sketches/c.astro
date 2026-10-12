@@ -1,0 +1,262 @@
+---
+// Sketch C, "Clean": Tailwind's huge hero type and tidy cleanliness, Linear's contrast
+// and distinct sections, with subtle motion on almost everything (count-up numbers,
+// staggered reveals, hover details).
+import '@fontsource-variable/onest';
+import { Image } from 'astro:assets';
+import Sketch from '../../layouts/Sketch.astro';
+import Wordmark from '../../components/Wordmark.astro';
+import LogoStrip from '../../components/LogoStrip.astro';
+import { work, experience, contact } from '../../data/site';
+import portrait from '../../assets/about/drew-portrait.png';
+import designSystem from '../../assets/work/tnf-design-system.webp';
+
+const sams = work.find((w) => w.slug === 'sams-club');
+const counters = [
+  { to: 7, prefix: '~', suffix: 'M', label: 'pages of paper replaced at Sam’s Club' },
+  { to: 335, prefix: '$', suffix: 'k', label: 'saved per year' },
+  { to: 304, prefix: '', suffix: 'k', label: 'manual tasks removed' },
+  { to: 35, prefix: '', suffix: '%', label: 'better net variance (up to, in most clubs)' },
+];
+---
+
+<Sketch title="Sketch C: Clean, Drew Hansen" current="c" bg="#050506">
+  <div class="page">
+    <header class="top wrap">
+      <Wordmark />
+      <div class="top-links">
+        <a href={contact.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn" href={contact.resume} download>Download resume</a>
+      </div>
+    </header>
+
+    <section class="hero wrap" aria-labelledby="c-h1">
+      <h1 id="c-h1" data-reveal>Senior product designer turning legacy systems into modern products.</h1>
+      <div class="hero-row" data-reveal style="--i:2">
+        <div class="me">
+          <Image src={portrait} alt="" widths={[96, 192]} sizes="48px" loading="eager" />
+          <p>Hey, I'm Drew. 10+ years of mobile-first product design, design systems and motion, from Denver.</p>
+        </div>
+        <a class="btn primary" href={`mailto:${contact.email}`}>Get in touch</a>
+      </div>
+    </section>
+
+    <section class="band logos-band" aria-label="Companies I've designed for">
+      <div class="wrap" data-reveal>
+        <LogoStrip variant="row" />
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="c-work-h">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <h2 id="c-work-h">Selected work</h2>
+          <p>Four projects where an outdated or stale experience got a modern second life.</p>
+        </div>
+        <div class="work">
+          {work.map((w, i) => (
+            <a href={`/work/${w.slug}/`} class="item" data-reveal style={`--i:${i % 2}`}>
+              <div class="item-img">
+                <Image src={w.image} alt={w.imageAlt} widths={[640, 960, 1280]} sizes="(min-width: 960px) 600px, 100vw" loading="lazy" />
+              </div>
+              <div class="item-text">
+                <h3>{w.title}</h3>
+                <span class="item-co">{w.company}, {w.year}</span>
+              </div>
+              <p class="item-sum">{w.summary}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {sams && (
+      <section class="band alt" aria-labelledby="c-impact-h">
+        <div class="wrap">
+          <div class="section-head" data-reveal>
+            <h2 id="c-impact-h">Impact you can count</h2>
+            <p>Replacing Sam's Club's 40-year-old pen-and-paper inventory with a mobile app.</p>
+          </div>
+          <dl class="counters">
+            {counters.map((c, i) => (
+              <div data-reveal style={`--i:${i}`}>
+                <dt><span class="count" data-to={c.to} data-prefix={c.prefix} data-suffix={c.suffix}>{c.prefix}{c.to}{c.suffix}</span></dt>
+                <dd>{c.label}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+    )}
+
+    <section class="band" aria-labelledby="c-sys-h">
+      <div class="wrap sys">
+        <div class="section-head" data-reveal>
+          <h2 id="c-sys-h">Design systems</h2>
+          <p>A white-labeled system with swappable tokens for The North Face, Vans and Timberland; Stratus at JumpCloud; shipping on Blue Steel at Sam's Club.</p>
+        </div>
+        <div class="sys-img" data-reveal style="--i:1">
+          <Image src={designSystem} alt="The TNF Atomic Design System organized by component in Abstract." widths={[640, 1200, 1600]} sizes="(min-width: 1200px) 1100px, 100vw" loading="lazy" />
+        </div>
+      </div>
+    </section>
+
+    <section class="band alt" aria-labelledby="c-exp-h">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <h2 id="c-exp-h">Experience</h2>
+          <p>A decade across agency and in-house product teams.</p>
+        </div>
+        <ol class="exp">
+          {experience.map((r, i) => (
+            <li data-reveal style={`--i:${i % 3}`}>
+              <span class="exp-dates">{r.dates}</span>
+              <div>
+                <h3>{r.company}</h3>
+                <p class="exp-role">{r.role}</p>
+                <p class="exp-body">{r.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="c-contact-h">
+      <div class="wrap contact" data-reveal>
+        <h2 id="c-contact-h">Want to work together?</h2>
+        <p>Shoot me a message and I'll get back to you ASAP.</p>
+        <div class="contact-links">
+          <a class="btn primary" href={`mailto:${contact.email}`}>{contact.email}</a>
+          <a class="btn" href={contact.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+          <a class="btn" href={contact.resume} download>Resume</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</Sketch>
+
+<script>
+  // Count numbers up once when they scroll into view.
+  if (document.documentElement.classList.contains('motion')) {
+    const els = document.querySelectorAll<HTMLElement>('.count');
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const el = e.target as HTMLElement;
+          io.unobserve(el);
+          const to = Number(el.dataset.to);
+          const pre = el.dataset.prefix ?? '';
+          const suf = el.dataset.suffix ?? '';
+          const start = performance.now();
+          const tick = (t: number) => {
+            const p = Math.min(1, (t - start) / 1400);
+            const eased = 1 - Math.pow(1 - p, 4);
+            el.textContent = `${pre}${Math.round(to * eased)}${suf}`;
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.6 }
+    );
+    els.forEach((el) => io.observe(el));
+  }
+</script>
+
+<style>
+  .page {
+    --ink: #ffffff;
+    --ink-2: #a1a1aa;
+    --ink-3: #85858f;
+    --line: rgb(255 255 255 / 0.1);
+    --accent: #237cf9;
+    --logo-knock: #050506;
+    --logo-color: rgb(255 255 255 / 0.62);
+    color: var(--ink);
+    font-family: 'Onest Variable', system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1200px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
+  .top { display: flex; justify-content: space-between; align-items: center; padding-block: 1.5rem; }
+  .top-links { display: flex; align-items: center; gap: 1.5rem; font-size: 0.9375rem; color: var(--ink-2); }
+  .top-links > a:not(.btn):hover { color: var(--ink); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    height: 42px;
+    padding-inline: 1.1rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.06);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: background-color 200ms ease;
+  }
+  .btn:hover { background: rgb(255 255 255 / 0.12); }
+  .btn.primary { background: var(--accent); box-shadow: none; }
+  .btn.primary:hover { background: #3a8bff; }
+
+  .hero { padding-block: clamp(5rem, 12vw, 9.5rem) clamp(4rem, 8vw, 6rem); }
+  h1 {
+    max-width: 15ch;
+    font-size: clamp(3rem, 1rem + 7.2vw, 8rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+    text-wrap: balance;
+  }
+  .hero-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 3rem; }
+  .me { display: flex; align-items: center; gap: 1rem; max-width: 52ch; color: var(--ink-2); font-size: 1.125rem; }
+  .me :global(img) { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex: none; }
+
+  .band { padding-block: clamp(5rem, 10vw, 8rem); border-top: 1px solid var(--line); }
+  .band.alt { background: #0b0b0d; }
+  .logos-band { padding-block: 3rem; }
+  .section-head { display: grid; gap: 0.75rem; max-width: 46rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .section-head h2 { font-size: clamp(2.25rem, 1rem + 3.4vw, 4rem); font-weight: 700; letter-spacing: -0.045em; line-height: 1; }
+  .section-head p { color: var(--ink-2); font-size: 1.1875rem; }
+
+  .work { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(2rem, 4vw, 3.5rem) clamp(1.25rem, 3vw, 2.5rem); }
+  .item { display: grid; gap: 0.6rem; }
+  .item-img { overflow: hidden; border-radius: 14px; background: #111113; box-shadow: 0 0 0 1px var(--line); transition: box-shadow 300ms ease; }
+  .item-img :global(img) { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .item:hover .item-img { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.3); }
+  .item:hover .item-img :global(img) { transform: scale(1.035); }
+  .item-text { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 0.6rem; }
+  .item h3 { font-size: 1.375rem; font-weight: 650; letter-spacing: -0.02em; }
+  .item-co { color: var(--ink-3); font-size: 0.9375rem; white-space: nowrap; }
+  .item-sum { color: var(--ink-2); }
+
+  .counters { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); }
+  .counters div { padding: 2rem 1.5rem 0 0; }
+  .counters div + div { padding-left: 1.5rem; border-left: 1px solid var(--line); }
+  .counters dt { font-size: clamp(2.5rem, 1.4rem + 3vw, 4.5rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .counters dd { margin-top: 0.75rem; color: var(--ink-2); }
+
+  .sys-img { overflow: hidden; border-radius: 16px; box-shadow: 0 0 0 1px var(--line); }
+
+  .exp li { display: grid; grid-template-columns: 13rem 1fr; gap: 1.5rem; padding-block: 1.75rem; border-top: 1px solid var(--line); }
+  .exp-dates { color: var(--ink-3); font-size: 0.9375rem; font-variant-numeric: tabular-nums; padding-top: 0.2em; }
+  .exp h3 { font-size: 1.25rem; font-weight: 650; }
+  .exp-role { color: var(--ink-3); font-size: 0.9375rem; }
+  .exp-body { margin-top: 0.5rem; color: var(--ink-2); max-width: 64ch; }
+
+  .contact { text-align: center; display: grid; justify-items: center; gap: 1rem; padding-block: clamp(2rem, 5vw, 4rem); }
+  .contact h2 { font-size: clamp(3rem, 1rem + 6vw, 7rem); font-weight: 700; letter-spacing: -0.05em; line-height: 0.95; }
+  .contact p { color: var(--ink-2); font-size: 1.1875rem; }
+  .contact-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; margin-top: 1rem; }
+
+  @media (max-width: 900px) {
+    .work { grid-template-columns: 1fr; }
+    .counters { grid-template-columns: 1fr 1fr; }
+    .counters div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .exp li { grid-template-columns: 1fr; gap: 0.25rem; }
+  }
+  @media (max-width: 520px) {
+    .top-links > a:not(.btn) { display: none; }
+  }
+</style>

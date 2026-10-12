@@ -1,0 +1,96 @@
+---
+// A dot-matrix city for Let's Meet: a street grid laid on the ground in
+// perspective (and turned at an angle), with a few glowing meetup spots and
+// their ripples. Same dot grid and brightness-only rules as RackDots; seeded.
+import DotField from './DotField.astro';
+
+interface Props {
+  seed?: number;
+  /** Transition name for the picture (see DotField) */
+  name?: string;
+}
+const { seed = 23, name } = Astro.props;
+
+const PITCH = 16;
+// The composition is laid out on a 768x896 frame (the half-width card). The
+// field extends past it to both sides and the top, so a full-screen hero shows
+// more of the same city at the same dot size; the card only shows the frame.
+const BASE_COLS = 48;
+const BASE_ROWS = 56;
+const COLS = 160; // 2560px
+const ROWS = 90; // 1440px
+const W = BASE_COLS * PITCH;
+const H = BASE_ROWS * PITCH;
+const OFF_X = ((COLS - BASE_COLS) / 2) * PITCH; // extension on each side
+const OFF_Y = (ROWS - BASE_ROWS) * PITCH; // extension above
+
+// Randomness keyed to each dot's place in the base frame, so extending the
+// field never reshuffles the dots inside it
+const rnd = (c: number, r: number, k: number) => {
+  const x = Math.sin(c * 127.1 + r * 311.7 + k * 74.7 + seed * 17.3) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+const HORIZON = H * 0.34;
+const CX = W * 0.55;
+const F = 420; // focal length
+const CAM = 90; // camera height
+const ANGLE = (28 * Math.PI) / 180; // street grid turned against the view
+const BLOCK = 120; // world units per block
+const cosA = Math.cos(ANGLE);
+const sinA = Math.sin(ANGLE);
+
+// Meetup spots in world coordinates (x across, z depth)
+const spots = [
+  { x: 60, z: 260 },
+  { x: -230, z: 520 },
+  { x: 260, z: 760 },
+  { x: -60, z: 1250 },
+];
+
+const dots: { x: number; y: number; a: number }[] = [];
+for (let r = 0; r < ROWS; r++) {
+  for (let c = 0; c < COLS; c++) {
+    // Position in the base frame (negative or past W = in the extension)
+    const x = c * PITCH + PITCH / 2 - OFF_X;
+    const y = r * PITCH + PITCH / 2 - OFF_Y;
+    let k = 0;
+    const rand = () => rnd(c - (COLS - BASE_COLS) / 2, r - (ROWS - BASE_ROWS), k++);
+    let a = 0.025 + rand() * 0.035; // quiet base field
+
+    if (y > HORIZON + 4) {
+      // Project the screen point onto the ground plane
+      const z = (F * CAM) / (y - HORIZON);
+      const wx = ((x - CX) * z) / F;
+      // Rotate into street-grid space
+      const u = wx * cosA - z * sinA;
+      const v = wx * sinA + z * cosA;
+      // World distance to the nearest street, compared against one dot's width
+      const du = Math.abs(u / BLOCK - Math.round(u / BLOCK)) * BLOCK;
+      const dv = Math.abs(v / BLOCK - Math.round(v / BLOCK)) * BLOCK;
+      const dotWorld = (PITCH * z) / F; // how much ground one dot covers
+      const street = Math.min(du, dv) < dotWorld * 0.55;
+      if (street) a = 0.38 + rand() * 0.18;
+      else {
+        // Buildings: some blocks lit faintly, like a map's filled blocks
+        const bu = Math.floor(u / BLOCK);
+        const bv = Math.floor(v / BLOCK);
+        const h = Math.abs(Math.sin(bu * 12.9898 + bv * 78.233 + seed) * 43758.5453) % 1;
+        if (h > 0.62) a = 0.1 + rand() * 0.06;
+      }
+      // Meetup spots: a bright core with ripples around it
+      for (const sp of spots) {
+        const d = Math.hypot(wx - sp.x, z - sp.z);
+        const ring = Math.abs(((d / 70) % 1) - 0.5);
+        if (d < dotWorld * 1.2) a = 0.85;
+        else if (d < 230 && ring > 0.4) a = Math.max(a, 0.42 * (1 - d / 230) + 0.12);
+      }
+    }
+    if (rand() < 0.018) a = 0.45 + rand() * 0.3; // sparkle
+    if (rand() < 0.06) continue; // gaps
+    dots.push({ x: x + OFF_X, y: y + OFF_Y, a: Math.round(Math.min(a, 0.9) * 100) / 100 });
+  }
+}
+---
+
+<DotField dots={dots} cols={COLS} rows={ROWS} pitch={PITCH} align="center" fade="bottom" class="meet-dots" name={name} />

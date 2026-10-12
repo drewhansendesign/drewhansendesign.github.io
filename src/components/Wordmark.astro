@@ -1,0 +1,25 @@
+---
+// Drew's DH monogram (carried over from the v1 site), in the page's text color.
+const isHome = Astro.url.pathname === '/';
+---
+
+<a href="/" class="wordmark" aria-label="Drew Hansen, home" aria-current={isHome ? 'page' : undefined}>
+  <svg width="56" height="56" viewBox="0 0 296 296" aria-hidden="true" focusable="false">
+    <path
+      fill="currentColor"
+      d="M148 0C66.3 0 0 66.3 0 148s66.3 148 148 148 148-66.3 148-148S229.7 0 148 0m47.4 228.8c-18.7 14.1-40.7 14.1-47.9 14.1H92.6c-7.3 0-13.1-5.9-13.1-13.1V66.3c0-7.3 5.9-13.1 13.1-13.1h54.9c7.2 0 29.1 0 47.9 14.1 5.8 4.4 7 12.6 2.6 18.4s-12.6 7-18.4 2.6c-10.5-7.9-23.4-8.8-32.1-8.8h-41.7v137.1h41.7c8.7 0 21.6-.9 32.1-8.8 5.8-4.4 14-3.2 18.4 2.6s3.2 14-2.6 18.4m36.3-41.1c-2.1 5.1-7 8.3-12.2 8.3-1.6 0-3.3-.3-4.9-.9-6.7-2.7-10-10.3-7.3-17.1 0-.1 2.8-7.1 4.5-16.8h-51.2v21.7c0 7.3-5.9 13.1-13.1 13.1s-13.1-5.9-13.1-13.1v-69.7c0-7.3 5.9-13.1 13.1-13.1s13.1 5.9 13.1 13.1v21.7H212c-1.8-9.1-5.1-15.1-5.1-15.2-3.7-6.3-1.5-14.3 4.8-17.9 6.3-3.7 14.3-1.5 18 4.8 1 1.7 9.8 17.4 9.8 39.8 0 21.6-7.5 40.5-7.8 41.3"
+    ></path>
+  </svg>
+</a>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    color: var(--text-1, #ecedf0);
+    border-radius: 50%;
+    transition: opacity 200ms ease;
+  }
+  .wordmark:hover {
+    opacity: 0.8;
+  }
+</style>

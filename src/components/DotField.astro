@@ -1,0 +1,188 @@
+---
+// Renders a dot-matrix picture (from RackDots, MeetDots, etc.) on a canvas.
+// Each dot's brightness ships as one character, so the page stays light, and
+// the canvas brightens and swells the dots near the cursor while its card is
+// hovered. Decorative only.
+interface Props {
+  dots: { x: number; y: number; a: number }[];
+  cols: number;
+  rows: number;
+  pitch: number;
+  /** Where the picture anchors when it's cropped to the card: like SVG xMaxYMax / xMidYMax slice */
+  align?: 'right' | 'center';
+  /** Which way it fades out: toward the text side, or from the bottom */
+  fade?: 'side' | 'bottom';
+  class?: string;
+  /** Transition name, so the same picture can travel between pages */
+  name?: string;
+}
+const { dots, cols, rows, pitch, align = 'right', fade = 'side', class: className, name } = Astro.props;
+
+// One char per grid cell: '.' = gap, otherwise base-36 brightness (0-z = 0..1)
+const cells = new Array(cols * rows).fill('.');
+for (const d of dots) {
+  const c = Math.round((d.x - pitch / 2) / pitch);
+  const r = Math.round((d.y - pitch / 2) / pitch);
+  if (c >= 0 && c < cols && r >= 0 && r < rows) cells[r * cols + c] = Math.round(Math.min(1, Math.max(0, d.a)) * 35).toString(36);
+}
+const data = cells.join('');
+---
+
+<canvas
+  class:list={['dot-field', `fade-${fade}`, className]}
+  style={name ? `view-transition-name: ${name}; view-transition-class: case-dots dots-${align};` : undefined}
+  data-cols={cols}
+  data-rows={rows}
+  data-pitch={pitch}
+  data-align={align}
+  data-dots={data}
+  aria-hidden="true"></canvas>
+
+<script>
+  type Field = {
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+    cols: number;
+    rows: number;
+    pitch: number;
+    align: string;
+    alpha: Float32Array; // -1 = gap
+    mx: number;
+    my: number;
+    hover: number; // eased 0..1
+    target: number;
+    raf: number;
+  };
+
+  const RADIUS = 170; // css px of cursor influence
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function draw(f: Field) {
+    const { canvas, ctx, cols, rows, pitch, alpha } = f;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    // Native size, never stretched: anchored bottom and right/centre, the box
+    // just shows more or less of the picture
+    const W = cols * pitch;
+    const H = rows * pitch;
+    const s = 1;
+    const ox = f.align === 'center' ? (w - W * s) / 2 : w - W * s;
+    const oy = h - H * s;
+    const r0 = 1.5 * s;
+    ctx.fillStyle = '#ecedf0';
+    for (let r = 0; r < rows; r++) {
+      const y = oy + (r * pitch + pitch / 2) * s;
+      if (y < -4 || y > h + 4) continue;
+      for (let c = 0; c < cols; c++) {
+        const a = alpha[r * cols + c];
+        if (a < 0) continue;
+        const x = ox + (c * pitch + pitch / 2) * s;
+        if (x < -4 || x > w + 4) continue;
+        let o = a;
+        let rad = r0;
+        if (f.hover > 0.001) {
+          const d = Math.hypot(x - f.mx, y - f.my);
+          if (d < RADIUS) {
+            const k = (1 - d / RADIUS) ** 2 * f.hover;
+            o = Math.min(1, a + k * (0.3 + a * 1.4));
+            rad = r0 * (1 + 0.55 * k);
+          }
+        }
+        if (o < 0.01) continue;
+        ctx.globalAlpha = o;
+        ctx.beginPath();
+        ctx.arc(x, y, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function tick(f: Field) {
+    f.raf = 0;
+    const step = reduce ? 1 : 0.14;
+    f.hover += (f.target - f.hover) * step;
+    if (Math.abs(f.target - f.hover) < 0.01) f.hover = f.target;
+    draw(f);
+    if (f.hover !== f.target) f.raf = requestAnimationFrame(() => tick(f));
+  }
+  const schedule = (f: Field) => {
+    if (!f.raf) f.raf = requestAnimationFrame(() => tick(f));
+  };
+
+  for (const canvas of document.querySelectorAll<HTMLCanvasElement>('canvas.dot-field')) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) continue;
+    const raw = canvas.dataset.dots ?? '';
+    const alpha = new Float32Array(raw.length);
+    for (let i = 0; i < raw.length; i++) alpha[i] = raw[i] === '.' ? -1 : parseInt(raw[i], 36) / 35;
+    const f: Field = {
+      canvas,
+      ctx,
+      cols: Number(canvas.dataset.cols),
+      rows: Number(canvas.dataset.rows),
+      pitch: Number(canvas.dataset.pitch),
+      align: canvas.dataset.align ?? 'right',
+      alpha,
+      mx: -9999,
+      my: -9999,
+      hover: 0,
+      target: 0,
+      raf: 0,
+    };
+    draw(f);
+    new ResizeObserver(() => draw(f)).observe(canvas);
+
+    const host = canvas.closest<HTMLElement>('.card') ?? canvas.parentElement;
+    if (!host) continue;
+    host.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      const rect = canvas.getBoundingClientRect();
+      f.mx = e.clientX - rect.left;
+      f.my = e.clientY - rect.top;
+      f.target = 1;
+      schedule(f);
+    });
+    host.addEventListener('pointerleave', () => {
+      f.target = 0;
+      schedule(f);
+    });
+  }
+</script>
+
+<style>
+  /* Fills whatever it sits in, drawing the picture at its native size (one dot
+     per 16px) anchored to the bottom: a card shows part of it, a full-screen
+     hero shows more, and the dots are the same size in both */
+  .dot-field {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    view-transition-group: nearest;
+  }
+  .fade-side {
+    -webkit-mask-image: linear-gradient(100deg, transparent 20%, #000 60%);
+    mask-image: linear-gradient(100deg, transparent 20%, #000 60%);
+  }
+  .fade-bottom {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 30%, #000 52%);
+    mask-image: linear-gradient(to bottom, transparent 30%, #000 52%);
+  }
+  /* On narrow cards the text sits on top, so side-fading fields rise from the bottom */
+  @media (max-width: 900px) {
+    .fade-side {
+      -webkit-mask-image: linear-gradient(to bottom, transparent 45%, #000 75%);
+      mask-image: linear-gradient(to bottom, transparent 45%, #000 75%);
+    }
+  }
+</style>

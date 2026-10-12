@@ -1,0 +1,495 @@
+---
+// Sam's Club Annual Inventory: the full case study body, told with STAR
+// (Situation, Task, Action, Result). Every number and claim here comes from
+// Drew's answers, the research decks or the Figma hand-off file; projected
+// figures are labeled as projected.
+import './case-study.css';
+import { Image, getImage } from 'astro:assets';
+
+import dashV1 from '../../assets/work/sams/case/dash-v1.png';
+import dashV2 from '../../assets/work/sams/case/dash-v2.png';
+import reviewCount from '../../assets/work/sams/case/review-count.png';
+import filter from '../../assets/work/sams/case/filter.png';
+import countDetails from '../../assets/work/sams/case/count-details.png';
+import approvalSummary from '../../assets/work/sams/case/approval-summary.png';
+import approvalV1 from '../../assets/work/sams/case/approval-v1.png';
+import ownCount from '../../assets/work/sams/case/own-count.png';
+import inventoryToday from '../../assets/work/sams/case/inventory-today.png';
+import clubhouseSession from '../../assets/work/sams/case/photo-clubhouse-session.jpg';
+import wfNested from '../../assets/work/sams/case/wf-nested.png';
+import wfTabs from '../../assets/work/sams/case/wf-tabs.png';
+import wfTop from '../../assets/work/sams/case/wf-top.png';
+import journeyFull from '../../assets/work/sams/case/journey-full.png';
+import explorationsFull from '../../assets/work/sams/case/explorations-full.png';
+import iaFull from '../../assets/work/sams/case/ia-full.png';
+
+import tickets from '../../assets/work/sams/case/photo-precount-tickets.jpg';
+import clothing from '../../assets/work/sams/case/photo-clothing-postits.jpg';
+import crew from '../../assets/work/sams/case/photo-third-party-crew.jpg';
+import handheld from '../../assets/work/sams/case/photo-legacy-handheld.jpg';
+import signout from '../../assets/work/sams/case/photo-dd-signout.jpg';
+import binders from '../../assets/work/sams/case/photo-schedule-binders.jpg';
+
+const chapters = [
+  { id: 'situation', n: '01', label: 'The old way' },
+  { id: 'task', n: '02', label: 'The brief' },
+  { id: 'action', n: '03', label: 'The work' },
+  { id: 'result', n: '04', label: 'What changed' },
+  { id: 'next', n: '05', label: 'Looking back' },
+];
+
+// The old process, in the journey map's own steps and notes (discovery, Fig. 10:279677)
+const journey = [
+  { who: 'Associates', step: 'Precount', note: 'Writing quantities on precount tickets is slow and not error-proof.' },
+  { who: '3rd party', step: 'Download the item file', note: 'Errors or delays here push back the start of the count.' },
+  { who: '3rd party', step: 'Key in precounts', note: 'Precount quantities are hand-keyed, so typos in item numbers or quantities cause many count mismatches.' },
+  { who: '3rd party', step: 'Hand over reports by category', note: 'Printed variance reports go out to associates, split by category.' },
+  { who: 'Associates', step: 'Research variance', note: 'Check the variance, note down the correct number, and hand it back to the 3rd party.' },
+  { who: '3rd party', step: 'Key adjustments', note: 'Update quantities in their system and transmit them to SMART.' },
+  { who: 'Managers', step: 'Print the dollar difference', note: 'Download several reports and research them category by category.' },
+  { who: 'Managers', step: 'Key it into SMART', note: 'Manually keyed in from the paper.' },
+];
+
+// The two halves of the app, from the final IA (Fig. 7:189238)
+const precountFlow = [
+  { who: 'Associate', step: 'Precount', note: 'Count by location or by category, pallet by pallet, then review and submit.' },
+  { who: 'Manager', step: 'Review and reassign', note: 'Check finished areas, and reassign a whole task or a single bay.' },
+  { who: 'Manager', step: 'Spot check', note: 'A blind audit of counted locations and categories.' },
+  { who: 'Manager', step: 'Precount finalization', note: 'Opens a day before the count, to sign off every category and area.' },
+];
+const flow = [
+  { who: 'Manager', step: 'Dollar difference dashboard', note: 'Opens as soon as the 3rd party uploads their count.' },
+  { who: 'Manager', step: 'Highest variance first', note: 'Categories sorted by variance, flagged where a recount is needed over $1,500.' },
+  { who: 'Manager', step: 'Item-level variance', note: 'Accept items under $1,500 as they are, or add them to a recount.' },
+  { who: 'Associate', step: 'Recount by category', note: 'A blind recount, then a reason for any miscount.' },
+  { who: 'Manager', step: 'Recount sign-off', note: 'Accept, or reject and send it back to recount.' },
+  { who: 'OYI', step: 'Final on-hands change', note: 'The approved count updates on-hands in OYI.' },
+];
+
+// Full-size artifacts for the viewer, served as WebP at their working size
+const views = {
+  journey: { img: await getImage({ src: journeyFull, format: 'webp', quality: 82 }), title: 'The discovery journey map', alt: 'The full discovery journey map of the old annual inventory process, from scheduling through precount, the 3rd party count, variance research and the dollar difference sign-off, with photos and notes from club visits.' },
+  explorations: { img: await getImage({ src: explorationsFull, format: 'webp', quality: 85 }), title: 'Dashboard explorations', alt: 'Every dashboard wireframe exploration, labeled: one link to nested dashboard, expose recount options at the top, compress precount into a single card, default to hiding precount, tabs for precount and recount, separate tabs for approvals, integrated tab in header, dashboard at the top level, and replacing the work list tab.' },
+  ia: { img: await getImage({ src: iaFull, format: 'webp', quality: 85 }), title: 'Information architecture', alt: 'The full IA map: OYI to the annual inventory dashboard, branching into precount, spot check and precount finalization, then the dollar difference dashboard, item-level variance, recounts by category and a recount sign-off that ends in a final on-hands change in OYI. Color-coded for manager and associate, and for settled versus still to decide.' },
+};
+
+// The Clubhouse research write-up (Fig. 12:422401): objectives, participants,
+// takeaways and every findings slide, shown as a scrolling report
+const testingFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/work/sams/case/testing/*.png', { eager: true });
+const testingPages = await Promise.all(
+  Object.keys(testingFiles)
+    .sort()
+    .map(async (k) => {
+      const img = await getImage({ src: testingFiles[k].default, format: 'webp', width: 1600, quality: 80 });
+      return { src: img.src, w: Number(img.attributes.width ?? 1600), h: Number(img.attributes.height) };
+    })
+);
+
+const photos = [
+  { src: tickets, alt: 'Pallets of soda with handwritten yellow precount tickets taped to the shrink wrap.', cap: 'Precount tickets, handwritten on marigold paper and taped to each pallet.' },
+  { src: clothing, alt: 'Folded Levi’s t-shirts on a table, covered in pink and yellow sticky notes with counts.', cap: 'Clothing, counted first because it takes longest, tracked on sticky notes.' },
+  { src: signout, alt: 'A printed dollar difference sign-out sheet with rows highlighted green and handwritten names.', cap: 'The dollar difference sign-off: a printout, a highlighter and a pen.' },
+  { src: binders, alt: 'Two white binders labeled Inventory Schedules, Schedule Binder A and B.', cap: 'The schedule, kept in binders.' },
+  { src: handheld, alt: 'A rugged handheld scanner showing a dense blue text-only inventory screen.', cap: 'The legacy handheld software associates had.' },
+];
+
+const constraints = [
+  ['Any device', 'Clubs had all kinds of devices, so screens had to work on all of them.'],
+  ['One hand', 'Associates were often holding a handheld scanner, so the app was built for one-handed use.'],
+  ['No club knowledge', '3rd-party counters didn’t know the store. It had to work for someone who had never been in that club.'],
+  ['Done by 8am', 'The count had to be finished the next morning, before the club opened.'],
+  ['Things move', 'Associates kept working during counts, so pallets moved mid-count.'],
+  ['Hard to read', 'Location signs sat high on the steel, far from the floor.'],
+  ['DNI and clothing', 'Some categories aren’t counted at all (Do Not Inventory). Clothing takes the longest, so it always goes first.'],
+  ['Blue Steel', 'Everything followed Walmart’s Blue Steel design system.'],
+];
+---
+
+<div class="case sams">
+  <!-- At a glance -->
+  <section class="wrap glance" aria-labelledby="glance-title">
+    <h2 id="glance-title" class="visually-hidden">At a glance</h2>
+    <div class="glance-story">
+      <p>Once a year, all Sam’s Club stores count every item on their floors, in one night. Until this project, that meant paper tickets, binders and a 3rd party retyping all of it afterwards.</p>
+      <p>I inherited a precount design nobody had tested yet, then designed everything after the count: variance, recounts and the manager’s final sign-off. We tested it at The Clubhouse, Sam’s full-scale model club.</p>
+      <p>In the pilot, precounts took <strong>4 weeks less</strong>, and net variance improved by <strong>up to 35%</strong> in most clubs. Not bad for something that started as a stack of paper.</p>
+    </div>
+    <dl class="glance-facts">
+      <div><dt>My role</dt><dd>Lead designer for variance, recounts and final approval</dd></div>
+      <div><dt>Team</dt><dd>1 other designer, a PM, 3 engineers and a researcher, with Operations and Asset Protection</dd></div>
+      <div><dt>Timeline</dt><dd>About 6 months, kickoff to pilot in a few clubs</dd></div>
+    </dl>
+  </section>
+
+  <nav class="chapters" aria-label="Chapters">
+    <div class="wrap chapters-inner">
+      <a href="/#work" class="chap-back" aria-label="Home" tabindex="-1">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <line x1="2" y1="7" x2="19" y2="7" />
+          <path d="M7 2 2 7l5 5" />
+        </svg>
+      </a>
+      <ol>
+        {chapters.map((c) => (
+          <li><a href={`#${c.id}`}><span>{c.n}</span>{c.label}</a></li>
+        ))}
+      </ol>
+    </div>
+  </nav>
+
+  <!-- 01 Situation -->
+  <section id="situation" class="chapter" aria-labelledby="situation-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">01</span><p class="chapter-name" aria-hidden="true">The old way</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="situation-title" class="claim"><span class="visually-hidden">The old way: </span>Inventory night ran on paper, one slow step at a time.</h2>
+      <div class="prose">
+        <p>Weeks ahead of the night of inventory, associates precount the reserve steel and write the numbers on paper. On the night, a 3rd-party crew comes in, counts the sales floor and retypes the precounts. Then managers work through variance reports and sign off the dollar difference, on paper, before the club opens.</p>
+        <p>Our research team watched it happen in October 2023 at clubs in Abilene, Texas and Shakopee, Minnesota. In Abilene, the night stalled for <strong>2 hours</strong> while the data file made its way to the 3rd party, with Sam’s associates already on the clock. And when it was all over, about <strong>1,200</strong> items were off on every count.</p>
+      </div>
+    </div>
+
+    <figure class="wrap crew">
+      <Image src={crew} alt="A crowd of 3rd-party counters in yellow safety vests gathered on a club floor before the count." widths={[800, 1280, 1920]} sizes="(min-width: 1376px) 1280px, 100vw" />
+      <figcaption>The 3rd-party crew gathering before the count. They don’t know the club, and they bring their own tagging system.</figcaption>
+    </figure>
+
+    <div class="wrap">
+      <h3 class="sub">The old process, step by step</h3>
+      <p class="prose-narrow">From those visits, we mapped the whole process. Precounts had to be entered before variance reports could run, and variance had to be resolved before the dollar difference report. Everything in between was on paper. The paper lists had no pictures or reference locations, so associates kept looking items up in OYI (Own Your Inventory), the inventory app they already knew from their weekly work.</p>
+      <ol class="ledger" aria-label="The old process, from the journey map">
+        {journey.map((j, i) => (
+          <li>
+            <span class="ledger-n">{String(i + 1).padStart(2, '0')}</span>
+            <p class="ledger-step">{j.step} <span>{j.who}</span></p>
+            <p class="ledger-note">{j.note}</p>
+          </li>
+        ))}
+      </ol>
+      <figure class="hours">
+        <p class="hours-title">Where the hours went</p>
+        <div class="hours-bar" role="img" aria-label="Hours on two steps of inventory night, in order: step 3, keying in precounts, took about 2 hours; step 5, associates recounting and researching variance, took 4 to 8 hours.">
+          <span class="hours-seg hours-type" style="--h: 2" aria-hidden="true"><b>03</b></span>
+          <span class="hours-seg hours-var" style="--h: 4" aria-hidden="true"><b>05</b></span>
+          <span class="hours-seg hours-var-range" style="--h: 4" aria-hidden="true"></span>
+        </div>
+        <div class="hours-axis" aria-hidden="true"><span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10 hrs</span></div>
+        <figcaption class="hours-key">
+          <span><i class="key-type"></i><strong>03 · ~2 hrs</strong> keying in precounts</span>
+          <span><i class="key-var"></i><strong>05 · 4–8 hrs</strong> associates recounting and researching variance</span>
+        </figcaption>
+      </figure>
+      <button type="button" class="view-btn" data-view="journey"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" /></svg> See the full journey map</button>
+    </div>
+
+    <div class="scroller photos" data-scroller>
+      <div class="scroller-track strip" role="list" tabindex="0" aria-label="Photos of the paper process">
+        {photos.map((p) => (
+          <figure role="listitem">
+            <Image src={p.src} alt={p.alt} widths={[400, 600, 900]} sizes="(min-width: 900px) 340px, 70vw" draggable="false" />
+            <figcaption>{p.cap}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <div class="wrap scroller-foot scroller-foot-end">
+        <div class="scroller-btns">
+          <button type="button" data-dir="-1" aria-label="Previous photos"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4 6 9l5 5" /></svg></button>
+          <button type="button" data-dir="1" aria-label="More photos"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l5 5-5 5" /></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 Task -->
+  <section id="task" class="chapter" aria-labelledby="task-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">02</span><p class="chapter-name" aria-hidden="true">The brief</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="task-title" class="claim"><span class="visually-hidden">The brief: </span>I picked up precount and carried it to the final count.</h2>
+      <div class="task-grid">
+        <div class="prose">
+          <p>The decision to go digital was made before I arrived, and precount discovery was done. Precount designs were in progress, but they hadn’t been put in front of associates yet.</p>
+          <p>My job was to validate that direction and design everything after it: <strong>variance</strong>, <strong>recounts</strong> and <strong>approving the final count</strong>. Testing changed some of what I inherited, and what we learned went back into later versions of precount and postcount.</p>
+        </div>
+        <figure class="brief">
+          <blockquote>
+            <p>Today, when associates start the annual inventory process, they begin weeks in advance (pre-count); on the day of inventory a 3rd party must manually initiate the transfer of data, duplicate data entry, and record everything on paper. This is unacceptable because it is laborious and causes inaccuracies and inefficiencies.</p>
+          </blockquote>
+          <figcaption>The original brief</figcaption>
+          <p class="brief-goal"><span>The goal</span>Determine what is needed to move off the SMART system and create efficiencies and accuracies in the overall process.</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Action -->
+  <section id="action" class="chapter" aria-labelledby="action-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">03</span><p class="chapter-name" aria-hidden="true">The work</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="action-title" class="claim"><span class="visually-hidden">The work: </span>What I designed, and why</h2>
+    </div>
+
+    <!-- 3.1 Floor -->
+    <article class="wrap beat" aria-labelledby="floor-title">
+      <h3 id="floor-title" class="beat-title">Designing for a warehouse at midnight</h3>
+      <p class="prose-narrow">Counts run overnight and have to be done before the doors open. Here’s what every screen was up against.</p>
+      <dl class="constraints">
+        {constraints.map(([t, d]) => (
+          <div><dt>{t}</dt><dd>{d}</dd></div>
+        ))}
+      </dl>
+    </article>
+
+    <!-- 3.2 IA -->
+    <article class="wrap beat" aria-labelledby="ia-title">
+      <h3 id="ia-title" class="beat-title">Mapping the app first</h3>
+      <div class="prose-narrow">
+        <p>Before designing screens, I mapped the app end to end: every screen from the OYI entry point, who uses it, and what we’d settled versus what was still open.</p>
+        <p>It covers both halves of the job: getting ready in the weeks before, and sorting out variance after the count.</p>
+      </div>
+      <div class="lanes">
+        {[
+          { label: 'Before the count', note: 'Precount and spot checks, in the weeks ahead', steps: precountFlow },
+          { label: 'After the count', note: 'Variance, recounts and approval, once the 3rd party uploads', steps: flow },
+        ].map((lane) => (
+          <section class="lane" aria-label={lane.label}>
+            <h4 class="lane-label">{lane.label} <span>{lane.note}</span></h4>
+            <ol class="flow">
+              {lane.steps.map((f) => (
+                <li class:list={['flow-node', f.who === 'OYI' && 'flow-end']}>
+                  <span class:list={['flow-who', `who-${f.who.toLowerCase()}`]}>{f.who}</span>
+                  <p class="flow-step">{f.step}</p>
+                  <p class="flow-note">{f.note}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))}
+      </div>
+      <button type="button" class="view-btn" data-view="ia"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" /></svg> See the full IA</button>
+    </article>
+
+    <!-- 3.3 Stakeholders -->
+    <article class="wrap beat split" aria-labelledby="stake-title">
+      <div class="beat-text">
+        <h3 id="stake-title" class="beat-title">Getting Operations and Asset Protection to agree</h3>
+        <div class="prose">
+          <p>Operations and Asset Protection both had strong opinions, and they often pulled in different directions. Getting them to agree was a daily job.</p>
+          <p>Even the name of the section was contested. At The Clubhouse, managers suggested five: Dollar difference, Recount, Post-count, Validation and Finalize. One thing wasn’t up for debate. Compliance says a manager can’t approve a count they did themselves. That doesn’t stop managers from helping count. The app just won’t let them approve their own work.</p>
+        </div>
+      </div>
+      <figure class="phone">
+        <Image src={ownCount} alt="Dialog: You can’t approve your own count. Another manager must approve this category to meet compliance guidelines." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 70vw" />
+        <figcaption>The one place the app says no.</figcaption>
+      </figure>
+    </article>
+
+    <!-- 3.4 Variance dashboard -->
+    <article class="wrap beat" aria-labelledby="dash-title">
+      <h3 id="dash-title" class="beat-title">Every manager wanted a different dashboard</h3>
+      <div class="prose-narrow">
+        <p>This took the most trial and error. Every manager expected different content in a different order, because each had their own way of working the old paper process.</p>
+        <p>Before anything went to high fidelity, I worked through the options in wireframes: one link out to a separate dashboard, recount options at the top of the main page, compressed precount cards, tabs for precount and recount, a tab for approvals, and the dashboard as the top level.</p>
+        <p>The first high-fidelity version sent managers off through two buttons, Review count and Recount status. In testing, managers clearly preferred the next version: tabs with progress dials for Review, Recount and Approved. It matched the OYI audits they already used, showed how far along the count was, and replaced a handful of “done” states with one: “Approved”.</p>
+      </div>
+      <div class="wires">
+        <ul class="wire-row" aria-label="Three of the dashboard explorations">
+        <li>
+          <Image src={wfNested} alt="Wireframe: the annual inventory page with a single dollar difference link, opening a nested dashboard with a variance chart and categories." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <p>One link to a nested dashboard</p>
+        </li>
+        <li>
+          <Image src={wfTabs} alt="Wireframe: the annual inventory page with tabs for precount and recount tasks above the task cards." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <p>Tabs for precount and recount tasks</p>
+        </li>
+        <li>
+          <Image src={wfTop} alt="Wireframe: the dollar difference dashboard as the top level, with net variance, a counted versus on-hands chart and categories sorted by variance." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <p>The dashboard as the top level</p>
+        </li>
+      </ul>
+      <button type="button" class="view-btn" data-view="explorations"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" /></svg> See more explorations</button>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <span class="tag">Early version</span>
+          <Image src={dashV1} alt="Version 1 dashboard: net variance of $398,239, with two buttons below, Review count and Recount status, each at 0%." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Net variance up top, then two buttons that each lead somewhere else.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag tag-final">Final version</span>
+          <Image src={dashV2} alt="Version 2 dashboard: net variance of $398,239, three progress dials for Review, Recount and Approved, and a list of categories sorted by highest variance." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Progress for every stage, biggest variances first.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- 3.5 Filters -->
+    <article class="wrap beat split split-pair" aria-labelledby="filter-title">
+      <div class="beat-text">
+        <h3 id="filter-title" class="beat-title">Filters were weirdly contentious</h3>
+        <div class="prose-narrow">
+          <p>Nobody expected filters to be the fight. Habits and business rules carried over from paper: variance over $1,500 needs a sign-off, and items under $200 were expected to be approved automatically. Getting the right data from the 3rd party didn’t help.</p>
+          <p>Managers in testing were fine with a $200 default, but they were clear about two things: they wanted to see every variance when they chose to, and nothing should change on-hands without their sign-off. So the default became “All”, matching OYI. Thresholds of $200, $500, $1,000 and $1,500 sit one tap away, and the list is sorted by highest variance. The filter also works on individual items, not a category’s net total, so a $1,500 loss can’t hide behind a $1,500 gain.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={filter} alt="Filter sheet: variance threshold options All, $200, $500, $1,000 and $1,500 or more, with $1,500 selected." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 76vw" />
+          <figcaption>Variance thresholds one tap away, from All up to $1,500 or more.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={reviewCount} alt="Review count for Coffee and breakfast: total variance down $29,509 across 29 items, with a belVita item flagged Recount required." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 76vw" />
+          <figcaption>Items sorted by highest variance, flagged where a recount is required.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- 3.6 Count details -->
+    <article class="wrap beat split" aria-labelledby="details-title">
+      <div class="beat-text">
+        <h3 id="details-title" class="beat-title">The page we got wrong: count details</h3>
+        <div class="prose">
+          <p>When a manager questions a variance, they open the item’s count details to see who counted what, and where. We first organized that page by Sam’s own locations. It made sense to us, but the 3rd party doesn’t use our locations.</p>
+          <p>The 3rd party walks the club and re-tags every area with its own IDs, duplicating Sam’s tags, and everyone works from a printout to translate between them. Their counts arrive grouped by their tags, not ours. So we rebuilt it around how the 3rd party’s data actually comes in: the 3rd-party count broken out by their tags, the associates’ precount beneath it, and who counted and approved each one.</p>
+          <p>Managers at The Clubhouse liked this version, and said that mapping the 3rd party’s tags to club locations would be a huge win, so that became a next step. We also cut a few extra numbers that made people unsure which one was the real total.</p>
+        </div>
+      </div>
+      <figure class="phone">
+        <Image src={countDetails} alt="Count details for a belVita item: 3rd-party count of 192, split across Tag 3890, 3891 and 3892, above the associate precount of 297 by Greg Walter, approved by Jessica Matthews." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 70vw" />
+        <figcaption>The 3rd party’s count, by their own tags, with the precount beneath it.</figcaption>
+      </figure>
+    </article>
+
+    <!-- 3.7 Clubhouse -->
+    <article class="wrap beat" aria-labelledby="clubhouse-title">
+      <h3 id="clubhouse-title" class="beat-title">Testing at The Clubhouse</h3>
+      <div class="prose-narrow">
+        <p>The Clubhouse is Sam’s full-scale model club in Bentonville. We could run a full simulation of inventory night there without getting in the way of a real store’s day-to-day flow. We set it up just like the real thing, then watched associates precount on the dev build and walked managers through the dollar difference flow.</p>
+        <p>Participants were MAPMs (market asset protection managers), club leads, managers and hourly associates, with between 1 and 31 years at the company.</p>
+        <p>The test had gaps of its own. The pallets had no labels, so we couldn’t test pallet scanning, and a bug kept the Review button from turning on. We logged both, and next time we’d schedule sessions by role.</p>
+      </div>
+      <figure class="wide-photo">
+        <Image src={clubhouseSession} alt="Overhead view of a testing session at The Clubhouse: associates and managers gathered beside a wrapped pallet of paper towels and empty steel shelving." widths={[800, 1280, 1888]} sizes="(min-width: 1376px) 1280px, 100vw" />
+        <figcaption>A testing session on the Clubhouse floor.</figcaption>
+      </figure>
+      <ul class="findings">
+        <li><strong>It was easy to use.</strong> People rarely had to stop and think about where to go next.</li>
+        <li><strong>Managers liked the progress dials.</strong> They showed where the count stood at a glance.</li>
+        <li><strong>The barcode was obvious.</strong> Two of three associates reached for their handheld as soon as they saw scanning.</li>
+        <li><strong>Approving made managers nervous.</strong> One tap felt too final, and they couldn’t tell when they were actually done.</li>
+      </ul>
+      <button type="button" class="view-btn" data-view="testing"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" /></svg> See full research report</button>
+    </article>
+
+    <!-- 3.8 Approval -->
+    <article class="wrap beat split split-pair" aria-labelledby="approve-title">
+      <div class="beat-text">
+        <h3 id="approve-title" class="beat-title">Rewriting the last tap</h3>
+        <div class="prose-narrow">
+          <p>Approving a count changes the club’s on-hand numbers. On paper, that meant signing a printout. In the app it’s one tap, so that confirmation screen had to do a lot of work.</p>
+          <p>Our first version was a small “Confirm approval” dialog. It wasn’t a bare “Are you sure?”, but it rolled everything into one set of totals: items, on-hands, counted and variance. It showed a number but didn’t say what would happen to it. Managers wanted more.</p>
+          <p>So we changed the content. The new summary splits decreases from increases and shows before and after quantities, plus the total net variance. It’s laid out like the OYI audits managers already sign. Cancel changes nothing.</p>
+          <p>At The Clubhouse, managers recognized the summary straight away. But the final tap still felt like there was no way back, and they asked for undo and a clear sign the count was finished. Those became next steps.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <span class="tag">Early version</span>
+          <Image src={approvalV1} alt="Earlier Confirm approval dialog: total items 2, on hands 97, counted 92, variance down $945.00, with Go back and Confirm buttons." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Just totals, with no hint of what will change.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag tag-final">Final version</span>
+          <Image src={approvalSummary} alt="Summary of approvals sheet: all decreases (120 items) from 2,357 to 1,922, down $29,509; all increases (14 items) from 125 to 135, up $670; total net variance down $28,839; Cancel and Confirm buttons." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Decreases and increases, before and after, like an OYI audit.</figcaption>
+        </figure>
+      </div>
+    </article>
+  </section>
+
+  <!-- 04 Result -->
+  <section id="result" class="chapter" aria-labelledby="result-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">04</span><p class="chapter-name" aria-hidden="true">What changed</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="result-title" class="claim"><span class="visually-hidden">What changed: </span>Paper’s out. It’s running in pilot clubs.</h2>
+      <div class="prose-narrow">
+        <p>When I left, the app was in pilot at a few clubs. Here’s what we measured, and separately, what’s still projected.</p>
+        <p>The people using it wanted it. In testing, associates and managers were excited to see the “archaic” paper process go, and moved through both flows with little confusion.</p>
+      </div>
+
+      <div class="result-row">
+        <div class="results">
+        <div class="results-group">
+          <h3>Measured in the pilot</h3>
+          <dl>
+            <div><dt>4 weeks</dt><dd>less time spent on precounts</dd></div>
+            <div><dt>Up to 35%</dt><dd>net variance improvement, in most clubs</dd></div>
+          </dl>
+        </div>
+        <div class="results-group projected">
+          <h3>Projected</h3>
+          <dl>
+            <div><dt>~7M</dt><dd>pages of paper removed</dd></div>
+            <div><dt>304k</dt><dd>manual tasks eliminated</dd></div>
+            <div><dt>$335k</dt><dd>saved per year, from paper alone</dd></div>
+          </dl>
+        </div>
+      </div>
+
+        <figure class="phone">
+          <Image src={inventoryToday} alt="Associate dashboard on inventory day: precount 100% complete, 40 of 40 locations and 8 of 8 categories, and spot check 100% complete." widths={[360, 540, 720]} sizes="(min-width: 900px) 260px, 70vw" />
+          <figcaption>Inventory day, with precount and spot checks already done.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 Reflection and next steps -->
+  <section id="next" class="chapter" aria-labelledby="next-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">05</span><p class="chapter-name" aria-hidden="true">Looking back</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="next-title" class="claim"><span class="visually-hidden">Looking back: </span>I wish I’d joined earlier, and brought more Red Bull.</h2>
+      <div class="prose reflection">
+        <p>This is one of the most impactful projects I’ve worked on. Moving a process from pen and paper to digital is a real quality-of-life improvement for everyone involved at Sam’s, from associates on the floor to the asset protection and operations managers who oversee them.</p>
+        <p>I underestimated how much knowledge of the old process would shape the new one. Years of paper habits decided what managers expected from the dashboard, the filters and the approval. Designing the flow also meant designing for that change, especially for longer-tenured associates.</p>
+        <p>If I could do it again, I’d get involved earlier. I’d go to more inventory nights and talk with more MAPMs and associates up front about what would help them. A lot of what we discovered deep into the project could have surfaced in the first few weeks.</p>
+      </div>
+      <h3 class="sub">What testing told us to do next</h3>
+      <ol class="next-steps">
+        <li><strong>Map the 3rd party’s tags to club locations.</strong> Managers called it a huge win that would make counting much more efficient.</li>
+        <li><strong>Let managers undo or edit an approval.</strong> Something can come up later in the night, and an undo would take the pressure off.</li>
+        <li><strong>Mark the finish.</strong> Managers wanted a clear “you’re done” screen instead of wondering if there was more to do.</li>
+        <li><strong>Scan to enter a location.</strong> Associates tried to scan the aisle barcode to start a count, so let them.</li>
+      </ol>
+    </div>
+  </section>
+
+  <dialog class="viewer" aria-labelledby="viewer-title">
+    <div class="viewer-bar">
+      <p id="viewer-title" class="viewer-title"></p>
+      <div class="viewer-actions">
+        <button type="button" class="viewer-zoom" aria-pressed="false">Zoom in</button>
+        <button type="button" class="viewer-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 4l10 10M14 4 4 14" /></svg>
+        </button>
+      </div>
+    </div>
+    <div class="viewer-stage" tabindex="0" aria-label="Image, scrollable when zoomed">
+    </div>
+    <p class="viewer-hint">Click the image to zoom. Drag or scroll to look around, and press Esc to close.</p>
+  </dialog>
+  <script type="application/json" id="viewer-data" set:html={JSON.stringify({
+    ...Object.fromEntries(Object.entries(views).map(([k, v]) => [k, { src: v.img.src, w: v.img.attributes.width ?? v.img.options.width, h: v.img.attributes.height ?? v.img.options.height, title: v.title, alt: v.alt }])),
+    testing: { title: 'Clubhouse testing results', alt: 'Clubhouse testing results', pages: testingPages },
+  })} />
+</div>
+
+<script>
+  import './case-study.ts';
+</script>
+
+<style>
+  /* Sam's blue drives the shared case study accents */
+  .sams {
+    --accent: #4aa3df;
+    --accent-soft: rgb(0 103 160 / 0.22);
+  }
+</style>

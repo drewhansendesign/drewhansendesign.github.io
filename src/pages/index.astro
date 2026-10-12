@@ -1,0 +1,307 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Wordmark from '../components/Wordmark.astro';
+import LogoStrip from '../components/LogoStrip.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { work, experience, contact } from '../data/site';
+import portrait from '../assets/about/drew-portrait.png';
+
+const headline = ['I', 'sweat', 'the', 'details', 'so', 'you', 'don’t', 'have', 'to.'];
+---
+
+<Base
+  intro
+  title="Drew Hansen, Senior Product Designer"
+  description="Drew Hansen is a senior product designer in Denver with a motion design background, designing new experiences and modernizing legacy ones for brands like Sam's Club, Tinder and The North Face."
+>
+  <header class="top wrap">
+    <Wordmark />
+    <div class="top-meta">
+      <span class="top-name">Drew Hansen</span>
+      <nav aria-label="Contact">
+        <a href={contact.resume} download>Resume</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <h1 id="hero-title">
+      {headline.map((w, i) => (
+        <><span class="word" data-reveal style={`--i:${i}`}>{w}</span>{' '}</>
+      ))}
+    </h1>
+    <div class="hero-foot">
+      <p data-reveal style="--i:9">
+        I'm a senior product designer with a motion design background. For over a decade I've
+        been designing new products, modernizing legacy ones, and everything in between.
+      </p>
+    </div>
+  </section>
+
+
+  <section id="work" class="work wrap" aria-labelledby="work-title">
+    <h2 id="work-title" class="visually-hidden">Selected work</h2>
+    <div class="cards">
+      {work.map((w, i) => (
+        <WorkCard work={w} wide={i === 0 || i === work.length - 1} showImpact={i === 0} texture={i === 0 ? "dots" : i === 1 ? "map" : i === 2 ? "topo" : i === 3 ? "network" : undefined} index={10 + i} onLoad />
+      ))}
+    </div>
+  </section>
+
+
+  <section id="experience" class="exp wrap" aria-labelledby="exp-title">
+    <h2 id="exp-title" class="callout" data-reveal>Experience</h2>
+    <ol class="timeline">
+      {experience.map((r, i) => (
+        <li class:list={['stop', r.current && 'current']} data-reveal style={`--i:${i % 3}`}>
+          <span class="node" aria-hidden="true"></span>
+          <div class="stop-body">
+            <p class="stop-meta">
+              <span class="stop-dates">{r.dates}</span>
+            </p>
+            <h3 class="stop-co">{r.company}</h3>
+            <p class="stop-role">{r.role}</p>
+            {r.body && <p class="stop-text">{r.body}</p>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="trusted" aria-label="Brands I've designed for" data-reveal>
+    <LogoStrip variant="marquee" />
+  </section>
+
+  <section id="about" class="about wrap" aria-labelledby="about-title">
+    <div class="about-img" data-reveal>
+      <Image
+        src={portrait}
+        alt="Drew Hansen in a black cap and glasses."
+        widths={[480, 900]}
+        sizes="(min-width: 960px) 40vw, 100vw"
+        loading="lazy"
+      />
+    </div>
+    <div class="about-text">
+      <h2 id="about-title" class="callout" data-reveal>Hey, I'm Drew.</h2>
+      <p data-reveal style="--i:1">
+        I started in broadcast motion graphics, studied New Media Design at RIT, and have spent the
+        last decade designing mobile-first products and the design systems behind them. Motion is
+        still how I make interactions feel lovable.
+      </p>
+      <p class="off" data-reveal style="--i:2">Off the clock: metal shows, curling and sim racing in Denver.</p>
+    </div>
+  </section>
+
+  <section id="contact" class="contact wrap" aria-labelledby="contact-title">
+    <h2 id="contact-title" class="callout callout-xl" data-reveal>Let's work together.</h2>
+    <div class="contact-links" data-reveal style="--i:1">
+      <a class="pill pill-solid" href={`mailto:${contact.email}`}>{contact.email}</a>
+      <a class="pill" href={contact.linkedin} target="_blank" rel="me noopener">LinkedIn<span class="visually-hidden"> (opens in a new tab)</span></a>
+      <a class="pill" href={contact.resume} download>Resume</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 1.75rem;
+  }
+  .top :global(.wordmark) {
+    font-family: inherit;
+  }
+  .top-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    font-size: var(--fs-small);
+    color: var(--text-2);
+  }
+  .top-name {
+    color: var(--text-1);
+  }
+  .top nav {
+    display: flex;
+    gap: 1.75rem;
+  }
+  .top nav a {
+    transition: color 200ms ease;
+  }
+  .top nav a:hover {
+    color: var(--text-1);
+  }
+
+  .hero {
+    padding-block: clamp(5rem, 12vw, 10rem) clamp(4rem, 8vw, 7rem);
+  }
+  h1 {
+    max-width: 14ch;
+    font-size: var(--fs-hero);
+    font-weight: 600;
+    line-height: 0.94;
+    letter-spacing: -0.045em;
+    word-spacing: -0.06em;
+  }
+  .word {
+    display: inline-block;
+  }
+  .hero-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+  .hero-foot p {
+    max-width: 46ch;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--text-2);
+  }
+
+  .trusted {
+    --logo-knock: var(--bg);
+    padding-top: var(--section-gap);
+  }
+
+  /* The cards follow the intro directly */
+  .work {
+    padding-top: clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .exp {
+    padding-top: var(--section-gap);
+  }
+  .exp .callout {
+    margin-bottom: 2.5rem;
+  }
+  /* Timeline: a rail with a node per role, details to the right */
+  .timeline {
+    position: relative;
+    --rail-x: 5.5px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: var(--rail-x);
+    top: 0.9rem;
+    bottom: 0.9rem;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent) 0, var(--line-strong) 9rem, var(--line) 100%);
+    translate: -0.5px 0;
+  }
+  .stop {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    align-items: start;
+    padding-block: 0 clamp(2.25rem, 1.5rem + 2vw, 3.25rem);
+  }
+  .stop:last-child {
+    padding-bottom: 0;
+  }
+  .node {
+    justify-self: start;
+    width: 11px;
+    height: 11px;
+    margin-top: 0.55rem;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1.5px var(--text-3);
+  }
+  .current .node {
+    background: var(--accent);
+    box-shadow: 0 0 0 5px var(--accent-soft);
+  }
+  .stop-body {
+    display: grid;
+    gap: 0.2rem;
+    max-width: 60ch;
+  }
+  .stop-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--fs-meta);
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .stop-co {
+    font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.875rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+  .stop-role {
+    color: var(--text-2);
+  }
+  .stop-text {
+    margin-top: 0.6rem;
+    color: var(--text-3);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+  }
+
+  .about {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: center;
+    padding-top: var(--section-gap);
+  }
+  .about-img {
+    overflow: hidden;
+    border-radius: 24px;
+  }
+  .about-img :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .about-text {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .about-text p {
+    max-width: 38ch;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--text-2);
+  }
+  .about-text .off {
+    font-size: var(--fs-body);
+    color: var(--text-3);
+  }
+
+  .contact {
+    padding-block: var(--section-gap) clamp(6rem, 10vw, 9rem);
+  }
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 900px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+    .about {
+      grid-template-columns: 1fr;
+    }
+    .stop {
+      grid-template-columns: 1.75rem 1fr;
+    }
+  }
+</style>

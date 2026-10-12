@@ -1,0 +1,409 @@
+---
+// The North Face website refresh: the full case study body, told with STAR
+// like Sam's and Tinder. Every number and claim comes from Drew's answers,
+// his live case study and the original project boards.
+import './case-study.css';
+import { Image, getImage } from 'astro:assets';
+import Icon from '../Icon.astro';
+
+import pdpDesktopBefore from '../../assets/work/tnf/case/pdp-desktop-before.png';
+import pdpDesktopAfter from '../../assets/work/tnf/case/pdp-desktop-after.png';
+import pdpMobileBefore from '../../assets/work/tnf/case/pdp-mobile-before.png';
+import pdpMobileAfter from '../../assets/work/tnf/case/pdp-mobile-after.png';
+import affinity from '../../assets/work/tnf/case/affinity.png';
+import icons from '../../assets/work/tnf/case/icons.png';
+import typography from '../../assets/work/tnf/case/typography.png';
+// Tight crops of the icon and type boards, shown at the text column's width: cut
+// from icons.png (the suite card, x890 y324) and typography.png (the Titles
+// card down to Title 3, with 34px added on top), padded to 4:3 with each board's own white
+import iconsSuite from '../../assets/work/tnf/case/icons-suite.png';
+import typeTitles from '../../assets/work/tnf/case/type-titles.png';
+import homepage from '../../assets/work/tnf/case/homepage-annotated.png';
+// The homepage's building blocks, cut from board-homepage.png. Two crops had
+// the board's annotation marks on them, and only those marks were removed:
+// the UGC crop has one tick in its top-right margin painted white, and in the
+// shop-by-image crop the 6px leader line across the photo is filled from the
+// rows above and below it (the hotspot marker it crossed is mirrored from its
+// own top half). Nothing else on the page was touched
+import blockActivity from '../../assets/work/tnf/case/block-activity.png';
+import blockHotspot from '../../assets/work/tnf/case/block-hotspot.png';
+import blockImmersive from '../../assets/work/tnf/case/block-immersive.png';
+import blockQuote from '../../assets/work/tnf/case/block-quote.png';
+import blockUgc from '../../assets/work/tnf/case/block-ugc.png';
+import blockLoyalty from '../../assets/work/tnf/case/block-loyalty.png';
+// The info strip under the photo on the same listing card, with and without
+// stars: cut from stars-on.png and stars-off.png, the second shifted 7px and
+// padded so the two line up
+import starsOn from '../../assets/work/tnf/case/stars-on-info.png';
+import starsOff from '../../assets/work/tnf/case/stars-off-info.png';
+import system from '../../assets/work/tnf/case/system.png';
+import competitiveFull from '../../assets/work/tnf/case/competitive.jpg';
+import blindFull from '../../assets/work/tnf/case/blind-test.png';
+import boardHomepage from '../../assets/work/tnf/case/board-homepage.png';
+import boardPlp from '../../assets/work/tnf/case/board-plp.png';
+import boardPdp from '../../assets/work/tnf/case/board-pdp.png';
+import boardCart from '../../assets/work/tnf/case/board-cart.png';
+
+const chapters = [
+  { id: 'situation', n: '01', label: 'The old way' },
+  { id: 'task', n: '02', label: 'The brief' },
+  { id: 'action', n: '03', label: 'The work' },
+  { id: 'result', n: '04', label: 'What changed' },
+  { id: 'next', n: '05', label: 'Looking back' },
+];
+
+
+// The new homepage's building blocks, in page order, described in the board's
+// own words. The transparent header and pill buttons are in the hero above
+const blocks = [
+  // A short, wide strip, padded top and bottom with the page's own white so
+  // it matches the other blocks' height without being blown up
+  { src: blockActivity, name: 'Shop by activity', text: 'Secondary categories as photo tiles, balancing navigation with promotions.', alt: 'The Explore by Activity row: photo tiles for Hike, Climb and Trail Run.' },
+  { src: blockHotspot, name: 'Shop by image', text: 'Hotspots on a photo that link straight to the product page.', alt: 'A lifestyle photo in a van with an open hotspot card: Men’s Summit Down Hoodie, $149.99, Shop Now.' },
+  { src: blockImmersive, name: 'Immersive products', text: 'In-context photography with cut-out products or video, for new products and tech features.', alt: 'An immersive product block: a climber on a snowy ridge above a cut-out orange Summit Series down jacket, with the headline Athlete Tested, Expedition Proven and two pill buttons.' },
+  { src: blockQuote, name: 'Type-only quotes', text: 'Breathing room between big images, with space for a call to action.', alt: 'A type-only quote block with placeholder text, attributed to a VIPeak member review, and a pill button.' },
+  { src: blockUgc, name: 'Customer photos', text: 'A redesign of an already heavily used section of user-generated content.', alt: 'The #NeverStopExploring block: a grid of customer photos in The North Face gear, with links to explore the gallery and add a photo.' },
+  { src: blockLoyalty, name: 'Loyalty', text: 'A loyalty call to action anchoring the bottom of the page, an approach validated in testing.', alt: 'The VIPeak loyalty block on a dark background: Explore & Get Rewarded, the program’s perks, and a Join VIPeak Now pill button.' },
+];
+
+const full = (src: ImageMetadata) => getImage({ src, format: 'webp', quality: 85 });
+// Brand guesses from the blind test board: the top three for the current page
+// and the final design. Counts are how many times each brand was named.
+const guesses = [
+  { label: 'Current page', rows: [['The North Face', 14, 'tnf'], ['Columbia', 9, ''], ['REI', 3, '']] },
+  { label: 'Final new design', rows: [['Patagonia', 13, 'pat'], ['Columbia', 7, ''], ['The North Face', 5, 'tnf']] },
+] as const;
+
+const views = {
+  affinity: { img: await full(affinity), title: 'Stakeholder interview affinity map', alt: 'The stakeholder interview affinity map, at full size.' },
+  icons: { img: await full(icons), title: 'The full icon board', alt: 'The icon work, at full size.' },
+  typography: { img: await full(typography), title: 'The new type scale', alt: 'The new type scale, at full size.' },
+  system: { img: await full(system), title: 'The design system in Abstract', alt: 'The design system in Abstract, at full size.' },
+  competitive: { img: await getImage({ src: competitiveFull, format: 'webp', quality: 82 }), title: '#Vanlife competitive analysis', alt: 'The #Vanlife competitive analysis board comparing The North Face with Patagonia, Burton, Fjallraven, Canada Goose and Arc’teryx: spoken keywords, user impressions, response clips, how likely people were to shop each brand, and UX observations.' },
+  blind: { img: await getImage({ src: blindFull, format: 'webp', quality: 85 }), title: 'Product page blind test', alt: 'The blind test board: five versions of the mobile product page with the logo removed, and for each one, which brands people guessed, the quality they expected on a 1 to 7 scale, and the price they expected.' },
+};
+
+// Full project boards, shown as scrolling reports in the viewer
+const report = (srcs: ImageMetadata[]) =>
+  Promise.all(
+    srcs.map(async (src) => {
+      const img = await getImage({ src, format: 'webp', width: 1600, quality: 80 });
+      return { src: img.src, w: Number(img.attributes.width ?? 1600), h: Number(img.attributes.height) };
+    })
+  );
+const homepagePages = await report([boardHomepage]);
+const interiorPages = await report([boardPlp, boardPdp, boardCart]);
+
+const EXPAND = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" /></svg>';
+---
+
+<div class="case tnf">
+  <!-- At a glance -->
+  <section class="wrap glance" aria-labelledby="glance-title">
+    <h2 id="glance-title" class="visually-hidden">At a glance</h2>
+    <div class="glance-story">
+      <p>thenorthface.com had fallen behind. All-caps headlines, icons pulled from a handful of different sets and cramped layouts made a premium brand look ordinary, and The North Face wanted to be seen the way people see Patagonia.</p>
+      <p>I led the redesign. I rebuilt every component on the site, from the icons to the type, tested it with more than 1,000 people, and turned it all into one design system.</p>
+      <p>In a blind test with the logo hidden, people guessed the redesigned product page was selling something <strong>36% more expensive</strong>. Same jacket.</p>
+    </div>
+    <dl class="glance-facts">
+      <div><dt>My role</dt><dd>Lead designer on the website redesign</dd></div>
+      <div><dt>Team</dt><dd>A design director, a PM and a researcher, working with The North Face’s Creative Director</dd></div>
+      <div><dt>Timeline</dt><dd>About 4–5 months, launched August 2021</dd></div>
+    </dl>
+  </section>
+
+  <nav class="chapters" aria-label="Chapters">
+    <div class="wrap chapters-inner">
+      <a href="/#work" class="chap-back" aria-label="Home" tabindex="-1">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <line x1="2" y1="7" x2="19" y2="7" />
+          <path d="M7 2 2 7l5 5" />
+        </svg>
+      </a>
+      <ol>
+        {chapters.map((c) => (
+          <li><a href={`#${c.id}`}><span>{c.n}</span>{c.label}</a></li>
+        ))}
+      </ol>
+    </div>
+  </nav>
+
+  <!-- 01 Situation -->
+  <section id="situation" class="chapter" aria-labelledby="situation-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">01</span><p class="chapter-name" aria-hidden="true">The old way</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="situation-title" class="claim"><span class="visually-hidden">The old way: </span>A premium brand that didn’t look the part.</h2>
+      <div class="prose">
+        <p>The North Face had new in-store marketing, but the website hadn’t caught up. In early interviews, stakeholders told us the site was falling behind modern design standards.</p>
+        <p>You could see it everywhere. The icons came from a bunch of different sets, some filled and some outlined, at all different sizes. Headlines were set in bold, all-caps Helvetica that read as loud, sharp and masculine. Padding was tight, and the homepage’s components all looked alike.</p>
+      </div>
+    </div>
+    <figure class="wrap wide-shot">
+      <Image src={pdpDesktopBefore} alt="The product page before the redesign: a Women’s Cragmont Fleece Jacket with an all-caps title, a red all-caps Add to Cart button and dense black navigation." widths={[800, 1280, 1600]} sizes="(min-width: 1376px) 1280px, 100vw" />
+      <figcaption>The product page before the redesign.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 02 Task -->
+  <section id="task" class="chapter" aria-labelledby="task-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">02</span><p class="chapter-name" aria-hidden="true">The brief</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="task-title" class="claim"><span class="visually-hidden">The brief: </span>Look more premium… but start in a van?</h2>
+      <div class="prose-narrow">
+        <p>The North Face wanted to be seen as a higher-value brand, on the same level as Patagonia. A tech stack upgrade was coming anyway, which made it the right moment for a new look across the whole site.</p>
+        <p>This was an in-house project at VF Corporation, The North Face’s parent company. I was the only designer on the team, working with a design director, a PM and a researcher, and closely with The North Face’s Creative Director. Beyond a better look, we saw a chance to make life easier for the designers and developers who’d maintain it, with a design system that could eventually be white-labeled for other VF brands.</p>
+        <p>Our VP of Design had a metaphor for how we’d get there, and it gave the project its name. Start small and live in a van: that was the first release, and why we called it #Vanlife. Move up to a cabana next. Then, once the design system was live and every site ran on it, move into the mansion, with all the bells and whistles.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Action -->
+  <section id="action" class="chapter" aria-labelledby="action-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">03</span><p class="chapter-name" aria-hidden="true">The work</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="action-title" class="claim"><span class="visually-hidden">The work: </span>What I designed and why</h2>
+    </div>
+
+    <!-- Interviews -->
+    <article class="wrap beat" aria-labelledby="interviews-title">
+      <h3 id="interviews-title" class="beat-title">Asking the people who know the brand best</h3>
+      <div class="prose-narrow">
+        <p>The project started with interviews with stakeholders across the brand, each an expert in a different part of The North Face. We asked what people should feel when they land on the site, which words describe the brand, what other sites they look to, and what bugged them about the homepage.</p>
+        <p>The same words kept coming up: <strong>premium</strong>, <strong>timeless</strong>, <strong>minimal</strong> and <strong>elevated</strong>. Alongside those, people wanted the site to tell stories without losing sight of selling, and to connect that storytelling to the shopping experience.</p>
+      </div>
+      <figure class="wide-photo flat">
+        <button type="button" class="photo-open" data-view="affinity"><span class="photo-open-icon" aria-hidden="true"><Fragment set:html={EXPAND} /></span><span class="visually-hidden">Open full size: </span><Image src={affinity} alt="The stakeholder interview affinity map: sticky notes grouped under questions about first impressions, adjectives for The North Face, brands people look to and homepage pain points, with a summary of themes like storytelling, modularity, simplicity, premium and elevated, and timeless and heritage." widths={[800, 1280, 1920]} sizes="(min-width: 1376px) 1280px, 100vw" /></button>
+        <figcaption>The interviews, sorted into themes.</figcaption>
+      </figure>
+    </article>
+
+    <!-- Competitive -->
+    <article class="wrap beat beat-follow" aria-labelledby="competitive-title">
+      <h3 id="competitive-title" class="beat-title">Shopping the competition</h3>
+      <div class="prose-narrow">
+        <p>Next, we put The North Face side by side with other outdoor brands: Patagonia as the direct competitor, Burton and Fjällräven on the hip and crunchy end, and Canada Goose and Arc’teryx on the luxury end.</p>
+        <p>We tested how people talked about each site: the words they used, what they noticed, and how likely they’d be to shop there. It gave us a picture of where The North Face sat, and what “premium” looked like to real shoppers.</p>
+      </div>
+      <button type="button" class="view-btn" data-view="competitive"><Fragment set:html={EXPAND} /> See the competitive analysis</button>
+    </article>
+
+    <!-- Icons -->
+    <article class="wrap beat" aria-labelledby="icons-title">
+      <h3 id="icons-title" class="beat-title">Drawing a new icon set from scratch</h3>
+      <div class="prose-narrow">
+        <p>One of the first things I did was build a new icon set from scratch. The old set was clearly pieced together from a bunch of others: some icons were filled, some were outlined, and the sizes were all over the place. It made the site look a bit amateur, which is the opposite of “elevated”.</p>
+        <p>After a lot of exploration, including icons drawn from The North Face’s own products, and feedback from the brand and from users, we landed on an outline style with a bit of extra roundness.</p>
+      </div>
+      <figure class="column-shot">
+        <button type="button" class="photo-open" data-view="icons"><span class="photo-open-icon" aria-hidden="true"><Fragment set:html={EXPAND} /></span><span class="visually-hidden">Open full size: </span><Image src={iconsSuite} alt="The new outlined icon suite, grouped into utilities, actions, secondary actions and other icons, from cart and menu to play, mute and chat." widths={[480, 720, 862]} sizes="(min-width: 900px) 832px, 100vw" /></button>
+        <figcaption>The new suite. The full board shows the old set and the explorations.</figcaption>
+      </figure>
+    </article>
+
+    <!-- Type -->
+    <article class="wrap beat" aria-labelledby="type-title">
+      <h3 id="type-title" class="beat-title">Helvetica, minus the yelling</h3>
+      <div class="prose-narrow">
+        <p>The North Face has used Helvetica for years to match its Half Dome logo, so we kept it. What changed was how it was used, everywhere from headlines to body copy to buttons.</p>
+        <p>Interviewees kept saying the site felt masculine and sharp, mostly because of the “yelly” all-caps headlines and heavy weights. So I took out all caps entirely, and made Medium, a 500 weight, the boldest type on the site. It softened the voice and brought in a lightness that had been missing.</p>
+      </div>
+      <figure class="column-shot">
+        <button type="button" class="photo-open" data-view="typography"><span class="photo-open-icon" aria-hidden="true"><Fragment set:html={EXPAND} /></span><span class="visually-hidden">Open full size: </span><Image src={typeTitles} alt="The new title scale in Helvetica Neue 65 Medium, in sentence case: Large Title at 80px, then Titles 1 to 3, each shown on white and on black." widths={[480, 720, 850]} sizes="(min-width: 900px) 832px, 100vw" /></button>
+        <figcaption>The title scale. Medium is the boldest weight, and nothing is in all caps.</figcaption>
+      </figure>
+    </article>
+
+    <!-- Homepage -->
+    <article class="wrap beat" aria-labelledby="home-title">
+      <h3 id="home-title" class="beat-title">A homepage with more building blocks</h3>
+      <div class="prose-narrow">
+        <p>Most of this project was visual, but the homepage was where I had room to change how things worked. The people who build pages in the CMS wanted more unique building blocks, so they could make landing pages for different stories and sales moments.</p>
+        <p>The old homepage had tight padding and components that looked too much alike. The new set gives each block room to breathe and a clear job, while staying reusable. Here’s the set.</p>
+      </div>
+      <figure class="wide-photo">
+        <Image src={homepage} alt="The redesigned homepage: a climber on a night-lit rock face under the headline High altitude. Higher mileage., with a transparent header and a rounded Shop Now button." widths={[800, 1280, 1920]} sizes="(min-width: 1376px) 1280px, 100vw" />
+        <figcaption>The new homepage hero, with a transparent header over the photo and a rounded pill button.</figcaption>
+      </figure>
+    </article>
+
+    <div class="scroller blocks" data-scroller>
+      <div class="scroller-track" role="list" tabindex="0" aria-label="Homepage building blocks">
+        {blocks.map((b) => (
+          <figure role="listitem">
+            <Image src={b.src} alt={b.alt} widths={[600, 900, 1200]} sizes="(min-width: 900px) 760px, 80vw" draggable="false" />
+            <figcaption><strong>{b.name}.</strong> {b.text}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <div class="wrap scroller-foot">
+        <button type="button" class="view-btn" data-view="homepage"><Fragment set:html={EXPAND} /> See the full homepage</button>
+        <div class="scroller-btns">
+          <button type="button" data-dir="-1" aria-label="Previous blocks"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4 6 9l5 5" /></svg></button>
+          <button type="button" data-dir="1" aria-label="More blocks"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l5 5-5 5" /></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interior pages -->
+    <article class="wrap beat split split-pair" aria-labelledby="interior-title">
+      <div class="beat-text">
+        <h3 id="interior-title" class="beat-title">Updating the rest of the site</h3>
+        <div class="prose-narrow">
+          <p>Every improvement to the components had to carry through the rest of the site too. Changing the layout of the product listing, product and cart pages was out of scope, so I worked with what was there: type, spacing and color.</p>
+          <p>Part of that was cutting back on red. On the old product page, the biggest button was a bright red, all-caps Add to Cart. The new one is a calm black Add to Bag, in sentence case. Every big change was A/B tested against the live site to make sure it didn’t hurt conversion.</p>
+        </div>
+        <button type="button" class="view-btn" data-view="interior"><Fragment set:html={EXPAND} /> See the listing, product and cart pages</button>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <span class="tag">Before</span>
+          <Image src={pdpMobileBefore} alt="The old mobile product page: an all-caps title, a price of $0, a 91% Customer Recommended rating and a red all-caps Add to Cart button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>All caps, red buttons and tight spacing.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag tag-final">After</span>
+          <Image src={pdpMobileAfter} alt="The redesigned mobile product page: Women’s Cragmont Fleece Jacket in sentence case, a New Arrival tag, $149.00, a boxed rating and a black Add to Bag button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <figcaption>Sentence case, more room and a black Add to Bag.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Design system -->
+    <article class="wrap beat" aria-labelledby="system-title">
+      <h3 id="system-title" class="beat-title">One library for every page</h3>
+      <div class="prose-narrow">
+        <p>As the direction firmed up, I turned the redesigned components into an atomic design system with 1,200 symbols. It was built in Sketch, with Abstract for versions and linked libraries. I also remade every production page as a template linked back to the library, so future changes would reach every page.</p>
+        <p>The North Face’s developers had never had an up-to-date style guide, so I made one. It documents every component, from animation timings to when and how to use each button, so in-house designers, developers and outside vendors could all get up to speed fast.</p>
+      </div>
+      <figure class="wide-photo flat">
+        <button type="button" class="photo-open" data-view="system"><span class="photo-open-icon" aria-hidden="true"><Fragment set:html={EXPAND} /></span><span class="visually-hidden">Open full size: </span><Image src={system} alt="The design system in Abstract: a grid of component pages and symbols for The North Face website." widths={[800, 1280, 1920]} sizes="(min-width: 1376px) 1280px, 100vw" /></button>
+        <figcaption>The design system, in Abstract.</figcaption>
+      </figure>
+    </article>
+
+    <!-- Testing -->
+    <article class="wrap beat split split-pair" aria-labelledby="testing-title">
+      <div class="beat-text">
+        <h3 id="testing-title" class="beat-title">How do you test a look?</h3>
+        <div class="prose-narrow">
+          <p>Testing visual design is hard, so the researcher and I tried a few ways. We tested more than 1,000 people on usertesting.com, often as A/B comparisons. With The North Face team, we also ran A/B tests on the live site through Monetate, with millions of impressions, to make sure nothing hurt conversion.</p>
+          <p>Some results surprised us. Taking the review stars off the product cards on the listing page actually increased conversion and revenue slightly.</p>
+        </div>
+      </div>
+      <figure class="card-diff">
+        <div class="card-diff-row">
+          <span class="tag">With stars</span>
+          <Image src={starsOn} alt="The bottom of a listing card: a four-star rating, then Women’s Arctic Parka and $349.00." widths={[480, 774]} sizes="(min-width: 900px) 420px, 100vw" />
+        </div>
+        <div class="card-diff-row">
+          <span class="tag">Without stars</span>
+          <Image src={starsOff} alt="The same card without the rating: Women’s Arctic Parka and $349.00." widths={[480, 774]} sizes="(min-width: 900px) 420px, 100vw" />
+        </div>
+        <figcaption>The same listing card, cropped to the text under the photo.</figcaption>
+      </figure>
+    </article>
+
+    <!-- Blind test -->
+    <article class="wrap beat beat-follow" aria-labelledby="blind-title">
+      <h3 id="blind-title" class="beat-title">Hide the logo and ask what it costs</h3>
+      <div class="prose-narrow">
+        <p>The method we leaned on most was a blind perception test. We removed The North Face logo from the page and from every product, then asked people what brand they thought it was and what they’d expect the product to cost.</p>
+        <p>One round tested five versions of the mobile product page, all showing the same fleece jacket, with 120 people in North America. The results were the clearest answer to the brief, so they get the next chapter.</p>
+      </div>
+      <button type="button" class="view-btn" data-view="blind"><Fragment set:html={EXPAND} /> See the blind test results</button>
+    </article>
+  </section>
+
+  <!-- 04 Result -->
+  <section id="result" class="chapter" aria-labelledby="result-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">04</span><p class="chapter-name" aria-hidden="true">What changed</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="result-title" class="claim"><span class="visually-hidden">What changed: </span>It looks like it costs more now.</h2>
+      <div class="prose-narrow">
+        <p>Across our blind tests, the new designs consistently got higher price guesses, and people named more high-end brands. In the product page round, the same jacket on the final design was expected to cost <strong>36% more</strong>.</p>
+        <p>And the brand people guessed most often? <strong>Patagonia</strong>, the one we’d been asked to stand next to. The North Face came third.</p>
+      </div>
+      <figure class="blind-result">
+        <div class="price-scale">
+          <div class="price-track" role="img" aria-label="Average expected price for the same jacket: $70.69 on the current page, $96.37 on the final new design, 36% higher.">
+            <span class="price-gap" style="--a: 0.3448; --b: 0.7728" aria-hidden="true"><span>+36%</span></span>
+            <span class="price-pin" style="--p: 0.3448" aria-hidden="true"><strong>$70.69</strong><span>Current<span class="price-long"> page</span></span></span>
+            <span class="price-pin price-pin-new" style="--p: 0.7728" aria-hidden="true"><strong>$96.37</strong><span><span class="price-long">Final new design</span><span class="price-short">New design</span></span></span>
+          </div>
+          <div class="price-axis" aria-hidden="true"><span style="--p: 0">$50</span><span style="--p: 0.4167">$75</span><span style="--p: 0.8333">$100</span></div>
+        </div>
+        <div class="guesses">
+          {guesses.map((g) => (
+            <div class="guess-col">
+              <h3>{g.label}: top brand guesses</h3>
+              <ol>
+                {g.rows.map(([name, n, mark]) => (
+                  <li class={mark ? `guess-${mark}` : undefined} style={`--n: ${n / 14}`}>
+                    <span class="guess-name">{name}</span>
+                    <span class="guess-bar" aria-hidden="true"></span>
+                    <span class="guess-n">{n}<span class="visually-hidden"> guesses</span></span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+        <figcaption>The blind test, with the logo hidden: the average price people expected for the same fleece jacket, and the brands they named most. People could name more than one brand.</figcaption>
+      </figure>
+      <div class="prose-narrow result-after">
+        <p>I left VF before development finished, so I don’t have launch numbers. But the redesign is live on thenorthface.com today, built from these designs.</p>
+        <p>The design system made an impact on the internal design teams right away. The North Face is the only brand that adopted it, though. White-labeling it for other VF brands was always the goal, but it didn’t happen while I was there.</p>
+      </div>
+    </div>
+    <figure class="wrap wide-shot">
+      <Image src={pdpDesktopAfter} alt="The redesigned product page: Women’s Cragmont Fleece Jacket in sentence case, $149.00, a boxed 95% Customer Recommended rating, color and size pickers and a black Add to Bag button." widths={[800, 1280, 1600]} sizes="(min-width: 1376px) 1280px, 100vw" />
+      <figcaption>The product page after the redesign.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 05 Reflection -->
+  <section id="next" class="chapter" aria-labelledby="next-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">05</span><p class="chapter-name" aria-hidden="true">Looking back</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="next-title" class="claim"><span class="visually-hidden">Looking back: </span>1,200 symbols in Sketch. Never again.</h2>
+      <div class="prose reflection">
+        <p>Overall, I’m very proud of this project, but the tools are so much better now. Building a design system this big in Sketch came with a lot of limits, and I can only imagine how the team has improved it since. Figma and today’s AI tools would have made the whole project far more efficient.</p>
+        <p>On the ideas side, I wish I’d pushed a little harder for UX improvements alongside the visual ones. In a market as competitive as e-commerce, every little bit matters.</p>
+      </div>
+      <a class="pill live-link" href="https://www.thenorthface.com/" rel="noopener" target="_blank">See it live on thenorthface.com <Icon name="arrow-up-right" size={16} /><span class="visually-hidden"> (opens in a new tab)</span></a>
+    </div>
+  </section>
+
+  <dialog class="viewer" aria-labelledby="viewer-title">
+    <div class="viewer-bar">
+      <p id="viewer-title" class="viewer-title"></p>
+      <div class="viewer-actions">
+        <button type="button" class="viewer-zoom" aria-pressed="false">Zoom in</button>
+        <button type="button" class="viewer-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 4l10 10M14 4 4 14" /></svg>
+        </button>
+      </div>
+    </div>
+    <div class="viewer-stage" tabindex="0" aria-label="Image, scrollable when zoomed">
+    </div>
+    <p class="viewer-hint">Click the image to zoom. Drag or scroll to look around, and press Esc to close.</p>
+  </dialog>
+  <script type="application/json" id="viewer-data" set:html={JSON.stringify({
+    ...Object.fromEntries(Object.entries(views).map(([k, v]) => [k, { src: v.img.src, w: v.img.attributes.width ?? v.img.options.width, h: v.img.attributes.height ?? v.img.options.height, title: v.title, alt: v.alt }])),
+    homepage: { title: 'The new homepage', alt: 'The full redesigned homepage', pages: homepagePages },
+    interior: { title: 'Listing, product and cart pages', alt: 'Current and updated designs for the listing, product and cart pages', pages: interiorPages },
+  })} />
+</div>
+
+<script>
+  import './case-study.ts';
+</script>
+
+<style>
+  /* The North Face's grey drives the shared case study accents */
+  .tnf {
+    --accent: #b7bbc1;
+    --accent-soft: rgb(183 187 193 / 0.14);
+  }
+</style>
