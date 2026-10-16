@@ -6,8 +6,17 @@ import LogoStrip from '../components/LogoStrip.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { work, experience, contact } from '../data/site';
 import portrait from '../assets/about/drew-portrait.png';
+import ibottaRaw from '../assets/logos/ibotta.svg?raw';
 
 const headline = ['I', 'sweat', 'the', 'details', 'so', 'you', 'don’t', 'have', 'to.'];
+
+// The Ibotta wordmark, inline in the intro: brand pink via currentColor, and
+// without the ® (about 2px tall at this size)
+const ibottaLogo = ibottaRaw
+  .trim()
+  .replace(/<path d="M90\.6344[^>]*\/>/, '')
+  .replace(/fill="#1C1F24"/g, 'fill="currentColor"')
+  .replace(/<svg[^>]*>/, '<svg viewBox="0 0 89 26" aria-hidden="true" focusable="false">');
 ---
 
 <Base
@@ -33,7 +42,9 @@ const headline = ['I', 'sweat', 'the', 'details', 'so', 'you', 'don’t', 'have'
     </h1>
     <div class="hero-foot">
       <p data-reveal style="--i:9">
-        I'm a senior product designer currently working at Ibotta. For over a decade I've
+        I'm a senior product designer currently changing the digital coupon game at{' '}
+        <a class="ibotta" href="https://home.ibotta.com/" target="_blank" rel="noopener"><span class="visually-hidden">Ibotta (opens in a new tab)</span><Fragment set:html={ibottaLogo} /></a>.
+        For over a decade I've
         been designing new products, modernizing legacy ones, and everything in between.
       </p>
     </div>
@@ -162,6 +173,22 @@ const headline = ['I', 'sweat', 'the', 'details', 'so', 'you', 'don’t', 'have'
     font-size: var(--fs-lead);
     line-height: 1.45;
     color: var(--text-2);
+  }
+  /* Ibotta's wordmark standing in for the name, in their bright ruby */
+  .ibotta {
+    color: #ff3a78;
+    transition: color 200ms ease;
+  }
+  .ibotta:hover {
+    color: #ff6b98;
+  }
+  .ibotta :global(svg) {
+    display: inline-block;
+    height: 0.82em;
+    width: auto;
+    margin-left: 0.08em;
+    vertical-align: -0.04em;
+    overflow: visible;
   }
 
   .trusted {
