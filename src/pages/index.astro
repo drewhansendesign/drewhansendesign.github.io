@@ -157,6 +157,13 @@ const ibottaLogo = ibottaRaw
     letter-spacing: -0.03em;
     word-spacing: 0.04em;
   }
+  /* From tablet up, keep the headline on two lines: the type never outgrows
+     the column it has to fit (the longer line is about 9.1em) */
+  @media (min-width: 800px) {
+    h1 {
+      font-size: min(var(--fs-hero), (100vw - 2 * var(--gutter)) / 9.3);
+    }
+  }
   .word {
     display: inline-block;
   }

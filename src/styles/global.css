@@ -41,7 +41,8 @@
   --font-display: 'Delight', var(--font-sans);
 
   /* Type scale */
-  --fs-hero: clamp(3.25rem, 1rem + 8.5vw, 9.5rem);
+  /* Capped where "so you don’t have to." (about 9.1em in Delight) still fits the 1280px column */
+  --fs-hero: clamp(3.25rem, 1rem + 8.5vw, 8.6rem);
   --fs-callout: clamp(2.75rem, 1rem + 5.5vw, 6rem);
   --fs-callout-xl: clamp(3.25rem, 1rem + 8vw, 9rem);
   --fs-card: clamp(1.75rem, 1.2rem + 1.5vw, 2.5rem);
