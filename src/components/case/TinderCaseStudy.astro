@@ -3,6 +3,7 @@
 // Every number and claim comes from Drew's answers, the leadership decks in
 // the Let's Meet Figma file, or his "Case Study Walkthrough" deck.
 import './case-study.css';
+import Iconoir from '../Iconoir.astro';
 import { Image, getImage } from 'astro:assets';
 import Icon from '../Icon.astro';
 import { contact } from '../../data/site';
@@ -50,11 +51,12 @@ const hmw = [
   ['Monetize this?', 'Where does it earn its keep for the business?'],
 ];
 
+// Each discovery note with its Iconoir icon
 const discovery = [
-  ['Gen Z research', 'Tinder’s existing research on its fast-growing Gen Z audience shaped the first directions.'],
-  ['Competitors', 'Raya, Timeleft and Bumble, all apps with similar features.'],
-  ['Fast feedback', 'Moderated and unmoderated tests on usertesting.com, so ideas got tried quickly.'],
-  ['Obsidian', 'Everything was built inside Tinder’s Obsidian design system, so it felt native.'],
+  ['group', 'Gen Z research', 'Tinder’s existing research on its fast-growing Gen Z audience shaped the first directions.'],
+  ['binocular', 'Competitors', 'Raya, Timeleft and Bumble, all apps with similar features.'],
+  ['chat-lines', 'Fast feedback', 'Moderated and unmoderated tests on usertesting.com, so ideas got tried quickly.'],
+  ['component', 'Obsidian', 'Everything was built inside Tinder’s Obsidian design system, so it felt native.'],
 ];
 
 const premortem = [
@@ -190,8 +192,8 @@ const EXPAND = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stro
       <h3 id="discovery-title" class="beat-title">Homework first</h3>
       <p class="prose-narrow">Before going deep on screens, I looked at what Tinder already knew and what other apps were doing, and kept the testing loop short.</p>
       <dl class="constraints">
-        {discovery.map(([t, d]) => (
-          <div><dt>{t}</dt><dd>{d}</dd></div>
+        {discovery.map(([icon, t, d]) => (
+          <div><dt><Iconoir name={icon} class="constraint-icon" />{t}</dt><dd>{d}</dd></div>
         ))}
       </dl>
     </article>

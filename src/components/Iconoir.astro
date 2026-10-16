@@ -1,0 +1,21 @@
+---
+// An Iconoir icon (iconoir.com, MIT), inlined at build time so it takes the
+// text color and ships no icon library. `name` is the file name from the site,
+// e.g. "bounce-right". Size it with CSS; the drawing is on a 24px grid.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+interface Props {
+  name: string;
+  class?: string;
+}
+const { name, class: className } = Astro.props;
+
+const raw = readFileSync(join(process.cwd(), 'node_modules/iconoir/icons/regular', `${name}.svg`), 'utf8');
+const svg = raw
+  .trim()
+  .replace(/\s(width|height)="24"/g, '')
+  .replace('<svg', `<svg${className ? ` class="${className}"` : ''} aria-hidden="true" focusable="false"`);
+---
+
+<Fragment set:html={svg} />

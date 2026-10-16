@@ -4,6 +4,7 @@
 // Drew's answers, the research decks or the Figma hand-off file; projected
 // figures are labeled as projected.
 import './case-study.css';
+import Iconoir from '../Iconoir.astro';
 import { Image, getImage } from 'astro:assets';
 
 import dashV1 from '../../assets/work/sams/case/dash-v1.png';
@@ -93,15 +94,16 @@ const photos = [
   { src: handheld, alt: 'A rugged handheld scanner showing a dense blue text-only inventory screen.', cap: 'The legacy handheld software associates had.' },
 ];
 
+// Each constraint with its Iconoir icon
 const constraints = [
-  ['Any device', 'Clubs had all kinds of devices, so screens had to work on all of them.'],
-  ['One hand', 'Associates were often holding a handheld scanner, so the app was built for one-handed use.'],
-  ['No club knowledge', '3rd-party counters didn’t know the store. It had to work for someone who had never been in that club.'],
-  ['Done by 8am', 'The count had to be finished the next morning, before the club opened.'],
-  ['Things move', 'Associates kept working during counts, so pallets moved mid-count.'],
-  ['Hard to read', 'Location signs sat high on the steel, far from the floor.'],
-  ['DNI and clothing', 'Some categories aren’t counted at all (Do Not Inventory). Clothing takes the longest, so it always goes first.'],
-  ['Blue Steel', 'Everything followed Walmart’s Blue Steel design system.'],
+  ['smartphone-device', 'Any device', 'Clubs had all kinds of devices, so screens had to work on all of them.'],
+  ['one-finger-select-hand-gesture', 'One hand', 'Associates were often holding a handheld scanner, so the app was built for one-handed use.'],
+  ['compass', 'No club knowledge', '3rd-party counters didn’t know the store. It had to work for someone who had never been in that club.'],
+  ['alarm', 'Done by 8am', 'The count had to be finished the next morning, before the club opened.'],
+  ['packages', 'Things move', 'Associates kept working during counts, so pallets moved mid-count.'],
+  ['glasses', 'Hard to read', 'Location signs sat high on the steel, far from the floor.'],
+  ['shirt', 'DNI and clothing', 'Some categories aren’t counted at all (Do Not Inventory). Clothing takes the longest, so it always goes first.'],
+  ['component', 'Blue Steel', 'Everything followed Walmart’s Blue Steel design system.'],
 ];
 ---
 
@@ -232,8 +234,8 @@ const constraints = [
       <h3 id="floor-title" class="beat-title">Designing for a warehouse at midnight</h3>
       <p class="prose-narrow">Counts run overnight and have to be done before the doors open. Here’s what every screen was up against.</p>
       <dl class="constraints">
-        {constraints.map(([t, d]) => (
-          <div><dt>{t}</dt><dd>{d}</dd></div>
+        {constraints.map(([icon, t, d]) => (
+          <div><dt><Iconoir name={icon} class="constraint-icon" />{t}</dt><dd>{d}</dd></div>
         ))}
       </dl>
     </article>

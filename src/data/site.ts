@@ -131,7 +131,7 @@ export const work: Work[] = [
  *  to real work: the case studies, the resume and the experience entries below. */
 export const expertise: {
   /** An Iconoir icon (iconoir.com), inlined on the home page */
-  icon: 'refresh-double' | 'component' | 'smartphone-device' | 'bounce-right';
+  icon: string;
   title: string;
   body: string;
 }[] = [

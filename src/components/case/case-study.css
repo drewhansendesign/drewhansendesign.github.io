@@ -855,6 +855,13 @@ html:has(.viewer[open]) {
   color: var(--text-1);
   font-weight: 600;
 }
+/* An Iconoir icon above each item; pulled left so its drawing meets the text edge */
+.case .constraints .constraint-icon {
+  display: block;
+  width: 26px;
+  height: 26px;
+  margin: 0 0 0.9rem -2px;
+}
 .case .constraints dd {
   margin-top: 0.4rem;
   color: var(--text-2);
@@ -1334,6 +1341,9 @@ html:has(.viewer[open]) {
 .case .constraints.hmw {
   gap: clamp(1.25rem, 2.5vw, 2rem);
   margin-top: 3rem;
+  /* The notes' shadow lives on the row, so it follows each note's tilted,
+     cut-corner paper without filtering (and softening) the text */
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)) drop-shadow(0 10px 12px rgb(0 0 0 / 0.45));
 }
 .case .hmw > div {
   --note: #f9d86b;
@@ -1343,11 +1353,13 @@ html:has(.viewer[open]) {
   isolation: isolate;
   min-height: 13.5rem;
   padding: 1.15rem 1.1rem 1.75rem;
-  /* The shadow follows the paper's cut corner, so it's a drop shadow on the
-     whole note rather than a box shadow */
-  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)) drop-shadow(0 10px 12px rgb(0 0 0 / 0.45));
+}
+/* Only the paper and its fold tilt; the text stays level so it renders on
+   the pixel grid at full sharpness. Both layers cover the note and turn
+   around its center, so the fold stays on its corner */
+.case .hmw > div::before,
+.case .hmw > div::after {
   transform: rotate(var(--tilt, 0deg));
-  transition: transform 0.45s var(--ease-out), filter 0.45s var(--ease-out);
 }
 /* The paper, with its bottom corner cut away where it folds up, so no
    color can show behind the fold */
@@ -1362,16 +1374,16 @@ html:has(.viewer[open]) {
     var(--note);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--fh)), calc(100% - var(--fw)) 100%, 0 100%);
 }
-/* The fold: the cut-away corner flipped over onto the note */
+/* The fold: the cut-away corner flipped over onto the note. Drawn in the
+   corner of a full-size layer so it turns with the paper */
 .case .hmw > div::after {
   content: '';
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: var(--fw);
-  height: var(--fh);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--note) 88%, #fff) 0%, color-mix(in srgb, var(--note) 70%, #000) 100%);
-  clip-path: polygon(0 0, 100% 0, 0 100%);
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--note) 88%, #fff) 0%, color-mix(in srgb, var(--note) 70%, #000) 100%)
+    right bottom / var(--fw) var(--fh) no-repeat;
+  clip-path: polygon(calc(100% - var(--fw)) calc(100% - var(--fh)), 100% calc(100% - var(--fh)), calc(100% - var(--fw)) 100%);
 }
 /* Each note sits, and curls, a little differently: some fold at the
    bottom right, some at the bottom left, one lies flat */
@@ -1392,21 +1404,9 @@ html:has(.viewer[open]) {
   clip-path: polygon(0 0, 100% 0, 100% 100%, var(--fw) 100%, 0 calc(100% - var(--fh)));
 }
 .case .hmw > div:is(:nth-child(3), :nth-child(5))::after {
-  right: auto;
-  left: 0;
-  background: linear-gradient(225deg, color-mix(in srgb, var(--note) 88%, #fff) 0%, color-mix(in srgb, var(--note) 70%, #000) 100%);
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-@media (hover: hover) {
-  .case .hmw > div:hover {
-    transform: rotate(0deg) translateY(-4px);
-    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)) drop-shadow(0 18px 18px rgb(0 0 0 / 0.5));
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .case .hmw > div {
-    transition: none;
-  }
+  background: linear-gradient(225deg, color-mix(in srgb, var(--note) 88%, #fff) 0%, color-mix(in srgb, var(--note) 70%, #000) 100%)
+    left bottom / var(--fw) var(--fh) no-repeat;
+  clip-path: polygon(0 calc(100% - var(--fh)), var(--fw) calc(100% - var(--fh)), var(--fw) 100%);
 }
 .case .hmw dt {
   color: #16171a;

@@ -7,10 +7,7 @@ import WorkCard from '../components/WorkCard.astro';
 import { work, experience, expertise, contact } from '../data/site';
 import portrait from '../assets/about/drew-portrait.png';
 import ibottaRaw from '../assets/logos/ibotta.svg?raw';
-import refreshDouble from 'iconoir/icons/regular/refresh-double.svg?raw';
-import component from 'iconoir/icons/regular/component.svg?raw';
-import smartphoneDevice from 'iconoir/icons/regular/smartphone-device.svg?raw';
-import bounceRight from 'iconoir/icons/regular/bounce-right.svg?raw';
+import Iconoir from '../components/Iconoir.astro';
 
 const headline = ['I', 'sweat', 'the', 'details', 'so', 'you', 'don’t', 'have', 'to.'];
 
@@ -21,19 +18,6 @@ const ibottaLogo = ibottaRaw
   .replace(/<path d="M90\.6344[^>]*\/>/, '')
   .replace(/fill="#1C1F24"/g, 'fill="currentColor"')
   .replace(/<svg[^>]*>/, '<svg viewBox="0 0 89 26" aria-hidden="true" focusable="false">');
-
-// Expertise icons from Iconoir (MIT), inlined so they take the text color
-const expertiseIcons: Record<string, string> = {
-  'refresh-double': refreshDouble,
-  component,
-  'smartphone-device': smartphoneDevice,
-  'bounce-right': bounceRight,
-};
-const iconSvg = (name: string) =>
-  expertiseIcons[name]
-    .trim()
-    .replace(/\s(width|height)="24"/g, '')
-    .replace('<svg', '<svg aria-hidden="true" focusable="false"');
 ---
 
 <Base
@@ -106,7 +90,7 @@ const iconSvg = (name: string) =>
     <ul class="skills">
       {expertise.map((x, i) => (
         <li class="skill" data-reveal style={`--i:${i}`}>
-          <span class="skill-icon" aria-hidden="true" set:html={iconSvg(x.icon)} />
+          <span class="skill-icon"><Iconoir name={x.icon} /></span>
           <h3 class="skill-title">{x.title}</h3>
           <p class="skill-text">{x.body}</p>
         </li>
