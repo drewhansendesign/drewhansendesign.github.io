@@ -11,3 +11,6 @@ dist/
 HANDOFF-*.md
 PRODUCT.md
 LAUNCH-CHECKLIST.md
+
+# Licensed font source files (desktop formats + license) — only the web woff2 ships
+_fonts/

@@ -1,4 +1,13 @@
-@import '@fontsource-variable/host-grotesk';
+@import '@fontsource-variable/instrument-sans';
+
+/* Delight (licensed): display face for headings. One variable file, wght 100–900. */
+@font-face {
+  font-family: 'Delight';
+  src: url('/fonts/Delight-VF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   color-scheme: dark;
@@ -28,7 +37,8 @@
   --tone-the-north-face: linear-gradient(155deg, #2a2b2d 0%, #3c3d40 55%, #55575b 100%); /* TNF Asphalt Grey family */
   --tone-jumpcloud: linear-gradient(155deg, #0a5e5a 0%, #138f87 55%, #2bb3a7 100%); /* JumpCloud Admin teal #2BB3A7 */
 
-  --font-sans: 'Host Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Delight', var(--font-sans);
 
   /* Type scale */
   --fs-hero: clamp(3.25rem, 1rem + 8.5vw, 9.5rem);
@@ -99,6 +109,14 @@ img {
   display: block;
   max-width: 100%;
   height: auto;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  /* Delight's space is narrow (0.19em); negative tracking nearly closes it */
+  word-spacing: 0.05em;
 }
 
 h1,
@@ -176,7 +194,7 @@ a {
   font-size: var(--fs-callout);
   font-weight: 600;
   line-height: 0.98;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.015em;
 }
 .callout-xl {
   font-size: var(--fs-callout-xl);

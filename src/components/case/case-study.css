@@ -173,7 +173,7 @@
   /* Natural-width digits: a fixed-width "1" leaves an empty gap before the
      title that reads as a spacing mistake */
   font-variant-numeric: proportional-nums;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.035em;
   line-height: 0.78;
 }
 .case .chapter-name {
@@ -192,12 +192,22 @@
   margin-left: 1.25rem;
   background: rgb(255 255 255 / 0.07);
 }
+/* Big numerals read as display type, same face as the headings */
+.case .chapter-n,
+.case .pains dt,
+.case .results dt,
+.case .headline-num,
+.case .support-stat dt,
+.case .meter-num,
+.case .night-lead strong {
+  font-family: var(--font-display);
+}
 .case .claim {
   max-width: 22ch;
   margin-top: clamp(2rem, 4vw, 3.25rem);
   font-size: clamp(2rem, 1.2rem + 3vw, 3.75rem);
   line-height: 1.02;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.01em;
 }
 .case .prose,
 .case .prose-narrow {
@@ -236,7 +246,7 @@
 .case .results-group:not(.projected) dt {
   font-size: clamp(2.5rem, 1.6rem + 3vw, 4.25rem);
   font-weight: 650;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 .case .pains dd,
@@ -263,7 +273,7 @@
 .case .sub {
   margin-top: clamp(4rem, 8vw, 6rem);
   font-size: var(--fs-card);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.005em;
   line-height: 1.1;
 }
 .case .sub + .prose-narrow {
@@ -715,7 +725,7 @@ html:has(.viewer[open]) {
   color: transparent;
   -webkit-text-stroke: 1.5px var(--accent);
   opacity: 0.25;
-  /* Host Grotesk draws this mark as two slanted strokes; a serif gives the
+  /* The site's sans faces draw this mark as slanted strokes; a serif gives the
      classic curly shape */
   font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(7rem, 5.5rem + 5vw, 10rem);
@@ -771,7 +781,7 @@ html:has(.viewer[open]) {
   max-width: 24ch;
   font-size: var(--fs-card);
   line-height: 1.08;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.005em;
 }
 .case .beat-title + .prose-narrow,
 .case .beat-title + .prose {
@@ -928,7 +938,7 @@ html:has(.viewer[open]) {
   color: var(--text-2);
   font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem);
   font-weight: 600;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.01em;
   line-height: 1;
 }
 /* Results stacked on the left, the inventory-day screen beside them */
@@ -1523,7 +1533,7 @@ html:has(.viewer[open]) {
   color: var(--text-1);
   font-size: clamp(4.5rem, 3rem + 6vw, 8.5rem);
   font-weight: 650;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.025em;
   line-height: 0.95;
 }
 .case .headline-label {
@@ -1549,7 +1559,7 @@ html:has(.viewer[open]) {
   color: var(--text-1);
   font-size: clamp(2.25rem, 1.6rem + 2vw, 3.25rem);
   font-weight: 650;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.015em;
   line-height: 1;
 }
 .case .support-stat dd {
@@ -1623,7 +1633,7 @@ html:has(.viewer[open]) {
   color: var(--text-1);
   font-size: clamp(2.5rem, 1.6rem + 3vw, 4rem);
   font-weight: 650;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 .case .meter-num span {
@@ -1745,7 +1755,7 @@ html:has(.viewer[open]) {
   color: var(--text-1);
   font-size: clamp(3rem, 2rem + 3.5vw, 5rem);
   font-weight: 650;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 .case .hours {
