@@ -191,6 +191,9 @@ a {
 
 /* Big callout headings */
 .callout {
+  /* Also used on non-heading elements (the next-project link), so set the face here */
+  font-family: var(--font-display);
+  word-spacing: 0.05em;
   font-size: var(--fs-callout);
   font-weight: 600;
   line-height: 0.98;

@@ -70,7 +70,7 @@ export const work: Work[] = [
   {
     slug: 'tinder',
     company: 'Tinder',
-    title: "Let's Meet",
+    title: 'Let’s Meet',
     summary:
       'Date ideas you can actually say yes to: a feed of nearby plans that turns matches into meetups.',
     role: 'Lead Designer',
