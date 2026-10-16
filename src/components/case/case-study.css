@@ -16,6 +16,8 @@
   max-width: 62ch;
   color: var(--text-2);
   font-size: var(--fs-lead);
+  /* Light-on-dark lead text reads heavy at this size; a lighter cut of Delight */
+  font-weight: 300;
   line-height: 1.5;
 }
 .case .glance-story p:first-child {
@@ -45,6 +47,8 @@
   max-width: 32ch;
   margin-top: 0.4rem;
   font-size: var(--fs-lead);
+  /* Matches the lighter intro above it */
+  font-weight: 300;
   line-height: 1.4;
 }
 
@@ -1341,8 +1345,9 @@ html:has(.viewer[open]) {
 .case .constraints.hmw {
   gap: clamp(1.25rem, 2.5vw, 2rem);
   margin-top: 3rem;
-  /* The notes' shadow lives on the row, so it follows each note's tilted,
-     cut-corner paper without filtering (and softening) the text */
+  /* The notes' shadow lives on the unrotated row rather than each tilted
+     note, so the text isn't flattened to an image and rotated (which softens
+     it further). It still follows each note's cut corner */
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)) drop-shadow(0 10px 12px rgb(0 0 0 / 0.45));
 }
 .case .hmw > div {
@@ -1353,12 +1358,7 @@ html:has(.viewer[open]) {
   isolation: isolate;
   min-height: 13.5rem;
   padding: 1.15rem 1.1rem 1.75rem;
-}
-/* Only the paper and its fold tilt; the text stays level so it renders on
-   the pixel grid at full sharpness. Both layers cover the note and turn
-   around its center, so the fold stays on its corner */
-.case .hmw > div::before,
-.case .hmw > div::after {
+  /* The whole note tilts, text and all, like paper stuck to a board */
   transform: rotate(var(--tilt, 0deg));
 }
 /* The paper, with its bottom corner cut away where it folds up, so no
@@ -1374,8 +1374,7 @@ html:has(.viewer[open]) {
     var(--note);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--fh)), calc(100% - var(--fw)) 100%, 0 100%);
 }
-/* The fold: the cut-away corner flipped over onto the note. Drawn in the
-   corner of a full-size layer so it turns with the paper */
+/* The fold: the cut-away corner flipped over onto the note */
 .case .hmw > div::after {
   content: '';
   position: absolute;
