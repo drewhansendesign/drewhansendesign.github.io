@@ -127,6 +127,36 @@ export const work: Work[] = [
   },
 ];
 
+/** What Drew is strongest at, for the home page's Expertise row. Every line traces
+ *  to real work: the case studies, the resume and the experience entries below. */
+export const expertise: {
+  /** An Iconoir icon (iconoir.com), inlined on the home page */
+  icon: 'refresh-double' | 'component' | 'smartphone-device' | 'bounce-right';
+  title: string;
+  body: string;
+}[] = [
+  {
+    icon: 'refresh-double',
+    title: 'Modernizing legacy products',
+    body: 'Turning paper processes, desktop-only tools and tired core mechanics into products people actually want to use.',
+  },
+  {
+    icon: 'component',
+    title: 'Design systems',
+    body: 'Building the systems that keep products consistent as they scale, from a 1,200-\u2060symbol atomic library to a white-\u2060label kit shared by The North Face, Vans and Timberland.',
+  },
+  {
+    icon: 'smartphone-device',
+    title: 'Mobile-first products',
+    body: 'Native apps for warehouse floors, IT admins and first dates, designed for the moment someone actually reaches for their phone.',
+  },
+  {
+    icon: 'bounce-right',
+    title: 'Motion and interaction',
+    body: 'A broadcast motion graphics background, put to work making interactions feel clear, responsive and a little bit lovable.',
+  },
+];
+
 export const experience: {
   company: string;
   role: string;
