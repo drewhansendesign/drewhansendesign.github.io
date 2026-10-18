@@ -12,6 +12,7 @@ import TopoDots from '../../components/TopoDots.astro';
 import SamsCaseStudy from '../../components/case/SamsCaseStudy.astro';
 import TinderCaseStudy from '../../components/case/TinderCaseStudy.astro';
 import TnfCaseStudy from '../../components/case/TnfCaseStudy.astro';
+import JumpCloudCaseStudy from '../../components/case/JumpCloudCaseStudy.astro';
 import { work } from '../../data/site';
 import { logoKnock, logoSvg, projectLogo } from '../../lib/logos';
 
@@ -33,7 +34,7 @@ const Dots = { 'sams-club': RackDots, tinder: MeetDots, jumpcloud: NetworkDots, 
 const ratio = w.screens?.[0] ? w.screens[0].src.height / w.screens[0].src.width : 16 / 9;
 // Case studies rewritten in full on this site, which carry their own role,
 // team and timeline, and replace the outcomes and link to the old version
-const rebuilt = ['sams-club', 'tinder', 'the-north-face'].includes(w.slug);
+const rebuilt = ['sams-club', 'tinder', 'the-north-face', 'jumpcloud'].includes(w.slug);
 const logoFile = projectLogo[w.slug];
 const logo = logoFile ? logoSvg(logoFile) : null;
 ---
@@ -122,6 +123,7 @@ const logo = logoFile ? logoSvg(logoFile) : null;
     {w.slug === 'sams-club' && <SamsCaseStudy />}
     {w.slug === 'tinder' && <TinderCaseStudy />}
     {w.slug === 'the-north-face' && <TnfCaseStudy />}
+    {w.slug === 'jumpcloud' && <JumpCloudCaseStudy />}
 
     {!rebuilt && w.impact && (
       <section class="wrap impact" aria-label="Outcomes">

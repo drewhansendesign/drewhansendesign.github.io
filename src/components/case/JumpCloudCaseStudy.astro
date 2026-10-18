@@ -1,0 +1,561 @@
+---
+// JumpCloud Admin Mobile: the full case study body, told with STAR like the
+// others. Every claim comes from Drew's answers or the JC-Admin-Mobile Figma
+// file (Fig. JsNwZczuP2ZJGsd2CAORJ0). There are no launch metrics, so the
+// outcome stays qualitative on purpose.
+import './case-study.css';
+import { Image, getImage } from 'astro:assets';
+import Icon from '../Icon.astro';
+
+// The inherited lo-fi tab concepts (Lo-Fi ideations, Fig. 0:1)
+import lofiHome from '../../assets/work/jumpcloud/case/lofi-home.png';
+import lofiUsers from '../../assets/work/jumpcloud/case/lofi-users.png';
+import lofiDevices from '../../assets/work/jumpcloud/case/lofi-devices.png';
+import lofiMore from '../../assets/work/jumpcloud/case/lofi-more.png';
+// Final MVP flows (Fig. 1616:38429), light mode
+import login from '../../assets/work/jumpcloud/case/login.png';
+import protectCopied from '../../assets/work/jumpcloud/case/protect-copied.png';
+import totpPaste from '../../assets/work/jumpcloud/case/totp-paste.png';
+import faceId from '../../assets/work/jumpcloud/case/faceid.png';
+import dashLight from '../../assets/work/jumpcloud/case/dash-light.png';
+import lockouts from '../../assets/work/jumpcloud/case/lockouts.png';
+import search from '../../assets/work/jumpcloud/case/search.png';
+// Recent searches when the search box is tapped (MVP Flows, Fig. 9374:103193)
+import recentSearches from '../../assets/work/jumpcloud/case/recent-searches.png';
+import userLocked from '../../assets/work/jumpcloud/case/user-locked.png';
+import unlockError from '../../assets/work/jumpcloud/case/unlock-error.png';
+import mtp from '../../assets/work/jumpcloud/case/mtp.png';
+import mtpSwitch from '../../assets/work/jumpcloud/case/mtp-switch.png';
+import offline from '../../assets/work/jumpcloud/case/offline.png';
+import skeleton from '../../assets/work/jumpcloud/case/skeleton.png';
+// Data viz dashboard ideations (Hi-Fi Ideations, Fig. 327:4930): v19 (644:11498),
+// v20 (645:11629), v31 (647:13643) and v31 (781:16337)
+import vizTrends from '../../assets/work/jumpcloud/case/viz-trends.png';
+import vizRed from '../../assets/work/jumpcloud/case/viz-red.png';
+import vizReport from '../../assets/work/jumpcloud/case/viz-report.png';
+import vizStatus from '../../assets/work/jumpcloud/case/viz-status.png';
+// The home screen through the style explorations: an early Hi-Fi Ideations dashboard (Fig. 373:5543),
+// v2 (Hi-Fi Ideations, 394:5741), v3 (412:6161) and v4 (2724:50629)
+import lookFirst from '../../assets/work/jumpcloud/case/look-first.png';
+import lookV2 from '../../assets/work/jumpcloud/case/look-v2.png';
+import lookV3 from '../../assets/work/jumpcloud/case/look-v3.png';
+import lookV4 from '../../assets/work/jumpcloud/case/look-v4.png';
+import unlockConfirm from '../../assets/work/jumpcloud/case/unlock-confirm.png';
+import unlockSuccess from '../../assets/work/jumpcloud/case/unlock-success.png';
+// The startup and unlocked screens with their static clouds painted out, so the
+// real Lottie files (public/lottie, from Drew's LottieFiles) can play in place:
+// startup 5296:82765, Loader frame x125 y422 w125; unlocked 7855:109419, Success
+// Lottie frame x100 y548 w175 (both 375×812)
+import startupClean from '../../assets/work/jumpcloud/case/startup-clean.png';
+import unlockedClean from '../../assets/work/jumpcloud/case/unlock-success-clean.png';
+// Desktop help desk: the home is "Home - v2 - 1440" from the Admin Portal Responsive
+// explorations (Fig. mGBGo9NzHFfVDekqFlWUPh 2:20420); the user page is "User Details - v2 - 1441" (2:10155)
+import helpdeskHome from '../../assets/work/jumpcloud/case/helpdesk-home-activity.png';
+import helpdeskUser from '../../assets/work/jumpcloud/case/helpdesk-user-v2.png';
+// Build QA: the user details comparison cut from the iOS Build 1.0.34 board
+import qaCrop from '../../assets/work/jumpcloud/case/qa-user-details.png';
+import boardQa from '../../assets/work/jumpcloud/case/board-qa.png';
+import boardTest from '../../assets/work/jumpcloud/case/board-test.png';
+
+const chapters = [
+  { id: 'situation', n: '01', label: 'The old way' },
+  { id: 'task', n: '02', label: 'The brief' },
+  { id: 'action', n: '03', label: 'The work' },
+  { id: 'result', n: '04', label: 'Looking back' },
+];
+
+// The moderated test script from Aug 24, 2021 (Test Scenarios - MVP, Fig. 5309:80977)
+const scenarios = [
+  'Martin Stone is locked out of his account. Find him and suspend his account.',
+  'You forgot to reset Carl Finich’s TOTP MFA before leaving your desk. Do it now.',
+  'roykent-Mac isn’t responding and needs IT. Find it and restart it.',
+  'What would you expect to find under More?',
+];
+
+const views = {
+  test: { img: await getImage({ src: boardTest, format: 'webp', quality: 82 }), title: 'Usability test script', alt: 'The usability test script: a welcome screen and four scenarios, each beside a wireframe prototype of the Home, Users, Devices and More tabs.' },
+  qa: { img: await getImage({ src: boardQa, format: 'webp', quality: 82 }), title: 'UX QA: dev build vs. design', alt: 'The UX QA board: screenshots of a dev build beside the Figma designs, with notes and CSS for card shadows, the footer, list items, user details and settings.' },
+  helpdesk: { img: await getImage({ src: helpdeskUser, format: 'webp', quality: 85 }), title: 'Help desk user details', alt: 'The help desk user details page for Martin Stone: an Account is Locked Out banner with an Unlock button, a Recent Activity chart for the week, and Quick Actions cards for unlocking, password changes, activation emails, suspending, MFA, JumpCloud Protect and WebAuthn keys.' },
+};
+
+// A curated walk through the Hi-Fi Ideations page (Fig. 327:4930), cut into
+// section crops from one render, shown as a scrolling report
+const ideationFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/work/jumpcloud/case/ideations/*.png', { eager: true });
+const ideationPages = await Promise.all(
+  Object.keys(ideationFiles)
+    .sort()
+    .map(async (k) => {
+      const img = await getImage({ src: ideationFiles[k].default, format: 'webp', width: 2200, quality: 82 });
+      return { src: img.src, w: Number(img.attributes.width ?? 2200), h: Number(img.attributes.height) };
+    })
+);
+
+const EXPAND = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" /></svg>';
+---
+
+<div class="case jumpcloud">
+  <!-- At a glance -->
+  <section class="wrap glance" aria-labelledby="glance-title">
+    <h2 id="glance-title" class="visually-hidden">At a glance</h2>
+    <div class="glance-story">
+      <p>JumpCloud’s Admin Portal only worked on a desktop. So when someone got locked out of their account, the person who could fix it had to find a laptop first. Customers kept asking for an app, and competitors already had one.</p>
+      <p>I took JumpCloud’s first native app from a handful of inherited concepts to the App Store: login, alerts, search and one-tap unlocks, in light and dark mode on iOS and Android.</p>
+    </div>
+    <dl class="glance-facts">
+      <div><dt>My role</dt><dd>Lead designer on the mobile app, from early concepts to release builds</dd></div>
+      <div><dt>Team</dt><dd>A PM and one React Native team building for iOS and Android, plus another designer early on</dd></div>
+      <div><dt>Timeline</dt><dd>About 9 months</dd></div>
+    </dl>
+  </section>
+
+  <nav class="chapters" aria-label="Chapters">
+    <div class="wrap chapters-inner">
+      <a href="/#work" class="chap-back" aria-label="Home" tabindex="-1">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <line x1="2" y1="7" x2="19" y2="7" />
+          <path d="M7 2 2 7l5 5" />
+        </svg>
+      </a>
+      <ol>
+        {chapters.map((c) => (
+          <li><a href={`#${c.id}`}><span>{c.n}</span>{c.label}</a></li>
+        ))}
+      </ol>
+    </div>
+  </nav>
+
+  <!-- 01 Situation -->
+  <section id="situation" class="chapter" aria-labelledby="situation-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">01</span><p class="chapter-name" aria-hidden="true">The old way</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="situation-title" class="claim"><span class="visually-hidden">The old way: </span>Locked out? Find a laptop.</h2>
+      <div class="prose">
+        <p>JumpCloud gives IT teams one place to manage their company’s users, devices and access. But the Admin Portal only worked on a desktop.</p>
+        <p>The tasks admins dealt with most, day to day, were people locked out of their accounts and passwords that had expired. Both stop someone from working, so they need fixing fast. And admins aren’t always at their desks when it happens.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 Task -->
+  <section id="task" class="chapter" aria-labelledby="task-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">02</span><p class="chapter-name" aria-hidden="true">The brief</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="task-title" class="claim"><span class="visually-hidden">The brief: </span>Put the urgent stuff in their pocket.</h2>
+      <div class="prose-narrow">
+        <p>Customers were asking for a mobile app, and our competitors already had one. The brief was JumpCloud’s first native app: not the whole Admin Portal on a phone, just the most common urgent tasks, done well.</p>
+        <p>Another designer started the project and sketched the first concepts, then left partway through. I picked it up from there and finished it as the only designer, working with a PM and one engineering team. The app was built in React Native, so the same team shipped iOS and Android, and everything sat on Stratus, the JumpCloud design system I also helped build.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Action -->
+  <section id="action" class="chapter" aria-labelledby="action-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">03</span><p class="chapter-name" aria-hidden="true">The work</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="action-title" class="claim"><span class="visually-hidden">The work: </span>What I designed and why</h2>
+    </div>
+
+    <!-- Lo-fi tabs -->
+    <article class="wrap beat" aria-labelledby="tabs-title">
+      <h3 id="tabs-title" class="beat-title">Four tabs to start</h3>
+      <div class="prose-narrow">
+        <p>The concepts I inherited split the app into four tabs: Home, Users, Devices and More. Home already led with lockouts and expired passwords. Devices could remotely lock, restart, shut down or erase a computer. More was a catch-all for policies, insights, event logs and reports.</p>
+        <p>That’s a lot of portal for a phone. Before going further, we needed to know which parts admins would actually reach for.</p>
+      </div>
+      <div class="pair quad">
+        <figure class="phone">
+          <Image src={lofiHome} alt="Lo-fi Home tab: a User Lockouts card with 3 users locked out and a Password Reset card with 5 expired passwords, each listing usernames and timestamps." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Home, led by lockouts and resets.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={lofiUsers} alt="Lo-fi Users tab: a searchable list of user cards with names, emails, usernames and lock icons." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Users, a long list of cards.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={lofiDevices} alt="Lo-fi Devices tab: a list of MacBook Pro and Windows 10 devices with OS version, IP address and last seen time." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Devices, for every computer in the company.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={lofiMore} alt="Lo-fi More tab listing Policies, Insights, Change Admin PW, Event Logs and Reports." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>More, for everything else.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Testing -->
+    <article class="wrap beat" aria-labelledby="testing-title">
+      <h3 id="testing-title" class="beat-title">Testing it on wireframes first</h3>
+      <div class="prose-narrow">
+        <p>Early on, I ran usability tests with admins on a clickable prototype of the first wireframes. Each session started the same way: you’ve just got an alert that someone is locked out. Then came four tasks, one for each tab.</p>
+      </div>
+      <p id="scenarios-label" class="list-label">The tasks</p>
+      <ol class="next-steps" aria-labelledby="scenarios-label">
+        {scenarios.map((s) => <li><strong>{s}</strong></li>)}
+      </ol>
+      <ul class="findings findings-paired">
+        <li>
+          <strong>One search box for everything.</strong> Admins wanted to look people up by whatever they had on hand, whether that was a name, an ID, an email or an employee type, all from the same box.
+          <span class="finding-next"><span class="finding-next-label" aria-hidden="true">What it led to</span><span class="visually-hidden">What it led to: </span>A single search for first name, last name and email in the first release, with recent searches saved.</span>
+        </li>
+        <li>
+          <strong>Quick filters, please.</strong> They wanted to cut the list down to the people who needed help right now, without typing anything.
+          <span class="finding-next"><span class="finding-next-label" aria-hidden="true">What it led to</span><span class="visually-hidden">What it led to: </span>Filters for locked-out accounts and expired passwords, one tap from Home.</span>
+        </li>
+      </ul>
+      <button type="button" class="view-btn" data-view="test"><Fragment set:html={EXPAND} /> See the test script</button>
+    </article>
+
+    <!-- Look -->
+    <article class="wrap beat" aria-labelledby="look-title">
+      <h3 id="look-title" class="beat-title">Finding the look</h3>
+      <div class="prose-narrow">
+        <p>The visual explorations went wide: abstract cloud shapes for the login screen, a sea green palette alongside JumpCloud’s rainbow brand colors and plenty of footer experiments. The data viz dashboards tried putting a trend line on every problem, from bold blocks of color to a single monthly report.</p>
+      </div>
+      <div class="pair quad">
+        <figure class="phone">
+          <Image src={vizTrends} alt="A data viz home screen for Acme Company: white cards for User Lockouts, with a red trend line, and Force Password Change, with a green one, each showing a monthly average and a needs attention count." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>A trend line for every problem.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={vizRed} alt="A data viz home screen with full-bleed charts: a red User Lockouts card and a green one below, each with a monthly average and a needs attention count." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>The same idea, in full color.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={vizReport} alt="A data viz home screen: Welcome, John with total users and devices on a teal header, a Monthly Report chart, and counts for User Lockouts, Force Password Reset, Password Reset and Activate Account." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>One monthly report, with totals up top.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={vizStatus} alt="A data viz home screen with the same header and monthly report, and counts in colored pills: Account Locked Out, 2, in red, Force Password Reset, 56, and Password Reset, 20, in orange, and Activate Account, 0, in green." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Counts color-coded by urgency.</figcaption>
+        </figure>
+      </div>
+      <div class="prose-narrow look-more">
+        <p>You can follow where it went from there on the home screen. The first high fidelity pass put a grid of counts on Home, from lockouts and expired passwords to MFA and new devices. The next version narrowed it to lockouts, with an Unlock button for each person right on Home. v3 moved the company name and user count into a teal header and added more urgent tasks below. v4 stripped it back to a short list of counts under a welcome, close to where the MVP ended up. The style that won was designed in light and dark mode from the start.</p>
+        <p>Dark mode made it all the way to the App Store, and it works well.</p>
+      </div>
+      <div class="pair quad">
+        <figure class="phone">
+          <span class="tag">First pass</span>
+          <Image src={lookFirst} alt="An early home screen for Acme Company: a grid of count cards for User Lockouts, 4, and Expired Passwords, 54, in pink, then TOTP MFA, password expirations, biometric MFA, device onboarding, and Windows and Mac devices." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>A count for everything, in a grid.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">v2</span>
+          <Image src={lookV2} alt="A v2 home screen for Acme Company: a User Lockouts card with a count of 4 and four people, each with an Unlock button, then Suspended Accounts, 0." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Lockouts first, with Unlock right on Home.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">v3</span>
+          <Image src={lookV3} alt="A v3 home screen: Acme Company and 2,340 users on a teal header, then a User Lockouts card with four people and Unlock buttons, Suspend Accounts and Reset MFA." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>A teal header, with more tasks below.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">v4</span>
+          <Image src={lookV4} alt="A v4 home screen: Welcome, John and 5,909 total users on a teal header, then counts for User Lockouts, 2, Force Password Reset, 56, Password Reset, 20, and User Activations, 0." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Back to a short list of counts.</figcaption>
+        </figure>
+      </div>
+      <button type="button" class="view-btn" data-view="ideations"><Fragment set:html={EXPAND} /> See more of the explorations</button>
+    </article>
+
+    <!-- Login -->
+    <article class="wrap beat" aria-labelledby="login-title">
+      <h3 id="login-title" class="beat-title">Logging in to a security company’s app</h3>
+      <div class="prose-narrow">
+        <p>This app is for the people who hold the keys to the whole company, so logging in had to be airtight without becoming a chore. That meant a separate flow for every way an admin might sign in: with JumpCloud or Google, with or without multi-factor authentication, on iOS and Android.</p>
+        <p>Admins with MFA confirm with a code from JumpCloud Protect, so I designed the hop between the two apps: swipe over to Protect, tap the code to copy it, and swipe back. The keyboard offers to paste it, and the app verifies on its own the moment the last digit lands.</p>
+        <p>Admins without MFA can turn on Face ID or Touch ID (or face unlock and fingerprint on Android) the first time they log in. After that, the app checks as soon as it opens, using each platform’s own prompts instead of custom lookalikes.</p>
+      </div>
+      <div class="pair quad">
+        <figure class="phone">
+          <span class="tag">Every flow</span>
+          <Image src={login} alt="The login screen: Admin by JumpCloud over soft teal cloud shapes, a Log in button, and links to the Terms of Use and Privacy Policy." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Every login starts here, under the cloud shapes.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">With MFA</span>
+          <Image src={protectCopied} alt="The JumpCloud Protect app showing a 6-digit code, 839 620, with a Code Copied toast." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Tap the code in Protect to copy it.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">With MFA</span>
+          <Image src={totpPaste} alt="Multi-factor TOTP Authentication: six boxes filled with 839620 and a keyboard suggestion reading From JumpCloud Protect, 839620." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Back in Admin, the keyboard offers to paste it.</figcaption>
+        </figure>
+        <figure class="phone">
+          <span class="tag">Without MFA</span>
+          <Image src={faceId} alt="The system prompt: Do you want to allow JumpCloud Admin to use Face ID? with Don’t Allow and OK, over an Enable Face ID screen." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>No MFA? Turn on Face ID, with the system’s own prompt.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Home -->
+    <article class="wrap beat split split-pair" aria-labelledby="home-title">
+      <div class="beat-text">
+        <h3 id="home-title" class="beat-title">A home screen built around what’s on fire</h3>
+        <div class="prose-narrow">
+          <p>For the MVP, Home came down to one question: does anyone need my help right now? The chart and the extra counts went, leaving total users and two counts, accounts locked out and expired passwords. Tap either one and you land in the user list, already filtered to just those people.</p>
+          <p>When someone gets locked out, a push notification brings you to the same place. The app’s names for things, like the “User Locked Out” alert, were lined up with the desktop portal, so admins never had to translate between the two.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={dashLight} alt="The dashboard: 5,909 total users, Accounts Locked Out, 2, and Expired Passwords, 20." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>Two numbers that matter.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={lockouts} alt="The Users tab filtered by an Accounts Locked Out pill, showing one user, Alan Schmidt." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>Tap one, and the list is already filtered.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Search -->
+    <article class="wrap beat split split-pair" aria-labelledby="search-title">
+      <div class="beat-text">
+        <h3 id="search-title" class="beat-title">Finding the right person fast</h3>
+        <div class="prose-narrow">
+          <p>The search box takes a first name, a last name or an email, and icons show who’s locked out or has an expired password before you even open their profile. Tapping into search shows your last 10 searches, so the person you helped yesterday is one tap away today.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={recentSearches} alt="Tapping into search on the Users tab: Recent Searches for Martin M, Alex, Gina and Eduardo, each with an X to remove it, and a Clear Recent Searches button above the keyboard." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>Recent searches, ready before you type.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={search} alt="A search for Robert: eight results with name and email, some marked locked out in red and some with expired passwords in orange." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>Status at a glance in the results.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Unlock -->
+    <article class="wrap beat" aria-labelledby="unlock-title">
+      <h3 id="unlock-title" class="beat-title">Unlocking someone in a few taps</h3>
+      <div class="prose-narrow">
+        <p>A user’s profile puts their security status first: unlock their account, force a password change, resend their activation email, suspend them, or reset their MFA. Each action shows what happened last and when.</p>
+        <p>Tap Unlock and a sheet explains what unlocking does before you commit. Then the app tells you whether it worked, and an error gets a clear Try Again instead of a dead end.</p>
+      </div>
+      <div class="pair quad">
+        <figure class="phone">
+          <Image src={userLocked} alt="Martin Stone’s profile marked Account Locked Out, with Security Status actions: Unlock User Account, locked 01-05-2022, Force Password Change, Resend Activation Email and Suspend Account." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Martin Stone, locked out.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={unlockConfirm} alt="A sheet over Martin Stone’s profile: Unlock User Account. Accounts are locked after multiple failed login attempts. Unlocking will clear the attempts and let the user regain access with their existing credentials. Unlock and Cancel buttons." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>A sheet explains what happens next.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={unlockSuccess} alt="A sheet reading Account unlocked successfully! with a green cloud and checkmark and an Okay button." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>Done. Martin can get back to work.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={unlockError} alt="A sheet reading Error unlocking account. with a red cloud and exclamation mark and a Try Again button." widths={[360, 540, 750]} sizes="(min-width: 900px) 230px, 76vw" />
+          <figcaption>If it fails, a clear way to try again.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Delight -->
+    <article class="wrap beat split split-pair" aria-labelledby="delight-title">
+      <div class="beat-text">
+        <h3 id="delight-title" class="beat-title">A short feature list left room for some fun</h3>
+        <div class="prose-narrow">
+          <p>With an MVP this lean, I wanted the small moments to carry some personality. I come from motion graphics, so I animated JumpCloud’s cloud in After Effects and exported it with Lottie, so the app could play the real animation instead of an approximation.</p>
+          <p>The loading cloud draws itself on the startup screen and anywhere else the app is waiting on data. When an action works, like unlocking a user, the cloud draws in green and a checkmark lands.</p>
+          <p>They didn’t stay in the app for long. The animations were adopted across JumpCloud, from other internal apps all the way to the marketing website.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <div class="lottie-screen">
+            <Image src={startupClean} alt="The startup screen: Admin by JumpCloud on a pale teal background, with the cloud loading animation playing below the wordmark." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+            <div class="lottie" data-lottie="/lottie/jc-loader.json" data-loop style="--x: 33.333%; --y: 51.97%; --w: 33.333%" aria-hidden="true"></div>
+          </div>
+          <figcaption>The loading cloud, on startup and anywhere data is on its way.</figcaption>
+        </figure>
+        <figure class="phone">
+          <div class="lottie-screen">
+            <Image src={unlockedClean} alt="Account unlocked successfully!, with the success animation drawing a green cloud and a checkmark above an Okay button." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+            <div class="lottie" data-lottie="/lottie/jc-success.json" style="--x: 26.667%; --y: 67.488%; --w: 46.667%" aria-hidden="true"></div>
+          </div>
+          <figcaption>A little celebration when the unlock goes through.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- MTP -->
+    <article class="wrap beat split split-pair" aria-labelledby="mtp-title">
+      <div class="beat-text">
+        <h3 id="mtp-title" class="beat-title">Admins who look after more than one company</h3>
+        <div class="prose-narrow">
+          <p>Some admins manage several organizations through JumpCloud’s multi-tenant portal. They log in to a list of their organizations, each showing its number of users and user issues, so the one that needs attention stands out.</p>
+          <p>Once they’re inside an organization, they can switch to another from the header, without going all the way back to the list.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={mtp} alt="The Multi Tenant list: JumpCloud with 509 users and 22 user issues in red, Google with 22,375 users and Slack with 3,823 users, both with 0 issues." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>Every organization, with issues called out.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={mtpSwitch} alt="A Change Organization sheet over the dashboard with JumpCloud checked, Google and Slack below, and a Cancel button." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>Switch without backing out.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Offline -->
+    <article class="wrap beat split split-pair" aria-labelledby="offline-title">
+      <div class="beat-text">
+        <h3 id="offline-title" class="beat-title">No acting on stale data</h3>
+        <div class="prose-narrow">
+          <p>When you’re unlocking accounts and resetting MFA, out-of-date information is worse than none. If the app loses its connection, it says so and offers a shortcut to Settings. If the admin cancels, a blocking screen keeps them from acting on data the app can’t refresh.</p>
+          <p>While content loads, skeleton screens hold its shape, so nothing jumps around when the real numbers arrive.</p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure class="phone">
+          <Image src={offline} alt="A Could Not Connect alert over a user profile: Make sure you are connected to Wi-Fi or your cellular network, with Go to Settings and Cancel." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>No connection, no guessing.</figcaption>
+        </figure>
+        <figure class="phone">
+          <Image src={skeleton} alt="The dashboard loading: the teal total users card and two alert cards shown as shimmering placeholders." widths={[360, 540, 750]} sizes="(min-width: 900px) 280px, 76vw" />
+          <figcaption>A skeleton while the numbers load.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <!-- Build QA -->
+    <article class="wrap beat" aria-labelledby="qa-title">
+      <h3 id="qa-title" class="beat-title">Checking every build against the designs</h3>
+      <div class="prose-narrow">
+        <p>Handing off the designs wasn’t the end of it. Leading up to release, I ran UX QA on the actual dev builds, checking each one side by side with the Figma files. I flagged everything from card shadows and footer blur to pixelated buttons, MFA icons and empty states, and included the CSS and type specs the engineers needed to fix each one.</p>
+      </div>
+      <figure class="column-shot">
+        <button type="button" class="photo-open" data-view="qa"><span class="photo-open-icon" aria-hidden="true"><Fragment set:html={EXPAND} /></span><span class="visually-hidden">Open full size: </span><Image src={qaCrop} alt="UX QA: the user details screen from a dev build beside the Figma design, with notes on the background color and the body type spec, SF Pro Text at 16px." widths={[600, 900, 1320]} sizes="(min-width: 900px) 832px, 100vw" /></button>
+        <figcaption>A dev build next to the design. The full board covers shadows, the footer, lists and settings.</figcaption>
+      </figure>
+    </article>
+
+    <!-- Desktop -->
+    <article class="wrap beat" aria-labelledby="desktop-title">
+      <h3 id="desktop-title" class="beat-title">Taking it back to the desktop</h3>
+      <div class="prose-narrow">
+        <p>The mobile patterns turned out to be useful beyond the phone. Partway through the project, I explored how they could scale back up to the desktop as a lighter, quick-response help desk: an activity chart of the week’s directory events above the same urgent counts, and a user page that leads with what’s wrong, like a locked-out banner with its own Unlock button, followed by the same quick actions as the app. It was a much smaller tool than the full Admin Portal, built for getting in, fixing something and getting out.</p>
+      </div>
+      <figure class="wide-shot">
+        <Image src={helpdeskHome} alt="The desktop help desk home: an Activity card with totals for users, devices, user groups, applications and policies, and a Last 7 Days bar chart of events, user lockouts and upcoming password expirations, above cards for user lockouts, expired passwords, upcoming password expirations and unencrypted devices." widths={[800, 1280, 2160]} sizes="(min-width: 1376px) 1280px, 100vw" />
+        <figcaption>The help desk home, from the responsive desktop explorations.</figcaption>
+      </figure>
+      <button type="button" class="view-btn" data-view="helpdesk"><Fragment set:html={EXPAND} /> See the user details page</button>
+    </article>
+  </section>
+
+  <!-- 04 Result -->
+  <section id="result" class="chapter" aria-labelledby="result-title">
+    <div class="wrap">
+      <div class="chapter-line"><span class="chapter-n" aria-hidden="true">04</span><p class="chapter-name" aria-hidden="true">Looking back</p><span class="chapter-rule" aria-hidden="true"></span></div>
+      <h2 id="result-title" class="claim"><span class="visually-hidden">Looking back: </span>It shipped. Now people want more.</h2>
+      <div class="prose-narrow">
+        <p>JumpCloud Admin shipped on the App Store and Google Play, dark mode included, and it’s still live today. It was the company’s first native app, and it gave admins something they’d been asking for: a way to help people without being at their desks. I don’t have adoption numbers to share.</p>
+        <p>The biggest miss is how much it can do. Most of the complaints in the app store reviews are about missing features. That was the trade-off of a tight MVP, and it was a real struggle internally. We chose to ship a few urgent tasks done well, knowing the app would be received that way at first.</p>
+      </div>
+      <h3 class="sub">Small on purpose. Maybe a little too small.</h3>
+      <div class="prose-narrow">
+        <p>I wish we’d been able to fit in more of the complex work, like device management. The designs were there.</p>
+        <p>But I’m proud we got JumpCloud’s first native app out the door. It filled a gap the company had been missing for a long time, and it gave the team a foundation to keep adding to.</p>
+      </div>
+      <a class="pill live-link" href="https://apps.apple.com/app/id1596947372" rel="noopener" target="_blank">See it on the App Store <Icon name="arrow-up-right" size={16} /><span class="visually-hidden"> (opens in a new tab)</span></a>
+    </div>
+  </section>
+
+  <dialog class="viewer" aria-labelledby="viewer-title">
+    <div class="viewer-bar">
+      <p id="viewer-title" class="viewer-title"></p>
+      <div class="viewer-actions">
+        <button type="button" class="viewer-zoom" aria-pressed="false">Zoom in</button>
+        <button type="button" class="viewer-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 4l10 10M14 4 4 14" /></svg>
+        </button>
+      </div>
+    </div>
+    <div class="viewer-stage" tabindex="0" aria-label="Image, scrollable when zoomed">
+    </div>
+    <p class="viewer-hint">Click the image to zoom. Drag or scroll to look around, and press Esc to close.</p>
+  </dialog>
+  <script type="application/json" id="viewer-data" set:html={JSON.stringify({
+    ...Object.fromEntries(Object.entries(views).map(([k, v]) => [k, { src: v.img.src, w: v.img.attributes.width ?? v.img.options.width, h: v.img.attributes.height ?? v.img.options.height, title: v.title, alt: v.alt }])),
+    ideations: { title: 'Visual design explorations', alt: 'Hi-fi ideations: login, cloud shapes, dashboards, data viz, user management, dark mode, color, menus, organization switching and offline states', pages: ideationPages },
+  })} />
+</div>
+
+<script>
+  import './case-study.ts';
+
+  // The real Lottie files, played over their screens once they scroll near.
+  // The loader loops; the success plays, rests, and plays again. Reduced
+  // motion shows each one finished and still.
+  const slots = [...document.querySelectorAll<HTMLElement>('.jumpcloud [data-lottie]')];
+  if (slots.length) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const anims = new Map<HTMLElement, any>();
+    let lottie: any;
+    const start = async (el: HTMLElement) => {
+      lottie ??= (await import('lottie-web/build/player/lottie_light')).default;
+      const loop = el.hasAttribute('data-loop');
+      const anim = lottie.loadAnimation({ container: el, renderer: 'svg', loop: loop && !reduce, autoplay: false, path: el.dataset.lottie });
+      anims.set(el, anim);
+      anim.addEventListener('DOMLoaded', () => {
+        if (reduce) anim.goToAndStop(loop ? Math.round(anim.totalFrames * 0.45) : anim.totalFrames - 1, true);
+        else if (el.dataset.visible === '1') anim.play();
+      });
+      if (!loop && !reduce) {
+        anim.addEventListener('complete', () => {
+          setTimeout(() => { if (el.dataset.visible === '1') anim.goToAndPlay(0, true); }, 1800);
+        });
+      }
+    };
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        const el = e.target as HTMLElement;
+        el.dataset.visible = e.isIntersecting ? '1' : '0';
+        const anim = anims.get(el);
+        if (!anim) { if (e.isIntersecting) start(el); continue; }
+        if (reduce) continue;
+        if (e.isIntersecting) { if (anim.isPaused) anim.goToAndPlay(0, true); }
+        else anim.pause();
+      }
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.4 });
+    slots.forEach((el) => io.observe(el));
+  }
+</script>
+
+<style>
+  /* JumpCloud's teal drives the shared case study accents */
+  .jumpcloud {
+    --accent: #3cc6b8;
+    --accent-soft: rgb(60 198 184 / 0.14);
+  }
+  /* The second half of Finding the look, after the data viz row */
+  .look-more {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  /* A screen with a live Lottie laid exactly over where its static stand-in was */
+  .lottie-screen {
+    position: relative;
+  }
+  .lottie {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    aspect-ratio: 175 / 110;
+    pointer-events: none;
+  }
+  .lottie :global(svg) {
+    display: block;
+  }
+</style>

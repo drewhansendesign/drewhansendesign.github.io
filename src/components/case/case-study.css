@@ -16,8 +16,6 @@
   max-width: 62ch;
   color: var(--text-2);
   font-size: var(--fs-lead);
-  /* Light-on-dark lead text reads heavy at this size; a lighter cut of Delight */
-  font-weight: 300;
   line-height: 1.5;
 }
 .case .glance-story p:first-child {
@@ -47,8 +45,6 @@
   max-width: 32ch;
   margin-top: 0.4rem;
   font-size: var(--fs-lead);
-  /* Matches the lighter intro above it */
-  font-weight: 300;
   line-height: 1.4;
 }
 
@@ -1064,6 +1060,27 @@ html:has(.viewer[open]) {
 /* Three phones in a row (entry points); they stack like a pair on phones */
 .case .pair.trio .phone {
   width: min(260px, 27vw);
+}
+/* Four phones in a row (JumpCloud's tabs and unlock steps): a 2×2 grid on
+   tablets, then a single column like every pair on phones */
+.case .pair.quad {
+  flex-wrap: nowrap;
+}
+.case .pair.quad .phone {
+  width: min(230px, 21vw);
+}
+@media (max-width: 900px) {
+  .case .pair.quad {
+    flex-wrap: wrap;
+  }
+  .case .pair.quad .phone {
+    width: min(280px, 40vw);
+  }
+}
+@media (max-width: 600px) {
+  .case .pair.quad .phone {
+    width: min(300px, 76vw);
+  }
 }
 
 /* A follow-on beat that continues the one above it, so it sits closer */

@@ -7,8 +7,9 @@ import tinderFeed from '../assets/work/tinder/feed-dark.png';
 import tinderMerch from '../assets/work/tinder/merch-dark.png';
 import tnfPlp from '../assets/work/tnf/plp.png';
 import tnfPdp from '../assets/work/tnf/pdp.png';
-import jcSplash from '../assets/work/jumpcloud/splash.png';
-import jcDashboard from '../assets/work/jumpcloud/dashboard.png';
+import jcSearch from '../assets/work/jumpcloud/case/search.png';
+import jcDashboard from '../assets/work/jumpcloud/case/dash-light.png';
+import jcUser from '../assets/work/jumpcloud/case/user-locked.png';
 import tinder from '../assets/work/tinder-lets-meet.png';
 import tnf from '../assets/work/tnf-homepage.png';
 import jumpcloud from '../assets/work/jumpcloud-admin-dark.png';
@@ -117,8 +118,9 @@ export const work: Work[] = [
     tags: ['B2B SaaS', 'Native mobile', '0 → 1'],
     image: jumpcloud,
     screens: [
-      { src: jcSplash, alt: 'JumpCloud Admin launch screen with the Admin by JumpCloud wordmark and cloud mark.' },
+      { src: jcSearch, alt: 'JumpCloud Admin user search for Robert: results with locked-out and expired-password status icons.' },
       { src: jcDashboard, alt: 'JumpCloud Admin dashboard: 5,909 total users, 2 accounts locked out and 20 expired passwords.' },
+      { src: jcUser, alt: 'JumpCloud Admin user profile for Martin Stone, marked Account Locked Out, with Unlock User Account at the top of his security actions.' },
     ],
     imageAlt:
       'JumpCloud Admin app in light and dark mode: splash screen and a home dashboard showing locked-out accounts and expired passwords.',
