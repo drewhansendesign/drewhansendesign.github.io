@@ -47,8 +47,26 @@ const LETTERS =
       root.classList.remove('intro', 'intro-leave', 'intro-close');
       try {
         sessionStorage.setItem('introSeen', '1');
+        history.scrollRestoration = 'auto';
       } catch {}
     };
+
+    // A replay (a tab left open, then reloaded) can find the page scrolled down,
+    // and the logo would fly to a header far off the top of the screen. The intro
+    // always plays from the top (Base.astro has turned off scroll restoration)
+    const toTop = () => {
+      if (root.classList.contains('intro')) scrollTo({ top: 0, behavior: 'instant' });
+    };
+    toTop();
+    addEventListener('load', toTop, { once: true });
+
+    // On a phone most of the disc's travel happens past the sides of the screen,
+    // so the circle is only whole for a moment before the logo takes off. There
+    // the close runs longer and the flight waits, so the circle reads as it shrinks
+    const narrow = innerWidth < 700;
+    const closeMs = narrow ? 1000 : 650;
+    const flyAt = narrow ? 560 : 320;
+    panel?.style.setProperty('--close', `${closeMs}ms`);
 
     // The disc is drawn at full-screen size and only ever scales down, so the
     // browser rasterises it once and never has to redraw it mid-animation
@@ -109,7 +127,7 @@ const LETTERS =
     const timers = [
       setTimeout(leave, 2350),
       setTimeout(close, 2600),
-      setTimeout(fly, 2920),
+      setTimeout(fly, 2600 + flyAt),
       setTimeout(end, 4500),
     ];
     const skip = () => {
@@ -128,6 +146,11 @@ const LETTERS =
   }
   :global(html.intro) {
     overflow: hidden;
+  }
+  /* The space kept for the scrollbar sits outside the panel, so it takes the
+     panel's color until the panel starts to close */
+  :global(html.intro:not(.intro-close)) {
+    background: var(--text-1);
   }
   :global(html.intro) .intro-panel {
     --ink: var(--bg);
@@ -171,7 +194,7 @@ const LETTERS =
     background: var(--paper);
     transform: scale(1);
     will-change: transform;
-    transition: transform 650ms cubic-bezier(0.3, 0.45, 0.4, 1);
+    transition: transform var(--close, 650ms) cubic-bezier(0.3, 0.45, 0.4, 1);
   }
   :global(html.intro-close) .intro-disc {
     transform: scale(var(--end, 0.25));

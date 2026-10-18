@@ -71,6 +71,9 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Room for the scrollbar is kept even while the intro holds the page still,
+     so nothing shifts sideways when scrolling comes back */
+  scrollbar-gutter: stable;
   background: var(--bg);
   scrollbar-color: var(--surface-3) var(--bg);
 }

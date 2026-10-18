@@ -44,7 +44,7 @@ const ibottaLogo = ibottaRaw
     <div class="hero-foot">
       <p data-reveal style="--i:9">
         I'm a senior product designer currently changing the digital coupon game at{' '}
-        <a class="ibotta" href="https://home.ibotta.com/" target="_blank" rel="noopener"><span class="visually-hidden">Ibotta (opens in a new tab)</span><Fragment set:html={ibottaLogo} /></a>.
+        <span class="nowrap"><a class="ibotta" href="https://home.ibotta.com/" target="_blank" rel="noopener"><span class="visually-hidden">Ibotta (opens in a new tab)</span><Fragment set:html={ibottaLogo} /></a>.</span>{' '}
         For over a decade I've
         been designing new products, modernizing legacy ones, and everything in between.
       </p>
@@ -194,6 +194,10 @@ const ibottaLogo = ibottaRaw
     font-size: var(--fs-lead);
     line-height: 1.45;
     color: var(--text-2);
+  }
+  /* The sentence's period stays on the logo's line */
+  .nowrap {
+    white-space: nowrap;
   }
   /* Ibotta's wordmark standing in for the name, in their bright ruby */
   .ibotta {

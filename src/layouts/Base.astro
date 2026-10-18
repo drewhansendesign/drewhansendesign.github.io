@@ -37,7 +37,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         try {
           seen = sessionStorage.getItem('introSeen') === '1';
         } catch (e) {}
-        if (intro && !seen) document.documentElement.classList.add('intro');
+        if (intro && !seen) {
+          document.documentElement.classList.add('intro');
+          // The intro plays from the top, so the browser mustn't put back an old
+          // scroll position (Intro.astro turns this back on once it's done)
+          try {
+            history.scrollRestoration = 'manual';
+          } catch (e) {}
+        }
       }
     </script>
     <script is:inline>
@@ -77,13 +84,78 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         const hero = location.pathname.startsWith('/work/') && document.querySelector('section.hero');
         return !!hero && hero.getBoundingClientRect().bottom < innerHeight * 0.4;
       };
+      // Where nested transition groups aren't supported (Safari), the screens
+      // travel as pictures of their own, not clipped by the color field: they'd
+      // run out past the card's edge on the way and get cut off at the end. Each
+      // one is clipped to the field's box instead, as it moves between where the
+      // two stood on the two pages.
+      const nested = CSS.supports('view-transition-group: nearest');
+      const boxes = (slug) => {
+        const field = location.pathname.startsWith('/work/')
+          ? document.querySelector('section.hero')
+          : document.querySelector(`a.card[href="/work/${slug}/"]`);
+        if (!field) return null;
+        const box = (el) => {
+          const r = el.getBoundingClientRect();
+          return [r.left, r.top, r.right, r.bottom];
+        };
+        return {
+          field: box(field),
+          round: parseFloat(getComputedStyle(field).borderTopLeftRadius) || 0,
+          shots: [...field.querySelectorAll(`[style*="view-transition-name: case-${slug}-shot-"]`)].map(box),
+        };
+      };
+      // The field's own curve (the case-bg group's, below)
+      const fieldEase = (x) => {
+        const [x1, y1, x2, y2] = [0.65, 0, 0.2, 1];
+        const at = (t, a, b) => 3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3;
+        let lo = 0;
+        let hi = 1;
+        for (let i = 0; i < 30; i++) {
+          const m = (lo + hi) / 2;
+          if (at(m, x1, x2) < x) lo = m;
+          else hi = m;
+        }
+        return at((lo + hi) / 2, y1, y2);
+      };
+      const clipShots = (vt, slug, from) => {
+        vt.ready.then(() => {
+          const to = boxes(slug);
+          if (!to) return;
+          const mix = (a, b, k) => a + (b - a) * k;
+          const px = (v) => `${v.toFixed(1)}px`;
+          to.shots.forEach((end, n) => {
+            const start = from.shots[n];
+            if (!start) return;
+            const frames = [];
+            for (let i = 0; i <= 30; i++) {
+              const k = fieldEase(i / 30);
+              const [fl, ft, fr, fb] = from.field.map((v, j) => mix(v, to.field[j], k));
+              const [sl, st, sr, sb] = start.map((v, j) => mix(v, end[j], k));
+              // Negative insets where the screen sits inside the field, so its shadow still shows
+              frames.push({
+                clipPath: `inset(${px(ft - st)} ${px(sr - fr)} ${px(sb - fb)} ${px(fl - sl)} round ${px(mix(from.round, to.round, k))})`,
+              });
+            }
+            document.documentElement.animate(frames, {
+              duration: 600,
+              easing: 'linear',
+              fill: 'both',
+              pseudoElement: `::view-transition-group(case-${slug}-shot-${n})`,
+            });
+          });
+        });
+      };
       addEventListener('pageswap', (e) => {
         const plain = !!e.viewTransition && heroGone();
         document.documentElement.classList.toggle('vt-plain', plain);
         if (plain) e.viewTransition.types?.add('plain');
+        const slug = slugOf(e.activation?.entry?.url) || slugOf(location.href);
+        const from = !nested && e.viewTransition && !plain && slug ? boxes(slug) : null;
         try {
           sessionStorage.setItem('vtHang', String(heroHang()));
           sessionStorage.setItem('vtPlain', plain ? '1' : '');
+          sessionStorage.setItem('vtBoxes', from ? JSON.stringify(from) : '');
         } catch (err) {}
       });
       // Coming back to a page from the back/forward cache, drop the flag
@@ -114,12 +186,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         vt.finished.finally(() => document.documentElement.style.removeProperty('--vt-hang'));
         if (vt.types) vt.types.add(location.pathname.startsWith('/work/') ? 'expand' : 'collapse');
         // Back on the home page from a case study
-        focusCard(slugOf(navigation.activation?.from?.url), vt);
+        focusCard(slugOf(self.navigation?.activation?.from?.url), vt);
         // The arriving page's text (the hero's, or the card returned to) waits,
         // hidden, while the field moves, then blurs in line by line as the field
         // settles. The pictures of the new page are live, so it shows through.
         // Each line holds its own state, so nothing else ending can unhide it.
-        const from = slugOf(navigation.activation?.from?.url);
+        const from = slugOf(self.navigation?.activation?.from?.url);
+        let start = null;
+        try {
+          start = JSON.parse(sessionStorage.getItem('vtBoxes') || 'null');
+          sessionStorage.removeItem('vtBoxes');
+        } catch (err) {}
+        const slug = location.pathname.startsWith('/work/') ? slugOf(location.href) : from;
+        if (start && slug) clipShots(vt, slug, start);
         const scope = location.pathname.startsWith('/work/')
           ? document.querySelector('section.hero')
           : from && document.querySelector(`a.card[href="/work/${from}/"]`);
