@@ -159,6 +159,26 @@ export const expertise: {
   },
 ];
 
+/** The About section's ideal process, in Drew's words */
+export const process: { title: string; body: string }[] = [
+  {
+    title: 'Discover',
+    body: 'Understand how it works today and figure out what’s actually broken. Get clear on what the business needs and what users need. Agree on what success looks like and how much time we really have.',
+  },
+  {
+    title: 'Define',
+    body: 'Journey maps, rough prototypes and usability tests. Ideas get made, broken and remade until real users stop poking holes in them.',
+  },
+  {
+    title: 'Deliver',
+    body: 'Lock in high-fidelity prototypes, motion, accessibility and UXQA. Then a bit more iteration, because there’s always one more thing.',
+  },
+  {
+    title: 'Run it back',
+    body: 'Watch the numbers, listen to users and fix what we got wrong. Then go again.',
+  },
+];
+
 export const experience: {
   company: string;
   role: string;

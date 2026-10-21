@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import Wordmark from '../components/Wordmark.astro';
 import LogoStrip from '../components/LogoStrip.astro';
 import WorkCard from '../components/WorkCard.astro';
-import { work, experience, expertise, contact } from '../data/site';
+import { work, experience, expertise, process, contact } from '../data/site';
 import portrait from '../assets/about/drew-portrait.png';
 import ibottaRaw from '../assets/logos/ibotta.svg?raw';
 import Iconoir from '../components/Iconoir.astro';
@@ -99,23 +99,80 @@ const ibottaLogo = ibottaRaw
   </section>
 
   <section id="about" class="about wrap" aria-labelledby="about-title">
-    <div class="about-img" data-reveal>
-      <Image
-        src={portrait}
-        alt="Drew Hansen in a black cap and glasses."
-        widths={[480, 900]}
-        sizes="(min-width: 960px) 40vw, 100vw"
-        loading="lazy"
-      />
+    <div class="about-intro">
+      <div class="about-img" data-reveal>
+        <Image
+          src={portrait}
+          alt="Drew Hansen in a black cap and glasses."
+          widths={[480, 900]}
+          sizes="(min-width: 960px) 40vw, 100vw"
+          loading="lazy"
+        />
+      </div>
+      <div class="about-text">
+        <h2 id="about-title" class="callout" data-reveal>So, who’s Drew?</h2>
+        <p data-reveal style="--i:1">
+          I started out making things move for broadcast TV and never really stopped. At JumpCloud I
+          was known as “Delightful Drew,” the one adding the final polish and animation that makes an
+          interface feel good to use. These days I’m mostly known for speed: lots of ideas, fast,
+          without letting the quality slip. I have plenty of opinions, all loosely held.
+        </p>
+        <p class="off" data-reveal style="--i:2">
+          Off the clock: metal shows (I got married in a dive bar, so it’s more of a lifestyle).
+          Friday-night curling, where my father-in-law screams “SWEEP!” at my wife and me. And Goose,
+          my dog, who got kicked out of doggy daycare. He’s a lot.
+        </p>
+      </div>
     </div>
-    <div class="about-text">
-      <h2 id="about-title" class="callout" data-reveal>Hey, I’m Drew.</h2>
-      <p data-reveal style="--i:1">
-        I started in broadcast motion graphics, studied New Media Design at RIT, and have spent the
-        last decade designing mobile-first products and the design systems behind them. Motion is
-        still how I make interactions feel lovable.
-      </p>
-      <p class="off" data-reveal style="--i:2">Off the clock: metal shows, curling and sim racing in Denver.</p>
+
+    <div class="process">
+      <h3 class="process-title" data-reveal>How I work, <span>in a perfect world</span></h3>
+      <ol class="steps">
+        {process.map((s, i) => (
+          <li class="step" data-reveal style={`--i:${i}`}>
+            <span class="node" aria-hidden="true"></span>
+            <p class="step-num">{String(i + 1).padStart(2, '0')}</p>
+            <h4 class="step-title">{s.title}</h4>
+            <p class="step-text">{s.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <div class="reality">
+      <h3 class="process-title" data-reveal>How I work, <span>in the real world</span></h3>
+      <!-- The same four steps' rail, as it actually goes: doubling back, looping,
+           and still arriving. Draws itself in as it scrolls into view. -->
+      <div class="squiggle" aria-hidden="true" data-reveal>
+        <svg viewBox="0 16 1200 128">
+          <defs>
+            <linearGradient id="squiggle-ink" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1200" y2="0">
+              <stop offset="0" style="stop-color: var(--text-3)" />
+              <stop offset="0.7" style="stop-color: var(--text-2)" />
+              <stop offset="1" style="stop-color: var(--accent)" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M 6 80 C 120 80 180 80 250 76 C 330 70 360 30 320 26 C 270 22 260 120 340 124 C 420 128 440 40 500 48 C 560 56 520 140 470 120 C 420 100 520 20 610 36 C 700 52 640 130 720 128 C 800 126 780 30 860 40 C 930 48 900 110 870 104 C 840 98 900 70 980 78 C 1060 86 1120 80 1194 80"
+          />
+        </svg>
+        <span class="node sq-start"></span>
+        <span class="node sq-end"></span>
+        <span class="sq-label sq-label-start">Kickoff</span>
+        <span class="sq-label sq-label-end">Shipped anyway</span>
+      </div>
+      <div class="reality-text">
+        <p data-reveal>
+          I can’t remember the last project that didn’t get squished or pivoted. Steps get swapped,
+          compressed or skipped, and that’s fine. Being adaptable means still getting shit done when
+          the plan falls apart. The one thing I never skip is getting something down fast, whether
+          it’s a sketch or an AI prototype. I understand a problem best when I can see it.
+        </p>
+        <p class="pitch" data-reveal style="--i:1">
+          If you want a cerebral overthinker with a sticky-note wall who never actually ships, I’m
+          probably not your guy. If you want to build fast, iterate and make cool shit, let’s chat.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -128,6 +185,36 @@ const ibottaLogo = ibottaRaw
     </div>
   </section>
 </Base>
+
+<script>
+  // The real-world squiggle: keep its line a steady 2px at any width (the SVG
+  // scales with the column), and draw it in once it's well into view.
+  const sq = document.querySelector<HTMLElement>('.squiggle');
+  const svg = sq?.querySelector('svg');
+  const path = sq?.querySelector('path');
+  if (sq && svg && path) {
+    const fit = () => {
+      const w = svg.getBoundingClientRect().width;
+      if (w) path.style.strokeWidth = `${(2 * 1200) / w}px`;
+    };
+    fit();
+    new ResizeObserver(fit).observe(svg);
+
+    if (document.documentElement.classList.contains('motion') && 'IntersectionObserver' in window) {
+      sq.style.setProperty('--len', `${Math.ceil(path.getTotalLength()) + 2}`);
+      sq.classList.add('armed');
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          io.disconnect();
+          sq.classList.add('drawn');
+        },
+        { rootMargin: '0px 0px -25% 0px', threshold: 1 }
+      );
+      io.observe(svg);
+    }
+  }
+</script>
 
 <style>
   .top {
@@ -342,11 +429,13 @@ const ibottaLogo = ibottaRaw
   }
 
   .about {
+    padding-top: var(--section-gap);
+  }
+  .about-intro {
     display: grid;
     grid-template-columns: 5fr 7fr;
     gap: clamp(2rem, 6vw, 6rem);
     align-items: center;
-    padding-top: var(--section-gap);
   }
   .about-img {
     overflow: hidden;
@@ -368,8 +457,172 @@ const ibottaLogo = ibottaRaw
     color: var(--text-2);
   }
   .about-text .off {
+    max-width: 46ch;
     font-size: var(--fs-body);
+    line-height: 1.6;
     color: var(--text-3);
+  }
+
+  /* Process: the ideal steps on a straight rail, then the same rail as it
+     really goes */
+  .process {
+    margin-top: clamp(5rem, 3rem + 6vw, 9rem);
+  }
+  .reality {
+    margin-top: clamp(4.5rem, 3rem + 5vw, 7.5rem);
+  }
+  .process-title {
+    font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+  }
+  .process-title span {
+    color: var(--text-3);
+  }
+  .steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0 clamp(1.5rem, 3vw, 3rem);
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 5.5px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, var(--line-strong), var(--line));
+    translate: 0 -0.5px;
+  }
+  .step .node {
+    display: block;
+    position: relative;
+    margin-top: 0;
+  }
+  .step-num {
+    margin-top: 1.5rem;
+    font-size: var(--fs-meta);
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .step-title {
+    margin: 0.35rem 0 0;
+    font-size: clamp(1.25rem, 1.1rem + 0.4vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+  }
+  .step-text {
+    max-width: 34ch;
+    margin-top: 0.75rem;
+    color: var(--text-3);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+  }
+
+  .squiggle {
+    position: relative;
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    padding-bottom: 1.75rem;
+  }
+  .squiggle svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .squiggle path {
+    fill: none;
+    stroke: url(#squiggle-ink);
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* The nodes sit on the line's ends (mid-height, x = 6 and 1194 of 1200) */
+  .squiggle .node {
+    position: absolute;
+    top: calc(50% - 0.875rem);
+    margin: 0;
+    translate: -50% -50%;
+  }
+  .sq-start {
+    left: 0.5%;
+  }
+  .sq-end {
+    left: 99.5%;
+    background: var(--accent);
+    box-shadow: 0 0 0 5px var(--accent-soft);
+  }
+  .sq-label {
+    position: absolute;
+    bottom: 0;
+    font-size: var(--fs-meta);
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .sq-label-start {
+    left: 0;
+  }
+  .sq-label-end {
+    right: 0;
+    color: var(--accent-text);
+  }
+  /* Drawn in by the script below once in view: the line runs with a steady
+     ease, and the end node lands with a small overshoot just before it
+     arrives. Without JS, or with reduced motion, it's simply drawn. */
+  /* (Transitions live on the drawn state, so arming hides things at once) */
+  .squiggle.armed path {
+    stroke-dasharray: var(--len) var(--len);
+    stroke-dashoffset: var(--len);
+    opacity: 0;
+  }
+  .squiggle.armed .sq-end {
+    opacity: 0;
+    scale: 0.4;
+  }
+  .squiggle.armed .sq-label-end {
+    opacity: 0;
+    translate: 0 6px;
+  }
+  .squiggle.armed.drawn path {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transition:
+      stroke-dashoffset 2200ms cubic-bezier(0.45, 0.05, 0.25, 1),
+      opacity 300ms ease;
+  }
+  .squiggle.armed.drawn .sq-end {
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity 400ms ease 1850ms,
+      scale 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 1850ms;
+  }
+  .squiggle.armed.drawn .sq-label-end {
+    opacity: 1;
+    translate: none;
+    transition:
+      opacity 500ms ease 2000ms,
+      translate 700ms var(--ease-out) 2000ms;
+  }
+
+  .reality-text {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem clamp(2rem, 6vw, 6rem);
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+  .reality-text p {
+    max-width: 46ch;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--text-2);
+  }
+  .reality-text .pitch {
+    color: var(--text-1);
   }
 
   .contact {
@@ -391,11 +644,44 @@ const ibottaLogo = ibottaRaw
     .cards {
       grid-template-columns: 1fr;
     }
-    .about {
+    .about-intro {
       grid-template-columns: 1fr;
     }
     .stop {
       grid-template-columns: 1.75rem 1fr;
+    }
+    /* The steps stack on a vertical rail, like the timeline */
+    .steps {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .steps::before {
+      top: 0.9rem;
+      bottom: 0.9rem;
+      left: 5.5px;
+      right: auto;
+      width: 1px;
+      height: auto;
+      background: linear-gradient(to bottom, var(--line-strong), var(--line));
+      translate: -0.5px 0;
+    }
+    .step {
+      position: relative;
+      padding: 0 0 2.25rem 1.75rem;
+    }
+    .step:last-child {
+      padding-bottom: 0;
+    }
+    .step .node {
+      position: absolute;
+      top: 0.3rem;
+      left: 0;
+    }
+    .step-num {
+      margin-top: 0;
+    }
+    .reality-text {
+      grid-template-columns: 1fr;
     }
   }
   @media (max-width: 560px) {
