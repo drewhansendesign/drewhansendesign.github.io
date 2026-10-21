@@ -37,6 +37,23 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         try {
           seen = sessionStorage.getItem('introSeen') === '1';
         } catch (e) {}
+        // A visitor coming back (the back button) or over from another page of the
+        // site has been here already, even if the session was cleared meanwhile
+        // (say, a phone dropping a tab left in the background)
+        if (intro && !seen) {
+          const nav = performance.getEntriesByType?.('navigation')[0];
+          const back = nav ? nav.type === 'back_forward' : performance.navigation?.type === 2;
+          let inside = false;
+          try {
+            inside = !!document.referrer && new URL(document.referrer).origin === location.origin;
+          } catch (e) {}
+          if (back || inside) {
+            seen = true;
+            try {
+              sessionStorage.setItem('introSeen', '1');
+            } catch (e) {}
+          }
+        }
         if (intro && !seen) {
           document.documentElement.classList.add('intro');
           // The intro plays from the top, so the browser mustn't put back an old
