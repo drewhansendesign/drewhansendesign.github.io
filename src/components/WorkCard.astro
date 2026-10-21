@@ -66,13 +66,6 @@ const logo = logoFile ? logoSvg(logoFile) : null;
         ))}
       </dl>
     )}
-    <span class="cta" data-vt-line style="--l:4">
-      Read the case study
-      <svg class="arrow" width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-        <line class="arrow-shaft" x1="1" y1="7" x2="23.5" y2="7" />
-        <path class="arrow-head" d="M9 2.5 13.5 7 9 11.5" />
-      </svg>
-    </span>
   </div>
   {w.screens ? (
     <div class:list={['phones', w.screensKind === 'desktop' && 'desktops', w.screens.length === 2 && 'phones-2']}>
@@ -115,7 +108,7 @@ const logo = logoFile ? logoSvg(logoFile) : null;
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
     color: var(--text-1);
   }
-  /* The card itself stays put on hover; the screens and the arrow carry the hover state */
+  /* The card itself stays put on hover; the screens carry the hover state */
   :global(.motion) .card[data-reveal] {
     transition:
       opacity 900ms var(--ease-out),
@@ -250,38 +243,6 @@ const logo = logoFile ? logoSvg(logoFile) : null;
     margin-top: 0.35rem;
     font-size: var(--fs-meta);
     color: rgb(255 255 255 / 0.85);
-  }
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: auto;
-    padding-top: 0.75rem;
-    font-weight: 600;
-    font-size: var(--fs-small);
-  }
-  /* Arrow grows in the direction it points: the shaft stretches right and the
-     head travels with it */
-  .arrow {
-    overflow: visible;
-    flex: none;
-  }
-  /* The shaft is drawn at full length and revealed by its dash, so the round
-     caps keep their shape as it grows (scaling would stretch them) */
-  .arrow-shaft {
-    stroke-dasharray: 12 30;
-    transition: stroke-dasharray 420ms var(--ease-out);
-  }
-  .arrow-head {
-    transition: transform 420ms var(--ease-out);
-  }
-  .card:hover .arrow-shaft,
-  .card:focus-visible .arrow-shaft {
-    stroke-dasharray: 22.5 30;
-  }
-  .card:hover .arrow-head,
-  .card:focus-visible .arrow-head {
-    transform: translateX(10.5px);
   }
   .img {
     align-self: end;
