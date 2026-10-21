@@ -36,14 +36,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         let seen = false;
         try {
           seen = sessionStorage.getItem('introSeen') === '1';
-          // Temporary test mode: ?introtest turns it on for the session (?introtest=0
-          // off). The intro then plays on every load, and the logo replays it
-          const test = new URLSearchParams(location.search).get('introtest');
-          if (test !== null) sessionStorage.setItem('introTest', test === '0' ? '' : '1');
-          if (sessionStorage.getItem('introTest') === '1') {
-            document.documentElement.classList.add('intro-test');
-            seen = false;
-          }
         } catch (e) {}
         if (intro && !seen) {
           document.documentElement.classList.add('intro');
