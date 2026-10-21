@@ -65,27 +65,34 @@
   gap: 0.75rem;
 }
 .case .chap-back {
-  display: grid;
+  display: flex;
   flex: none;
-  place-items: center;
-  width: 36px;
+  align-items: center;
   height: 36px;
-  margin-left: -8px;
-  border-radius: 50%;
   color: var(--text-2);
-  transition:
-    color 200ms ease,
-    background-color 200ms ease;
+  transition: color 200ms ease;
 }
 .case .chap-back:hover {
-  background: rgb(255 255 255 / 0.06);
   color: var(--text-1);
 }
+/* The arrow grows back the way it points, like the hero's Home link: the shaft
+   is drawn at full length and revealed by its dash (so the round caps keep
+   their shape), and the head travels with its tip */
 .case .chap-back svg {
-  transition: transform 300ms var(--ease-out);
+  overflow: visible;
 }
-.case .chap-back:hover svg {
-  transform: translateX(-3px);
+.case .chap-back .arrow-shaft {
+  stroke-dasharray: 12 30;
+  transition: stroke-dasharray 420ms var(--ease-out);
+}
+.case .chap-back .arrow-head {
+  transition: transform 420ms var(--ease-out);
+}
+.case .chap-back:hover .arrow-shaft {
+  stroke-dasharray: 22.5 30;
+}
+.case .chap-back:hover .arrow-head {
+  transform: translateX(-10.5px);
 }
 /* When the chapters don't fit (phones), the bar scrolls sideways. The edge
    with more chapters past it fades out, so the cut-off reads as "there's
