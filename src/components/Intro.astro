@@ -73,12 +73,9 @@ const LETTERS =
     toTop();
     addEventListener('load', toTop, { once: true });
 
-    // On a phone most of the disc's travel happens past the sides of the screen,
-    // so the circle is only whole for a moment before the logo takes off. There
-    // the close runs longer and the flight waits, so the circle reads as it shrinks
-    const narrow = innerWidth < 700;
-    const closeMs = narrow ? 1000 : 650;
-    const flyAt = narrow ? 560 : 320;
+    // How long the disc takes to close, and when (into the close) the logo takes off
+    const closeMs = 650;
+    const flyAt = 320;
 
     // Test mode: time every frame until the intro ends, then list the slowest.
     // rAF runs on the main thread, so a long gap means the page itself stalled;
