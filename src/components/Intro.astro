@@ -38,7 +38,20 @@ const LETTERS =
 
 <script>
   const root = document.documentElement;
+
+  // Temporary test mode (?introtest, see Base.astro): the logo replays the intro
+  // with a fresh load, and each play reports its frame timings
+  const testing = root.classList.contains('intro-test');
+  if (testing) {
+    document.querySelector('.wordmark')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      scrollTo({ top: 0, behavior: 'instant' });
+      location.reload();
+    });
+  }
+
   if (root.classList.contains('intro')) {
+    const t0 = performance.now();
     const panel = document.querySelector<HTMLElement>('.intro-panel');
     const logo = document.querySelector<HTMLElement>('.intro-logo');
     const target = document.querySelector<SVGSVGElement>('.wordmark svg');
@@ -67,6 +80,41 @@ const LETTERS =
     const closeMs = narrow ? 1000 : 650;
     const flyAt = narrow ? 560 : 320;
     panel?.style.setProperty('--close', `${closeMs}ms`);
+
+    // Test mode: time every frame until the intro ends, then list the slowest.
+    // rAF runs on the main thread, so a long gap means the page itself stalled;
+    // the disc and the flight run on the compositor and can stay smooth anyway
+    if (testing) {
+      let loadAt = 0;
+      addEventListener('load', () => (loadAt = performance.now() - t0), { once: true });
+      const stamps: number[] = [];
+      const phase = (t: number) =>
+        t < 2350 ? 'drawing' : t < 2600 ? 'greeting out' : t < 2600 + flyAt ? 'closing' : 'flight';
+      const report = () => {
+        const gaps = stamps.slice(1).map((t, i) => ({ at: stamps[i] - t0, ms: t - stamps[i] }));
+        const sorted = gaps.map((g) => g.ms).sort((a, b) => a - b);
+        const typical = sorted[Math.floor(sorted.length / 2)] || 16.7;
+        const slow = gaps.filter((g) => g.ms > Math.max(typical * 1.8, 24));
+        const worst = [...gaps].sort((a, b) => b.ms - a.ms).slice(0, 4);
+        const box = document.createElement('div');
+        box.style.cssText =
+          'position:fixed;left:12px;bottom:12px;z-index:2000;max-width:calc(100vw - 24px);padding:10px 12px;border-radius:10px;background:rgb(0 0 0 / 0.94);color:#ecedf0;font:12px/1.45 ui-monospace,Menlo,monospace;letter-spacing:0;white-space:pre';
+        box.textContent = [
+          `INTRO TEST  ${innerWidth}×${innerHeight} @${devicePixelRatio}x  tap to close`,
+          `script ran ${Math.round(t0)}ms after navigation, load ${loadAt ? `+${Math.round(loadAt)}ms` : 'not yet'}`,
+          `${gaps.length} frames, typical ${typical.toFixed(1)}ms, ${slow.length} slow`,
+          ...worst.map((g) => `  ${Math.round(g.ms)}ms at ${(g.at / 1000).toFixed(2)}s (${phase(g.at)})`),
+        ].join('\n');
+        box.addEventListener('click', () => box.remove());
+        document.body.append(box);
+      };
+      const tick = (t: number) => {
+        stamps.push(t);
+        if (root.classList.contains('intro')) requestAnimationFrame(tick);
+        else report();
+      };
+      requestAnimationFrame(tick);
+    }
 
     // The disc is drawn at full-screen size and only ever scales down, so the
     // browser rasterises it once and never has to redraw it mid-animation
