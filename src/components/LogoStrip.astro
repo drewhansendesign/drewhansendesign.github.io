@@ -79,7 +79,12 @@ const logos = order
   .logo-athlinks { height: calc(var(--logo-h) * 0.85); }
   .logo-denver_logo { height: calc(var(--logo-h) * 1.15); }
 
+  /* Held to the site's width and faded at both ends. One set of logos is
+     wider than this (~1,730px), so the loop never shows an empty run on
+     wide screens */
   .marquee {
+    max-width: calc(var(--max) + var(--gutter) * 2);
+    margin-inline: auto;
     overflow: hidden;
     mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
   }
