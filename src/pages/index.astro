@@ -158,29 +158,6 @@ const ibottaLogo = ibottaRaw
       </div>
     </div>
 
-    <div class="offclock">
-      <h3 class="process-title" data-reveal>Off the clock</h3>
-      <ul class="snaps">
-        {offClock.map((s, i) => (
-          <li class="snap" data-reveal style={`--i:${i}`}>
-            <div class="snap-img">
-              <Image
-                src={s.src}
-                alt={s.alt}
-                widths={[400, 800]}
-                sizes="(min-width: 900px) 22vw, 45vw"
-                quality={90}
-                loading="lazy"
-                style={`object-position: ${s.focus}`}
-              />
-            </div>
-            <h4 class="snap-title">{s.title}</h4>
-            <p class="snap-text">{s.body}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-
     <div class="process">
       <h3 class="process-title" data-reveal>How I work, <span>in a perfect world</span></h3>
       <ol class="steps">
@@ -229,6 +206,29 @@ const ibottaLogo = ibottaRaw
           probably not your guy. If you want to build fast, iterate and make cool shit, let’s chat.
         </p>
       </div>
+    </div>
+
+    <div class="offclock">
+      <h3 class="process-title" data-reveal>Off the clock</h3>
+      <ul class="snaps">
+        {offClock.map((s, i) => (
+          <li class="snap" data-reveal style={`--i:${i}`}>
+            <div class="snap-img">
+              <Image
+                src={s.src}
+                alt={s.alt}
+                widths={[400, 800]}
+                sizes="(min-width: 900px) 22vw, 45vw"
+                quality={90}
+                loading="lazy"
+                style={`object-position: ${s.focus}`}
+              />
+            </div>
+            <h4 class="snap-title">{s.title}</h4>
+            <p class="snap-text">{s.body}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
