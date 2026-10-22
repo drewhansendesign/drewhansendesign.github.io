@@ -6,10 +6,47 @@ import LogoStrip from '../components/LogoStrip.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { work, experience, expertise, process, contact } from '../data/site';
 import portrait from '../assets/about/drew-portrait.png';
+import skylark from '../assets/about/skylark.jpg';
+import superheaven from '../assets/about/superheaven.jpg';
+import curling from '../assets/about/curling.jpg';
+import goose from '../assets/about/goose.jpg';
 import ibottaRaw from '../assets/logos/ibotta.svg?raw';
 import Iconoir from '../components/Iconoir.astro';
 
 const headline = ['I', 'sweat', 'the', 'details', 'so', 'you', 'don’t', 'have', 'to.'];
+
+// About: off the clock, in Drew's photos and words. focus = object-position
+// for the 4:5 crop.
+const offClock = [
+  {
+    src: superheaven,
+    focus: '50% 50%',
+    alt: 'Superheaven on a blue-lit stage, with a crowd surfer riding over the crowd.',
+    title: 'Loud music',
+    body: 'Shows of all kinds, but mostly metal. All-time favorite band: Every Time I Die.',
+  },
+  {
+    src: skylark,
+    focus: '52% 50%',
+    alt: 'Drew and Charlotte outside the Skylark Lounge, its marquee reading “Charlotte & Drew, 05 16 2026.”',
+    title: 'Married in a dive bar',
+    body: 'Charlotte and I tied the knot at the Skylark Lounge. It felt right.',
+  },
+  {
+    src: curling,
+    focus: '52% 50%',
+    alt: 'Drew sweeping a curling stone down the ice alongside a teammate.',
+    title: 'The Sheet Freaks',
+    body: 'Every Friday my father-in-law screams “SWEEP!” at Charlotte and me. It works: second place in our (casual) league.',
+  },
+  {
+    src: goose,
+    focus: '50% 50%',
+    alt: 'Goose, a fluffy Great Pyrenees mix, posing beside a “First day of Skiptown” sign.',
+    title: 'Goose',
+    body: 'A Great Pyrenees mix who got kicked out of doggy daycare for being too friendly. He would not stop playing.',
+  },
+];
 
 // The Ibotta wordmark, inline in the intro: brand pink via currentColor, and
 // without the ® (about 2px tall at this size)
@@ -115,14 +152,33 @@ const ibottaLogo = ibottaRaw
           I started out making things move for broadcast TV and never really stopped. At JumpCloud I
           was known as “Delightful Drew,” the one adding the final polish and animation that makes an
           interface feel good to use. These days I’m mostly known for speed: lots of ideas, fast,
-          without letting the quality slip. I have plenty of opinions, all loosely held.
-        </p>
-        <p class="off" data-reveal style="--i:2">
-          Off the clock: metal shows (I got married in a dive bar, so it’s more of a lifestyle).
-          Friday-night curling, where my father-in-law screams “SWEEP!” at my wife and me. And Goose,
-          my dog, who got kicked out of doggy daycare. He’s a lot.
+          without letting the quality slip. I show up with plenty of opinions, but I hold them
+          loosely. The best idea wins, even when it isn’t mine.
         </p>
       </div>
+    </div>
+
+    <div class="offclock">
+      <h3 class="process-title" data-reveal>Off the clock</h3>
+      <ul class="snaps">
+        {offClock.map((s, i) => (
+          <li class="snap" data-reveal style={`--i:${i}`}>
+            <div class="snap-img">
+              <Image
+                src={s.src}
+                alt={s.alt}
+                widths={[400, 800]}
+                sizes="(min-width: 900px) 22vw, 45vw"
+                quality={90}
+                loading="lazy"
+                style={`object-position: ${s.focus}`}
+              />
+            </div>
+            <h4 class="snap-title">{s.title}</h4>
+            <p class="snap-text">{s.body}</p>
+          </li>
+        ))}
+      </ul>
     </div>
 
     <div class="process">
@@ -456,11 +512,40 @@ const ibottaLogo = ibottaRaw
     line-height: 1.45;
     color: var(--text-2);
   }
-  .about-text .off {
-    max-width: 46ch;
-    font-size: var(--fs-body);
-    line-height: 1.6;
+  /* Off the clock: four photos with short captions */
+  .offclock {
+    margin-top: clamp(5rem, 3rem + 6vw, 9rem);
+  }
+  .snaps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2.5rem clamp(1.25rem, 2.5vw, 2rem);
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+  .snap-img {
+    overflow: hidden;
+    border-radius: var(--radius-img);
+    background: var(--surface-2);
+  }
+  .snap-img :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .snap-title {
+    margin: 1.25rem 0 0;
+    font-size: clamp(1.125rem, 1rem + 0.3vw, 1.25rem);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+  }
+  .snap-text {
+    max-width: 34ch;
+    margin-top: 0.5rem;
     color: var(--text-3);
+    font-size: var(--fs-small);
+    line-height: 1.6;
   }
 
   /* Process: the ideal steps on a straight rail, then the same rail as it
@@ -646,6 +731,9 @@ const ibottaLogo = ibottaRaw
     }
     .about-intro {
       grid-template-columns: 1fr;
+    }
+    .snaps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .stop {
       grid-template-columns: 1.75rem 1fr;
