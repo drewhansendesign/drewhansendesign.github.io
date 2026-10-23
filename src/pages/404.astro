@@ -1,0 +1,143 @@
+---
+import Base from '../layouts/Base.astro';
+import Wordmark from '../components/Wordmark.astro';
+import ContactMenu from '../components/ContactMenu.astro';
+---
+
+<Base
+  title="Page not found · Drew Hansen"
+  description="This page doesn’t exist. Head back to Drew Hansen’s portfolio."
+  noindex
+>
+  <header class="top wrap">
+    <div class="top-id">
+      <Wordmark />
+      <p class="top-name">Drew Hansen</p>
+    </div>
+    <ContactMenu />
+  </header>
+
+  <section class="lost wrap" aria-labelledby="lost-title">
+    <p class="code" data-reveal>404</p>
+    <h1 id="lost-title" class="callout" data-reveal style="--i:1">This page got cut from scope.</h1>
+
+    <!-- The About section's real-world rail, wandering off and stopping short -->
+    <div class="squiggle" aria-hidden="true" data-reveal style="--i:2">
+      <svg viewBox="0 16 600 128">
+        <path d="M 6 80 C 120 80 180 80 250 76 C 330 70 360 30 320 26 C 270 22 260 120 340 124 C 420 128 440 40 500 48 C 560 56 520 140 470 120 C 420 100 520 30 594 80" />
+      </svg>
+      <span class="node sq-start"></span>
+      <span class="node sq-end"></span>
+      <span class="sq-label sq-label-start">Kickoff</span>
+      <span class="sq-label sq-label-end">You are here</span>
+    </div>
+
+    <p class="lead" data-reveal style="--i:3">
+      Whatever was here got squished, pivoted or never existed in the first place. It happens.
+      The good stuff is back home.
+    </p>
+    <div class="links" data-reveal style="--i:4">
+      <a class="pill pill-solid" href="/">Back home</a>
+      <a class="pill" href="/#work">See the work</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 1.75rem;
+  }
+  .top-id {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .top-name {
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--text-1);
+  }
+
+  .lost {
+    padding-block: clamp(4rem, 10vw, 8rem) clamp(6rem, 10vw, 9rem);
+  }
+  .code {
+    font-size: var(--fs-meta);
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  h1 {
+    max-width: 12ch;
+    margin-top: 1rem;
+  }
+
+  .squiggle {
+    position: relative;
+    max-width: 560px;
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    padding-bottom: 1.75rem;
+  }
+  .squiggle svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .squiggle path {
+    fill: none;
+    stroke: var(--text-3);
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  /* The nodes sit on the line's ends (mid-height, x = 6 and 594 of 600) */
+  .node {
+    position: absolute;
+    top: calc(50% - 0.875rem);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1.5px var(--text-3);
+    translate: -50% -50%;
+  }
+  .sq-start {
+    left: 1%;
+  }
+  .sq-end {
+    left: 99%;
+    box-shadow: inset 0 0 0 1.5px var(--text-1);
+  }
+  .sq-label {
+    position: absolute;
+    bottom: 0;
+    font-size: var(--fs-meta);
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .sq-label-start {
+    left: 0;
+  }
+  .sq-label-end {
+    right: 0;
+    color: var(--text-1);
+  }
+
+  .lead {
+    max-width: 46ch;
+    margin-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--text-2);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+</style>

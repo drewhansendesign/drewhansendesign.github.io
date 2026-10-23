@@ -1,0 +1,190 @@
+---
+// "Let's work together" in the header: a small panel that grows open (on
+// hover with a mouse, on tap or Enter otherwise) to show the ways to reach
+// Drew. The open panel overlays the page, so the header never shifts.
+import Icon from './Icon.astro';
+import { contact } from '../data/site';
+---
+
+<div class="cm">
+  <div class="cm-panel">
+    <button class="cm-trigger" type="button" aria-expanded="false" aria-controls="cm-list">
+      <span class="cm-long">Let’s work together</span>
+      <span class="cm-short">Let’s chat</span>
+      <Icon name="chevron-down" size={16} class="cm-chev" />
+    </button>
+    <div class="cm-drop">
+      <ul id="cm-list" class="cm-list">
+        <li>
+          <a href={`mailto:${contact.email}`}><Icon name="mail" />Email</a>
+        </li>
+        <li>
+          <a href={contact.linkedin} target="_blank" rel="me noopener"><Icon name="linkedin" />LinkedIn<span class="visually-hidden"> (opens in a new tab)</span></a>
+        </li>
+        <li>
+          <a href={contact.resume} download><Icon name="download" />Resume</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  for (const cm of document.querySelectorAll<HTMLElement>('.cm')) {
+    const trigger = cm.querySelector<HTMLButtonElement>('.cm-trigger')!;
+    let closeTimer = 0;
+    const set = (open: boolean) => {
+      clearTimeout(closeTimer);
+      cm.classList.toggle('open', open);
+      trigger.setAttribute('aria-expanded', String(open));
+    };
+    cm.dataset.ready = '';
+
+    // Mouse: open on hover, with a short grace period on the way out
+    cm.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'mouse') set(true);
+    });
+    cm.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      closeTimer = window.setTimeout(() => set(false), 180);
+    });
+    // Touch and keyboard: the button toggles it
+    trigger.addEventListener('click', () => set(!cm.classList.contains('open')));
+    cm.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && cm.classList.contains('open')) {
+        set(false);
+        trigger.focus();
+      }
+    });
+    cm.addEventListener('focusout', (e) => {
+      if (!cm.contains(e.relatedTarget as Node)) set(false);
+    });
+    document.addEventListener('pointerdown', (e) => {
+      if (!cm.contains(e.target as Node)) set(false);
+    });
+  }
+</script>
+
+<style>
+  /* The wrapper holds the closed button's footprint; the panel can grow past it */
+  .cm {
+    position: relative;
+    height: 44px;
+    z-index: 20;
+  }
+  .cm-panel {
+    position: relative;
+    display: grid;
+    border-radius: 22px;
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition:
+      border-radius 450ms var(--ease-out),
+      box-shadow 300ms ease;
+  }
+  .cm-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    height: 44px;
+    padding-inline: 1.15rem 0.95rem;
+    border: 0;
+    border-radius: 22px;
+    background: none;
+    color: var(--text-1);
+    font: inherit;
+    font-size: var(--fs-small);
+    font-weight: 550;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .cm-short {
+    display: none;
+  }
+  .cm-trigger :global(.cm-chev) {
+    color: var(--text-2);
+    transition: rotate 450ms var(--ease-out);
+  }
+
+  /* Closed, the list takes no room and can't be tabbed into */
+  .cm-drop {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition:
+      grid-template-rows 450ms var(--ease-out),
+      visibility 0s linear 450ms;
+  }
+  .cm-list {
+    min-height: 0;
+    overflow: hidden;
+    padding-inline: 0.375rem;
+  }
+  .cm-list li:last-child {
+    padding-bottom: 0.375rem;
+  }
+  .cm-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    height: 40px;
+    padding-inline: 0.8rem;
+    border-radius: 14px;
+    color: var(--text-1);
+    font-size: var(--fs-small);
+    font-weight: 550;
+    opacity: 0;
+    translate: 0 -6px;
+    transition:
+      background-color 200ms ease,
+      opacity 250ms ease,
+      translate 450ms var(--ease-out);
+  }
+  .cm-list a :global(svg) {
+    flex: none;
+    color: var(--text-2);
+  }
+  .cm-list a:hover,
+  .cm-list a:focus-visible {
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  /* Open: with JS, by class; without it, on hover or focus */
+  .cm.open .cm-panel,
+  .cm:not([data-ready]):is(:hover, :focus-within) .cm-panel {
+    border-radius: 20px;
+    box-shadow:
+      inset 0 0 0 1px var(--line),
+      0 18px 40px -12px rgb(0 0 0 / 0.6);
+  }
+  .cm.open .cm-drop,
+  .cm:not([data-ready]):is(:hover, :focus-within) .cm-drop {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    transition:
+      grid-template-rows 450ms var(--ease-out),
+      visibility 0s;
+  }
+  .cm.open .cm-list a,
+  .cm:not([data-ready]):is(:hover, :focus-within) .cm-list a {
+    opacity: 1;
+    translate: none;
+  }
+  .cm.open .cm-list li:nth-child(1) a { transition-delay: 0ms, 60ms, 60ms; }
+  .cm.open .cm-list li:nth-child(2) a { transition-delay: 0ms, 100ms, 100ms; }
+  .cm.open .cm-list li:nth-child(3) a { transition-delay: 0ms, 140ms, 140ms; }
+  .cm.open .cm-trigger :global(.cm-chev) {
+    rotate: 180deg;
+  }
+
+  /* Phones: a shorter label, so the name still fits beside the mark */
+  @media (max-width: 480px) {
+    .cm-long {
+      display: none;
+    }
+    .cm-short {
+      display: inline;
+    }
+  }
+</style>

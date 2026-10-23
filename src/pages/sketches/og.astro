@@ -1,0 +1,104 @@
+---
+// The link-preview image (public/og.png), drawn at 1200×630 and screenshotted
+// from `npm run dev`. Dev-only, like the other sketches.
+import '../../styles/global.css';
+import Wordmark from '../../components/Wordmark.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>OG image</title>
+  </head>
+  <body>
+    <main class="card">
+      <div class="head">
+        <Wordmark />
+        <span class="url">drewhansen.design</span>
+      </div>
+      <h1>I sweat the details<br />so you don’t have to.</h1>
+      <div class="foot">
+        <svg class="rail" viewBox="0 16 1200 128" aria-hidden="true">
+          <defs>
+            <linearGradient id="og-ink" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1200" y2="0">
+              <stop offset="0" style="stop-color: var(--text-3)" />
+              <stop offset="0.7" style="stop-color: var(--text-2)" />
+              <stop offset="1" style="stop-color: var(--accent)" />
+            </linearGradient>
+          </defs>
+          <path d="M 6 80 C 120 80 180 80 250 76 C 330 70 360 30 320 26 C 270 22 260 120 340 124 C 420 128 440 40 500 48 C 560 56 520 140 470 120 C 420 100 520 20 610 36 C 700 52 640 130 720 128 C 800 126 780 30 860 40 C 930 48 900 110 870 104 C 840 98 900 70 980 78 C 1060 86 1120 80 1194 80" />
+          <circle cx="1194" cy="80" r="9" />
+        </svg>
+        <p class="who"><strong>Drew Hansen</strong> · Senior Product Designer</p>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    background: var(--bg);
+  }
+  .card {
+    box-sizing: border-box;
+    width: 1200px;
+    height: 630px;
+    padding: 64px 72px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background:
+      radial-gradient(120% 90% at 100% 100%, rgb(35 124 249 / 0.12), transparent 60%),
+      var(--bg);
+    color: var(--text-1);
+    font-family: var(--font-sans);
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .head :global(svg) {
+    width: 64px;
+    height: 64px;
+  }
+  .url {
+    font-size: 24px;
+    color: var(--text-3);
+  }
+  h1 {
+    margin-top: 8px;
+    font-size: 92px;
+    font-weight: 600;
+    line-height: 0.94;
+    letter-spacing: -0.03em;
+    word-spacing: 0.04em;
+  }
+  .rail {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .rail path {
+    fill: none;
+    stroke: url(#og-ink);
+    stroke-width: 3px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .rail circle {
+    fill: var(--accent);
+  }
+  .who {
+    margin-top: 20px;
+    font-size: 26px;
+    color: var(--text-2);
+  }
+  .who strong {
+    color: var(--text-1);
+    font-weight: 600;
+  }
+</style>

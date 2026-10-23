@@ -12,6 +12,7 @@ import curling from '../assets/about/curling.jpg';
 import goose from '../assets/about/goose.jpg';
 import ibottaRaw from '../assets/logos/ibotta.svg?raw';
 import Iconoir from '../components/Iconoir.astro';
+import ContactMenu from '../components/ContactMenu.astro';
 
 const headline = ['I', 'sweat', 'the', 'details', 'so', 'you', 'don’t', 'have', 'to.'];
 
@@ -63,13 +64,11 @@ const ibottaLogo = ibottaRaw
   description="Drew Hansen is a senior product designer in Denver with a motion design background, designing new experiences and modernizing legacy ones for brands like Sam's Club, Tinder and The North Face."
 >
   <header class="top wrap">
-    <Wordmark />
-    <div class="top-meta">
-      <span class="top-name">Drew Hansen</span>
-      <nav aria-label="Contact">
-        <a href={contact.resume} download>Resume</a>
-      </nav>
+    <div class="top-id">
+      <Wordmark />
+      <p class="top-name">Drew Hansen</p>
     </div>
+    <ContactMenu />
   </header>
 
   <section class="hero wrap" aria-labelledby="hero-title">
@@ -282,24 +281,15 @@ const ibottaLogo = ibottaRaw
   .top :global(.wordmark) {
     font-family: inherit;
   }
-  .top-meta {
+  /* The mark with the name beside it, set like the share image */
+  .top-id {
     display: flex;
     align-items: center;
-    gap: 1.75rem;
-    font-size: var(--fs-small);
-    color: var(--text-2);
+    gap: 1rem;
   }
   .top-name {
-    color: var(--text-1);
-  }
-  .top nav {
-    display: flex;
-    gap: 1.75rem;
-  }
-  .top nav a {
-    transition: color 200ms ease;
-  }
-  .top nav a:hover {
+    font-size: var(--fs-body);
+    font-weight: 600;
     color: var(--text-1);
   }
 

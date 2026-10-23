@@ -8,9 +8,22 @@ interface Props {
   description: string;
   /** Play the greeting intro before the page reveals (home page only) */
   intro?: boolean;
+  /** Keep the page out of search results (the 404) */
+  noindex?: boolean;
+  /** Link-preview image, 1200×630, from /public */
+  image?: string;
+  imageAlt?: string;
 }
-const { title, description, intro = false } = Astro.props;
+const {
+  title,
+  description,
+  intro = false,
+  noindex = false,
+  image = '/og.png',
+  imageAlt = 'Drew Hansen, Senior Product Designer: “I sweat the details so you don’t have to.”',
+} = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
 ---
 
 <!doctype html>
@@ -28,6 +41,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Drew Hansen" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {noindex && <meta name="robots" content="noindex" />}
     <script is:inline define:vars={{ intro }}>
       // Reveal motion is opt-in: content stays visible without JS or with reduced motion.
       // The greeting intro plays once per session, only where the page asks for it.
