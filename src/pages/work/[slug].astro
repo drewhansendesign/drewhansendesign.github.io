@@ -87,7 +87,7 @@ const logo = logoFile ? logoSvg(logoFile) : null;
           <div class:list={['hero-phones', w.screens!.length === 2 && 'hero-phones-2']}>
             {w.screens!.map((sc, i) => (
               <figure class:list={['hero-phone', `hero-phone-${i}`]} style={`view-transition-name: case-${w.slug}-shot-${i}`}>
-                <Image src={sc.src} alt={sc.alt} widths={[400, 600, 800]} sizes="(min-width: 900px) 300px, 34vw" loading="eager" fetchpriority={i === 1 ? 'high' : undefined} />
+                <Image src={sc.src} alt={sc.alt} widths={[400, 600, 800]} sizes="(min-width: 900px) 300px, 50vw" loading="eager" fetchpriority={i === 1 ? 'high' : undefined} />
               </figure>
             ))}
           </div>
@@ -149,11 +149,11 @@ const logo = logoFile ? logoSvg(logoFile) : null;
       <a href={`/work/${next.slug}/`} data-reveal>
         <span class="next-label">Next: {next.company}</span>
         <span class="callout">
-          {next.title}
-          <svg class="next-arrow" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          {next.title.split(' ').slice(0, -1).join(' ')}{' '}
+          <span class="next-last">{next.title.split(' ').at(-1)}{' '}<svg class="next-arrow" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <line class="arrow-shaft" x1="1" y1="7" x2="23.5" y2="7" />
             <path class="arrow-head" d="M9 2.5 13.5 7 9 11.5" />
-          </svg>
+          </svg></span>
         </span>
       </a>
     </nav>
@@ -583,6 +583,10 @@ const logo = logoFile ? logoSvg(logoFile) : null;
   /* The cards' drawn arrow at callout size: the shaft stretches right on hover
      and the head travels with it */
   /* The drawing fills only the left half at rest; the right half is room to grow */
+  /* The arrow never wraps onto a line of its own */
+  .next-last {
+    white-space: nowrap;
+  }
   .next-arrow {
     width: 1.04em;
     height: 0.56em;

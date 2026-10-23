@@ -231,7 +231,7 @@ const EXPAND = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stro
       <div class="scroller-track" role="list" tabindex="0" aria-label="Homepage building blocks">
         {blocks.map((b) => (
           <figure role="listitem">
-            <Image src={b.src} alt={b.alt} widths={[600, 900, 1200]} sizes="(min-width: 900px) 760px, 80vw" draggable="false" />
+            <Image src={b.src} alt={b.alt} widths={[600, 900, 1200]} sizes="(min-width: 900px) 760px, 120vw" draggable="false" />
             <figcaption><strong>{b.name}.</strong> {b.text}</figcaption>
           </figure>
         ))}
@@ -258,12 +258,12 @@ const EXPAND = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stro
       <div class="pair">
         <figure class="phone">
           <span class="tag">Before</span>
-          <Image src={pdpMobileBefore} alt="The old mobile product page: an all-caps title, a price of $0, a 91% Customer Recommended rating and a red all-caps Add to Cart button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <Image src={pdpMobileBefore} alt="The old mobile product page: an all-caps title, a price of $0, a 91% Customer Recommended rating and a red all-caps Add to Cart button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 76vw" />
           <figcaption>All caps, red buttons and tight spacing.</figcaption>
         </figure>
         <figure class="phone">
           <span class="tag tag-final">After</span>
-          <Image src={pdpMobileAfter} alt="The redesigned mobile product page: Women’s Cragmont Fleece Jacket in sentence case, a New Arrival tag, $149.00, a boxed rating and a black Add to Bag button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 44vw" />
+          <Image src={pdpMobileAfter} alt="The redesigned mobile product page: Women’s Cragmont Fleece Jacket in sentence case, a New Arrival tag, $149.00, a boxed rating and a black Add to Bag button." widths={[360, 540, 720]} sizes="(min-width: 900px) 300px, 76vw" />
           <figcaption>Sentence case, more room and a black Add to Bag.</figcaption>
         </figure>
       </div>

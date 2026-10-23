@@ -78,7 +78,7 @@ const logo = logoFile ? logoSvg(logoFile) : null;
             ))
           : w.screens.map((sc, i) => (
               <figure class:list={['phone', `phone-${i}`]} style={`view-transition-name: case-${w.slug}-shot-${i}`}>
-                <Image src={sc.src} alt={sc.alt} widths={[360, 540, 720]} sizes="(min-width: 960px) 240px, 34vw" loading="lazy" />
+                <Image src={sc.src} alt={sc.alt} widths={[360, 540, 720]} sizes="(min-width: 960px) 240px, 40vw" loading="lazy" />
               </figure>
             ))}
       </div>

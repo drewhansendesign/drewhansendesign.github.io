@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import { rm } from 'node:fs/promises';
+import sitemap from '@astrojs/sitemap';
 
 // Direction sketches are dev-only: available under `astro dev`, stripped from production builds.
 const devOnlySketches = {
@@ -14,7 +15,16 @@ const devOnlySketches = {
 export default defineConfig({
   site: 'https://drewhansen.design',
   devToolbar: { enabled: false },
-  integrations: [devOnlySketches],
+  integrations: [
+    devOnlySketches,
+    // Real pages only: no 404, no sketches, and none of the Framer redirect stubs
+    sitemap({
+      filter: (page) => {
+        const path = new URL(page).pathname;
+        return path === '/' || path.startsWith('/work/');
+      },
+    }),
+  ],
   // The v1 (Framer) site's URLs, from its sitemap, so old links and search
   // results still land somewhere sensible. GitHub Pages can't send real
   // redirects, so these build as small pages that forward on load.
