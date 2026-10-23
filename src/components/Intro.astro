@@ -44,7 +44,7 @@ const LETTERS =
     const target = document.querySelector<SVGSVGElement>('.wordmark svg');
 
     const end = () => {
-      root.classList.remove('intro', 'intro-leave', 'intro-close');
+      root.classList.remove('intro', 'intro-leave', 'intro-close', 'intro-header');
       try {
         sessionStorage.setItem('introSeen', '1');
         history.scrollRestoration = 'auto';
@@ -137,10 +137,15 @@ const LETTERS =
       flight.finished.then(end, () => {});
     };
 
+    // The name and contact button come in as the logo settles beside them, so
+    // nothing in the header moves while it's still flying
+    const header = () => root.classList.add('intro-header');
+
     const timers = [
       setTimeout(leave, 2350),
       setTimeout(close, 2600),
       setTimeout(fly, 2600 + flyAt),
+      setTimeout(header, 2600 + flyAt + 620),
       setTimeout(end, 4500),
     ];
     const skip = () => {
@@ -188,6 +193,18 @@ const LETTERS =
   /* The real header logo waits underneath until the intro's copy lands on it */
   :global(html.intro .wordmark svg) {
     visibility: hidden;
+  }
+  /* The rest of the header holds back until the logo is nearly home (the
+     transitions that bring it in live with the header, in index.astro) */
+  :global(html.intro:not(.intro-header) .top-name) {
+    opacity: 0;
+    translate: -10px 0;
+    filter: blur(6px);
+  }
+  :global(html.intro:not(.intro-header) .top .cm) {
+    opacity: 0;
+    translate: 0 -6px;
+    filter: blur(6px);
   }
 
   .intro-logo {

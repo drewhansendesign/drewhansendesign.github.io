@@ -1,16 +1,24 @@
 ---
 import { contact } from '../data/site';
+
+interface Props {
+  /** Off where the page already ends on the same contact links (the home page) */
+  links?: boolean;
+}
+const { links = true } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="wrap row">
     <p>&copy; {year} Drew Hansen &middot; Denver, CO</p>
+    {links && (
     <ul>
       <li><a href={`mailto:${contact.email}`}>Email</a></li>
       <li><a href={contact.linkedin} rel="me noopener" target="_blank">LinkedIn<span class="visually-hidden"> (opens in a new tab)</span></a></li>
       <li><a href={contact.resume} download>Resume</a></li>
     </ul>
+    )}
   </div>
 </footer>
 

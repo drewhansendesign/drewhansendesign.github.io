@@ -60,6 +60,7 @@ const ibottaLogo = ibottaRaw
 
 <Base
   intro
+  footerLinks={false}
   title="Drew Hansen, Senior Product Designer"
   description="Drew Hansen is a senior product designer in Denver with a motion design background, designing new experiences and modernizing legacy ones for brands like Sam's Club, Tinder and The North Face."
 >
@@ -291,6 +292,18 @@ const ibottaLogo = ibottaRaw
     font-size: var(--fs-body);
     font-weight: 600;
     color: var(--text-1);
+  }
+  /* After the intro the name drifts out from the mark, and the contact button
+     follows a beat later (the hidden state is set in Intro.astro) */
+  .top-name,
+  .top :global(.cm) {
+    transition:
+      opacity 600ms ease,
+      filter 600ms ease,
+      translate 900ms var(--ease-out);
+  }
+  .top :global(.cm) {
+    transition-delay: 140ms;
   }
 
   .hero {

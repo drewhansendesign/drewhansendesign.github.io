@@ -10,6 +10,8 @@ interface Props {
   intro?: boolean;
   /** Keep the page out of search results (the 404) */
   noindex?: boolean;
+  /** Contact links in the footer (off on the home page, which ends on them) */
+  footerLinks?: boolean;
   /** Link-preview image, 1200×630, from /public */
   image?: string;
   imageAlt?: string;
@@ -19,6 +21,7 @@ const {
   description,
   intro = false,
   noindex = false,
+  footerLinks = true,
   image = '/og.png',
   imageAlt = 'Drew Hansen, Senior Product Designer: “I sweat the details so you don’t have to.”',
 } = Astro.props;
@@ -263,7 +266,7 @@ const ogImage = new URL(image, Astro.site);
     <main id="main">
       <slot />
     </main>
-    <Footer />
+    <Footer links={footerLinks} />
     <script>
       // Blur-and-rise reveal runs once, on load, for what's in the first viewport
       // plus anything marked data-reveal-onload (the work cards, which cascade in
