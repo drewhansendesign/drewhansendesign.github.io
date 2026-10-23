@@ -191,7 +191,7 @@ export const experience: {
     role: 'Senior Product Designer',
     dates: 'Jun 2026 – Present',
     current: true,
-    body: 'Designing revenue tools for the Ibotta Performance Network (IPN) that help win new clients and streamline the workflows existing ones rely on.',
+    body: 'Leading the implementation of the Campaign Designer MVP, an internal tool customer partners use to build campaign proposals that win business with clients. Also designing revenue tools for the Ibotta Performance Network (IPN) that streamline the workflows existing clients rely on.',
   },
   {
     company: "Sam's Club",
